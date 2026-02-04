@@ -15,63 +15,111 @@ st.set_page_config(
 )
 
 # --- CONFIGURATION ---
-MODEL_FILE = 'mental_health_model (6).joblib' 
+MODEL_FILE = 'mental_health_model.joblib' # Ensure this matches your file name
 GEMINI_MODEL = 'gemini-2.5-flash'
 API_KEY = st.secrets.get("GEMINI_API_KEY", None)
 
-# --- CUSTOM CSS (Modern Glassmorphism Theme) ---
-st.markdown("""
+# --- THEME MANAGEMENT ---
+# Initialize session state for theme if not present
+if "theme_mode" not in st.session_state:
+    st.session_state.theme_mode = "Dark"
+
+def toggle_theme():
+    # Callback to toggle theme
+    if st.session_state.theme_toggle:
+        st.session_state.theme_mode = "Dark"
+    else:
+        st.session_state.theme_mode = "Light"
+
+# --- DEFINE THEME PALETTES ---
+# We define variables for colors so we can swap them easily
+themes = {
+    "Dark": {
+        "bg_image": "radial-gradient(circle at 10% 20%, #0f172a 0%, #1e1b4b 90%)",
+        "text_main": "#e2e8f0",         # Light Grey for dark bg
+        "text_header": "#94a3b8",       # Slate 400
+        "sidebar_bg": "rgba(15, 23, 42, 0.6)",
+        "card_bg": "rgba(255, 255, 255, 0.03)",
+        "card_border": "rgba(255, 255, 255, 0.1)",
+        "input_bg": "rgba(255, 255, 255, 0.05)",
+        "input_text": "#f8fafc",
+        "score_box_bg": "radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0) 70%)",
+        "glass_shadow": "0 4px 6px -1px rgba(0, 0, 0, 0.3)",
+        "gradient_title": "linear-gradient(to right, #22d3ee, #818cf8, #c084fc)" # Cyan to Purple
+    },
+    "Light": {
+        "bg_image": "linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%)", # Soft White/Gray
+        "text_main": "#1e293b",         # Slate 900 (Dark Navy) for light bg
+        "text_header": "#475569",       # Slate 600
+        "sidebar_bg": "rgba(255, 255, 255, 0.7)",
+        "card_bg": "rgba(255, 255, 255, 0.6)", # More opaque for light mode
+        "card_border": "rgba(203, 213, 225, 0.6)", # Light grey border
+        "input_bg": "rgba(255, 255, 255, 0.9)",
+        "input_text": "#0f172a",
+        "score_box_bg": "radial-gradient(circle, rgba(0,0,0,0.05) 0%, rgba(255,255,255,0) 70%)",
+        "glass_shadow": "0 4px 15px rgba(0, 0, 0, 0.05)", # Softer shadow
+        "gradient_title": "linear-gradient(to right, #2563eb, #7c3aed, #db2777)" # Blue to Pink (Darker for visibility)
+    }
+}
+
+# Get current theme colors
+current_theme = themes[st.session_state.theme_mode]
+
+# --- CUSTOM CSS (Dynamic) ---
+st.markdown(f"""
 <style>
     /* IMPORT FONT */
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
 
     /* GLOBAL THEME */
-    .stApp {
-        background: radial-gradient(circle at 10% 20%, #0f172a 0%, #1e1b4b 90%);
-        color: #e2e8f0;
+    .stApp {{
+        background: {current_theme['bg_image']};
+        color: {current_theme['text_main']};
         font-family: 'Outfit', sans-serif;
-    }
+        transition: background 0.5s ease;
+    }}
 
-    /* REMOVE DEFAULT PADDING */
-    div.block-container {
-        padding-top: 2rem;
-        padding-bottom: 5rem;
-    }
-
-    /* SIDEBAR STYLING */
-    section[data-testid="stSidebar"] {
-        background-color: rgba(15, 23, 42, 0.6);
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(20px);
-    }
+    /* HEADERS & TEXT */
+    h1, h2, h3, h4, h5, h6, p, li {{
+        color: {current_theme['text_main']} !important;
+    }}
     
-    section[data-testid="stSidebar"] h1, 
-    section[data-testid="stSidebar"] h2, 
-    section[data-testid="stSidebar"] h3 {
-        color: #94a3b8 !important;
+    .sidebar-header {{
+        color: {current_theme['text_header']} !important;
         font-weight: 600;
         letter-spacing: 0.05em;
-    }
+    }}
+
+    /* SIDEBAR STYLING */
+    section[data-testid="stSidebar"] {{
+        background-color: {current_theme['sidebar_bg']};
+        border-right: 1px solid {current_theme['card_border']};
+        backdrop-filter: blur(20px);
+    }}
 
     /* INPUT FIELDS (Glass Style) */
     .stTextInput > div > div > input, 
     .stNumberInput > div > div > input,
-    .stSelectbox > div > div > div {
-        background-color: rgba(255, 255, 255, 0.05) !important;
-        color: #f8fafc !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    .stSelectbox > div > div > div,
+    .stSlider > div > div > div {{
+        background-color: {current_theme['input_bg']} !important;
+        color: {current_theme['input_text']} !important;
+        border: 1px solid {current_theme['card_border']} !important;
         border-radius: 8px !important;
-    }
+        caret-color: {current_theme['text_main']};
+    }}
     
-    /* INPUT FOCUS STATE */
-    .stTextInput > div > div > input:focus, 
-    .stNumberInput > div > div > input:focus {
-        border-color: #38bdf8 !important;
-        box-shadow: 0 0 10px rgba(56, 189, 248, 0.2) !important;
-    }
-
+    /* Ensure dropdown text is visible in Light Mode */
+    div[data-baseweb="popover"] {{
+        background-color: {current_theme['input_bg']} !important;
+    }}
+    div[data-baseweb="select"] ul {{
+        background-color: {current_theme['input_bg']} !important;
+        color: {current_theme['input_text']} !important;
+    }}
+    
     /* BUTTONS */
-    .stButton > button {
+    .stButton > button {{
         background: linear-gradient(90deg, #3b82f6, #8b5cf6) !important;
         color: white !important;
         border: none !important;
@@ -80,62 +128,56 @@ st.markdown("""
         padding: 0.6rem 1.2rem !important;
         transition: all 0.3s ease;
         box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-    }
+    }}
     
-    .stButton > button:hover {
+    .stButton > button:hover {{
         transform: translateY(-2px);
         box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5);
-    }
+    }}
 
     /* CUSTOM CARDS */
-    .glass-card {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+    .glass-card {{
+        background: {current_theme['card_bg']};
+        border: 1px solid {current_theme['card_border']};
         border-radius: 16px;
         padding: 2rem;
         backdrop-filter: blur(10px);
         margin-bottom: 1.5rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    }
+        box-shadow: {current_theme['glass_shadow']};
+    }}
 
-    /* HEADERS */
-    .gradient-text {
-        background: linear-gradient(to right, #22d3ee, #818cf8, #c084fc);
+    /* GRADIENT TEXT TITLE */
+    .gradient-text {{
+        background: {current_theme['gradient_title']};
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         font-weight: 800;
-    }
+    }}
     
     /* SCORE BOX */
-    .score-container {
+    .score-container {{
         text-align: center;
         padding: 2rem;
         border-radius: 20px;
-        background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0) 70%);
-        border: 1px solid rgba(255,255,255,0.1);
+        background: {current_theme['score_box_bg']};
+        border: 1px solid {current_theme['card_border']};
         margin-top: 2rem;
-    }
+        margin-bottom: 2rem;
+    }}
     
-    /* LIST ITEMS IN RESULTS */
-    ul {
-        list-style-type: none; /* Remove bullets */
-        padding: 0;
-        margin: 0;
-    }
-    
-    li {
+    /* LIST ITEMS */
+    li {{
         padding-left: 1.5em; 
         text-indent: -1.5em;
         margin-bottom: 8px;
-        color: #cbd5e1;
-    }
+    }}
     
-    li::before {
+    li::before {{
         content: "▹";
-        color: #38bdf8;
+        color: #3b82f6;
         padding-right: 8px;
         font-weight: bold;
-    }
+    }}
 
 </style>
 """, unsafe_allow_html=True)
@@ -147,7 +189,6 @@ def load_ml_model():
         model = joblib.load(MODEL_FILE)
         return model
     except Exception as e:
-        # We don't want the app to crash visually if the model file is missing for the demo
         return None
 
 model = load_ml_model()
@@ -180,19 +221,26 @@ MODEL_COLUMNS = [
 
 # --- SIDEBAR UI ---
 with st.sidebar:
-    st.markdown("### 👤 User Profile")
+    # THEME TOGGLE SWITCH
+    st.markdown('<p class="sidebar-header">🎨 Appearance</p>', unsafe_allow_html=True)
+    # The toggle returns True if On (Dark), False if Off (Light)
+    toggle_state = st.toggle("Dark Mode", value=(st.session_state.theme_mode == "Dark"), key="theme_toggle", on_change=toggle_theme)
+    
+    st.markdown("---")
+    
+    st.markdown('<p class="sidebar-header">👤 User Profile</p>', unsafe_allow_html=True)
     age = st.number_input("Age", 10, 100, 20)
     gender = st.selectbox("Gender", ["Male", "Female"])
     academic_level = st.selectbox("Academic Level", ["High School", "Undergraduate", "Graduate", "Middle School"])
     
     st.markdown("---")
-    st.markdown("### 📱 Digital Habits")
+    st.markdown('<p class="sidebar-header">📱 Digital Habits</p>', unsafe_allow_html=True)
     avg_daily_usage = st.number_input("Daily Hours", 0.0, 24.0, 4.0, 0.5)
     platform = st.selectbox("Main Platform", ["TikTok", "YouTube", "Instagram", "Twitter", "Facebook", "Snapchat", "WhatsApp", "LinkedIn"])
     addiction = st.slider("Self-Perceived Addiction (1-10)", 1, 10, 5)
     
     st.markdown("---")
-    st.markdown("### ❤️ Well-being")
+    st.markdown('<p class="sidebar-header">❤️ Well-being</p>', unsafe_allow_html=True)
     sleep = st.number_input("Sleep Hours", 0.0, 24.0, 7.0, 0.5)
     affects_perf = st.radio("Impacts Academics?", ["No", "Yes"], horizontal=True)
     conflicts = st.number_input("Conflicts caused by Social Media", 0, 10, 0)
@@ -203,11 +251,10 @@ with st.sidebar:
 
 # --- MAIN UI ---
 st.markdown('<h1 style="font-size: 3.5rem; margin-bottom: 0;">Social <span class="gradient-text">Impact</span></h1>', unsafe_allow_html=True)
-st.markdown('<p style="font-size: 1.2rem; color: #94a3b8; margin-bottom: 2rem;">Analyze the invisible footprint of digital consumption on your mental wellness.</p>', unsafe_allow_html=True)
+st.markdown(f'<p style="font-size: 1.2rem; color: {current_theme["text_header"]}; margin-bottom: 2rem;">Analyze the invisible footprint of digital consumption on your mental wellness.</p>', unsafe_allow_html=True)
 
 # --- APP LOGIC ---
 if calculate_button:
-    # --- DUMMY PREDICTION LOGIC (Fallback if model file missing) ---
     st.session_state.ai_results = {} 
     
     # Prepare Data
@@ -223,16 +270,13 @@ if calculate_button:
         
         # Safe Prediction
         if model:
-            # Handle one-hot encoding columns safely
             plat_col = f"Most_Used_Platform_{platform}"
             if plat_col in MODEL_COLUMNS: input_df[plat_col] = 1
-            
             wellness_score = model.predict(input_df)[0]
         else:
-            # Mock calculation for UI demo purposes if file is missing
+            # Fallback Calculation
             base_score = 10 - (avg_daily_usage * 0.3) - (addiction * 0.2) + (sleep * 0.2)
-            wellness_score = max(1, min(10, base_score)) # Clamp between 1 and 10
-            if model is None: st.warning("⚠️ Model file not found. Using simulation logic for UI demo.")
+            wellness_score = max(1, min(10, base_score)) 
 
         st.session_state['score'] = wellness_score
         st.session_state['user_data_ai'] = {"Age": age, "Hours": avg_daily_usage, "Platform": platform, "Addiction": addiction, "Sleep": sleep}
@@ -244,16 +288,17 @@ if 'score' in st.session_state:
     score = st.session_state['score']
     
     # Determine Color based on score
+    # We keep these colors consistent as they indicate status (Red/Amber/Green)
     score_color = "#ef4444" if score < 4 else "#f59e0b" if score < 7 else "#10b981"
     
     # Score Section
     st.markdown(f"""
     <div class="score-container">
-        <h3 style="margin:0; color:#94a3b8; text-transform:uppercase; letter-spacing:2px; font-size:1rem;">Calculated Wellness Score</h3>
-        <h1 style="font-size: 6rem; font-weight: 800; margin: 0; color: {score_color}; text-shadow: 0 0 20px {score_color}40;">
-            {score:.1f}<span style="font-size:2rem; color:#64748b;">/10</span>
+        <h3 style="margin:0; color:{current_theme['text_header']} !important; text-transform:uppercase; letter-spacing:2px; font-size:1rem;">Calculated Wellness Score</h3>
+        <h1 style="font-size: 6rem; font-weight: 800; margin: 0; color: {score_color} !important; text-shadow: 0 0 20px {score_color}40;">
+            {score:.1f}<span style="font-size:2rem; color:{current_theme['text_header']};">/10</span>
         </h1>
-        <p style="color: #cbd5e1;">Based on your digital habits and sleep patterns.</p>
+        <p style="color: {current_theme['text_header']};">Based on your digital habits and sleep patterns.</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -293,7 +338,6 @@ if 'score' in st.session_state:
     # Results Render Logic
     if st.session_state.get('ai_results'):
         st.markdown("<br>", unsafe_allow_html=True)
-        
         results = st.session_state.ai_results
         
         # Analysis Card
@@ -303,11 +347,11 @@ if 'score' in st.session_state:
             <div class="glass-card">
                 <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
                     <span style="font-size:1.5rem;">📊</span>
-                    <h3 style="margin:0; color:#38bdf8;">Analysis: {r.get('persona', 'User')}</h3>
+                    <h3 style="margin:0; color:#38bdf8 !important;">Analysis: {r.get('persona', 'User')}</h3>
                 </div>
-                <p style="color:#e2e8f0; font-style:italic;">"{r.get('analysis', '')}"</p>
-                <hr style="border-color:rgba(255,255,255,0.1);">
-                <p style="font-weight:bold; color:#94a3b8; font-size:0.9rem;">RECOMMENDATIONS</p>
+                <p style="font-style:italic;">"{r.get('analysis', '')}"</p>
+                <hr style="border-color:{current_theme['card_border']};">
+                <p style="font-weight:bold; color:{current_theme['text_header']}; font-size:0.9rem;">RECOMMENDATIONS</p>
                 <ul>
                     {"".join([f"<li>{t}</li>" for t in r.get('tips', [])])}
                 </ul>
@@ -320,9 +364,9 @@ if 'score' in st.session_state:
             <div class="glass-card" style="border-left: 4px solid #f59e0b;">
                 <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
                     <span style="font-size:1.5rem;">🕰️</span>
-                    <h3 style="margin:0; color:#f59e0b;">Message from 2029</h3>
+                    <h3 style="margin:0; color:#f59e0b !important;">Message from 2029</h3>
                 </div>
-                <p style="font-family: monospace; color:#fcd34d; background:rgba(0,0,0,0.2); padding:1rem; border-radius:8px;">
+                <p style="font-family: monospace; color:#f59e0b; background:rgba(245, 158, 11, 0.1); padding:1rem; border-radius:8px;">
                     > INCOMING TRANSMISSION...<br><br>{results['future']}
                 </p>
             </div>
@@ -335,8 +379,8 @@ if 'score' in st.session_state:
             for d in r.get('days', []):
                 tasks_html = "".join([f"<li>{t}</li>" for t in d.get('tasks', [])])
                 days_html += f"""
-                <div style="background:rgba(255,255,255,0.05); padding:1rem; border-radius:8px; margin-bottom:10px;">
-                    <strong style="color:#a78bfa;">{d.get('day')}: {d.get('theme')}</strong>
+                <div style="background:{current_theme['input_bg']}; padding:1rem; border-radius:8px; margin-bottom:10px; border:1px solid {current_theme['card_border']};">
+                    <strong style="color:#8b5cf6;">{d.get('day')}: {d.get('theme')}</strong>
                     <ul style="margin-top:5px;">{tasks_html}</ul>
                 </div>
                 """
@@ -345,10 +389,10 @@ if 'score' in st.session_state:
             <div class="glass-card">
                 <div style="display:flex; align-items:center; gap:10px; margin-bottom:15px;">
                     <span style="font-size:1.5rem;">🍃</span>
-                    <h3 style="margin:0; color:#a78bfa;">Digital Detox Protocol</h3>
+                    <h3 style="margin:0; color:#8b5cf6 !important;">Digital Detox Protocol</h3>
                 </div>
                 {days_html}
             </div>
             """, unsafe_allow_html=True)
 
-st.markdown("<br><br><div style='text-align:center; color:#475569; font-size:0.8rem;'>AI Powered Social Impact Dashboard • Streamlit</div>", unsafe_allow_html=True)
+st.markdown(f"<br><br><div style='text-align:center; color:{current_theme['text_header']}; font-size:0.8rem;'>AI Powered Social Impact Dashboard • Streamlit</div>", unsafe_allow_html=True)
