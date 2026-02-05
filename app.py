@@ -303,7 +303,7 @@ elif st.session_state.page == "results":
                 prompt = f"Based on: {json.dumps(data)}. Return JSON: {{'persona': 'Fun Title', 'analysis': 'Short analysis', 'tips': ['Tip 1', 'Tip 2']}}"
                 res = call_gemini(prompt)
                 if res: st.session_state.ai_results['analysis'] = json.loads(res); st.rerun()
-        st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=False)
 
     with col2:
         st.markdown('<div style="text-align:center;">', unsafe_allow_html=True)
@@ -312,7 +312,7 @@ elif st.session_state.page == "results":
                 prompt = f"Write a note from future 2029 self based on habits: {json.dumps(data)}. Max 50 words."
                 res = call_gemini(prompt, is_json=False)
                 if res: st.session_state.ai_results['future'] = res; st.rerun()
-        st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=False)
 
     with col3:
         st.markdown('<div style="text-align:center;">', unsafe_allow_html=True)
@@ -321,7 +321,7 @@ elif st.session_state.page == "results":
                 prompt = f"3-day detox for {data['Platform']} user. JSON: {{'days': [{{'day': 'Day 1', 'theme': 'Theme', 'tasks': ['Task 1', 'Task 2']}}]}}"
                 res = call_gemini(prompt)
                 if res: st.session_state.ai_results['detox'] = json.loads(res); st.rerun()
-        st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=False)
 
     # Render AI Results
     if st.session_state.get('ai_results'):
