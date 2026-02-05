@@ -12,7 +12,7 @@ st.set_page_config(
     page_title="Social Impact AI",
     page_icon="🎈",
     layout="wide",
-    initial_sidebar_state="collapsed" # Hide sidebar initially for focus
+    initial_sidebar_state="collapsed"
 )
 
 # --- CONFIGURATION ---
@@ -20,11 +20,18 @@ MODEL_FILE = 'mental_health_model.joblib'
 GEMINI_MODEL = 'gemini-2.5-flash'
 API_KEY = st.secrets.get("GEMINI_API_KEY", None)
 
-# --- STATE MANAGEMENT ---
+# --- STATE MANAGEMENT (FIXED HERE) ---
 if "page" not in st.session_state:
     st.session_state.page = "interview"
 if "theme_mode" not in st.session_state:
     st.session_state.theme_mode = "Light"
+# FIX: Initialize ai_results immediately so it always exists
+if "ai_results" not in st.session_state:
+    st.session_state.ai_results = {}
+if "inputs" not in st.session_state:
+    st.session_state.inputs = {}
+if "score" not in st.session_state:
+    st.session_state.score = None
 
 def toggle_theme():
     if st.session_state.theme_toggle:
@@ -206,7 +213,6 @@ if st.session_state.page == "interview":
     st.markdown(f'<h1 style="text-align:center; font-size: 3rem;">📝 Social Impact Interview</h1>', unsafe_allow_html=True)
     st.markdown('<p style="text-align:center; opacity:0.8; margin-bottom:3rem;">Answer a few questions to unlock your digital wellness score.</p>', unsafe_allow_html=True)
 
-    # Use a form to group inputs
     with st.form("interview_form"):
         c1, c2 = st.columns(2)
         
@@ -231,13 +237,14 @@ if st.session_state.page == "interview":
             conflicts = st.number_input("Arguments caused by social media?", 0, 10, 0)
 
         st.markdown("<br><br>", unsafe_allow_html=True)
-        # Center the submit button
         col_dummy1, col_btn, col_dummy2 = st.columns([1, 2, 1])
         with col_btn:
             submitted = st.form_submit_button("🏁 FINISH & ANALYZE")
             
         if submitted:
-            # Store data in session state
+            # FIX: Ensure ai_results is reset here to avoid carrying over old data
+            st.session_state.ai_results = {}
+            
             st.session_state.inputs = {
                 "Age": age, "Gender": gender, "Academic_Level": academic_level,
                 "Avg_Daily_Usage_Hours": avg_daily_usage, "Platform": platform,
@@ -245,7 +252,6 @@ if st.session_state.page == "interview":
                 "Affects_Performance": affects_perf, "Conflicts": conflicts
             }
             
-            # --- CALCULATION LOGIC ---
             input_df = pd.DataFrame(0, index=[0], columns=MODEL_COLUMNS)
             try:
                 input_df['Gender'] = 1 if gender == "Female" else 0 
@@ -277,10 +283,8 @@ elif st.session_state.page == "results":
     score = st.session_state.score
     data = st.session_state.inputs
     
-    # Header
     st.markdown(f'<h1 style="text-align:center; font-size: 3rem;">Your <span style="color:{current_theme["highlight"]}">Results</span> are In!</h1>', unsafe_allow_html=True)
     
-    # Score Display
     score_color = "#FF6B6B" if score < 4 else "#FFD93D" if score < 7 else "#6BCB77"
     st.markdown(f"""
     <div class="score-container">
@@ -292,7 +296,6 @@ elif st.session_state.page == "results":
     </div>
     """, unsafe_allow_html=True)
 
-    # AI Tools
     st.markdown(f'<h3 style="text-align:center; color:{current_theme["highlight"]}; margin-bottom:20px;">✨ AI Insights</h3>', unsafe_allow_html=True)
     col1, col2, col3 = st.columns(3)
     
@@ -303,7 +306,7 @@ elif st.session_state.page == "results":
                 prompt = f"Based on: {json.dumps(data)}. Return JSON: {{'persona': 'Fun Title', 'analysis': 'Short analysis', 'tips': ['Tip 1', 'Tip 2']}}"
                 res = call_gemini(prompt)
                 if res: st.session_state.ai_results['analysis'] = json.loads(res); st.rerun()
-        st.markdown("</div>", unsafe_allow_html=False)
+        st.markdown("</div>", unsafe_allow_html=True)
 
     with col2:
         st.markdown('<div style="text-align:center;">', unsafe_allow_html=True)
@@ -312,7 +315,7 @@ elif st.session_state.page == "results":
                 prompt = f"Write a note from future 2029 self based on habits: {json.dumps(data)}. Max 50 words."
                 res = call_gemini(prompt, is_json=False)
                 if res: st.session_state.ai_results['future'] = res; st.rerun()
-        st.markdown("</div>", unsafe_allow_html=False)
+        st.markdown("</div>", unsafe_allow_html=True)
 
     with col3:
         st.markdown('<div style="text-align:center;">', unsafe_allow_html=True)
@@ -321,7 +324,7 @@ elif st.session_state.page == "results":
                 prompt = f"3-day detox for {data['Platform']} user. JSON: {{'days': [{{'day': 'Day 1', 'theme': 'Theme', 'tasks': ['Task 1', 'Task 2']}}]}}"
                 res = call_gemini(prompt)
                 if res: st.session_state.ai_results['detox'] = json.loads(res); st.rerun()
-        st.markdown("</div>", unsafe_allow_html=False)
+        st.markdown("</div>", unsafe_allow_html=True)
 
     # Render AI Results
     if st.session_state.get('ai_results'):
