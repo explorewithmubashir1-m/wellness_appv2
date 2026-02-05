@@ -22,7 +22,7 @@ API_KEY = st.secrets.get("GEMINI_API_KEY", None)
 
 # --- THEME MANAGEMENT ---
 if "theme_mode" not in st.session_state:
-    st.session_state.theme_mode = "Light" # Default to Light for friendliness
+    st.session_state.theme_mode = "Light"
 
 def toggle_theme():
     if st.session_state.theme_toggle:
@@ -45,7 +45,7 @@ def get_background_style(theme_mode, score):
         return base_bg
 
     # Emoji Selection: Happy vs Sad
-    emoji = "🌟" if score >= 6 else "🌧️" # Star for good, Rain cloud for bad
+    emoji = "🌟" if score >= 6 else "🌧️" 
     
     # Create subtle SVG pattern
     svg = f"""
@@ -62,26 +62,23 @@ def get_background_style(theme_mode, score):
 themes = {
     "Dark": {
         "text_main": "#ffffff",
-        "text_header": "#d1d5db", # Light Grey
+        "text_header": "#d1d5db", 
         "sidebar_bg": "rgba(20, 20, 40, 0.7)",
         "card_bg": "rgba(40, 40, 60, 0.5)",
         "card_border": "rgba(255, 255, 255, 0.15)",
-        "input_bg": "rgba(255, 255, 255, 0.1)",
-        "input_text": "#ffffff",
+        # Note: input_bg is ignored now for text boxes, but kept for sliders
         "score_box_bg": "rgba(0,0,0,0.2)",
-        "button_grad": "linear-gradient(90deg, #8E2DE2, #4A00E0)", # Purple/Blue
+        "button_grad": "linear-gradient(90deg, #8E2DE2, #4A00E0)", 
         "highlight": "#c084fc"
     },
     "Light": {
-        "text_main": "#2c3e50", # Dark Blue/Grey (Softer than black)
+        "text_main": "#2c3e50", 
         "text_header": "#576574",
         "sidebar_bg": "rgba(255, 255, 255, 0.65)",
-        "card_bg": "rgba(255, 255, 255, 0.85)", # High readability
+        "card_bg": "rgba(255, 255, 255, 0.85)", 
         "card_border": "#ffffff",
-        "input_bg": "#ffffff",
-        "input_text": "#2c3e50",
         "score_box_bg": "rgba(255,255,255,0.5)",
-        "button_grad": "linear-gradient(90deg, #FF9966, #FF5E62)", # Orange/Pink (Fun!)
+        "button_grad": "linear-gradient(90deg, #FF9966, #FF5E62)", 
         "highlight": "#FF5E62"
     }
 }
@@ -92,7 +89,6 @@ current_bg = get_background_style(st.session_state.theme_mode, st.session_state.
 # --- CUSTOM CSS ---
 st.markdown(f"""
 <style>
-    /* IMPORT FONT: Poppins is rounded, friendly, yet professional */
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap');
 
     .stApp {{
@@ -114,29 +110,41 @@ st.markdown(f"""
         backdrop-filter: blur(15px);
     }}
 
-    /* INPUTS - Rounded & Bubbly */
+    /* --- INPUT FIELDS OVERRIDE (WHITE BOX / BLACK TEXT) --- */
+    /* This targets text inputs, number inputs, and select boxes specifically */
     .stTextInput > div > div > input, 
     .stNumberInput > div > div > input,
-    .stSelectbox > div > div > div,
-    .stSlider > div > div > div {{
-        background-color: {current_theme['input_bg']} !important;
-        color: {current_theme['input_text']} !important;
-        border: 2px solid rgba(0,0,0,0.05) !important;
-        border-radius: 15px !important; /* Very rounded */
+    .stSelectbox > div > div > div {{
+        background-color: #ffffff !important;   /* FORCE WHITE BG */
+        color: #000000 !important;              /* FORCE BLACK TEXT */
+        border: 2px solid #e2e8f0 !important;   /* Light grey border */
+        border-radius: 12px !important;
         padding: 10px;
+        caret-color: #000000 !important;        /* Black cursor */
     }}
     
-    div[data-baseweb="popover"], div[data-baseweb="select"] ul {{
-        background-color: {current_theme['input_bg']} !important;
-        color: {current_theme['input_text']} !important;
+    /* Fix for Selectbox dropdown text color */
+    div[data-baseweb="select"] > div {{
+        background-color: #ffffff !important;
+        color: #000000 !important;
     }}
     
-    /* BUTTONS - Pill Shaped & Colorful */
+    /* Ensure the text inside the select box (the chosen value) is black */
+    div[data-testid="stSelectbox"] div[class*="st-"] {{
+        color: #000000 !important;
+    }}
+
+    /* SLIDERS (Keep theme consistent for sliders as they aren't text boxes) */
+    .stSlider > div > div > div {{
+         color: {current_theme['text_main']} !important;
+    }}
+
+    /* BUTTONS */
     .stButton > button {{
         background: {current_theme['button_grad']} !important;
         color: white !important;
         border: none !important;
-        border-radius: 50px !important; /* Pill shape */
+        border-radius: 50px !important;
         font-weight: 700 !important;
         padding: 0.8rem 2rem !important;
         font-size: 1rem !important;
@@ -145,14 +153,14 @@ st.markdown(f"""
     }}
     
     .stButton > button:hover {{
-        transform: scale(1.05); /* Pop effect */
+        transform: scale(1.05);
     }}
     
     /* CARDS */
     .glass-card {{
         background: {current_theme['card_bg']};
         border: 2px solid {current_theme['card_border']};
-        border-radius: 25px; /* Big rounded corners */
+        border-radius: 25px;
         padding: 2rem;
         backdrop-filter: blur(10px);
         margin-bottom: 1.5rem;
@@ -273,7 +281,7 @@ if calculate_button:
 # --- RESULTS DISPLAY ---
 if 'score' in st.session_state:
     score = st.session_state['score']
-    # Kid-friendly colors: Green = Good, Yellow = Okay, Red = Watch out
+    # Kid-friendly colors
     score_color = "#FF6B6B" if score < 4 else "#FFD93D" if score < 7 else "#6BCB77"
     
     st.markdown(f"""
