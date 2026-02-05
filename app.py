@@ -11,8 +11,8 @@ import os
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
-    page_title="Social Impact AI",
-    page_icon="fq49a6fq49a6fq49.jpg", # Using logo as favicon if available
+    page_title="Wellness V2",
+    page_icon="💜",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -20,6 +20,7 @@ st.set_page_config(
 # --- CONFIGURATION ---
 MODEL_FILE = 'mental_health_model.joblib' 
 GEMINI_MODEL = 'gemini-2.5-flash'
+# EXACT FILENAME YOU PROVIDED
 LOGO_FILENAME = "Gemini_Generated_Image_fq49a6fq49a6fq49.jpg"
 API_KEY = st.secrets.get("GEMINI_API_KEY", None)
 
@@ -43,11 +44,10 @@ def reset_interview():
     st.session_state.ai_results = {}
     st.session_state.score = None
 
-# --- LOADER ANIMATION FUNCTION ---
+# --- CUSTOM LOADER (4 Seconds) ---
 def show_custom_loader():
     """
-    Displays a full-screen overlay with a 'Heart-Tech' pulsing loader 
-    for 4 seconds to simulate processing.
+    Displays a full-screen pulsing heart loader for 4 seconds.
     """
     loader_html = """
     <style>
@@ -57,15 +57,14 @@ def show_custom_loader():
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0, 0, 0, 0.9);
             z-index: 99999;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(10px);
         }
-        
         .heart-loader {
             position: relative;
             width: 80px;
@@ -73,34 +72,27 @@ def show_custom_loader():
             transform: rotate(45deg);
             transform-origin: center;
         }
-        
         .heart-loader span {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: #FF6B6B;
+            background: #a855f7; /* Purple to match logo */
             animation: heartBeat 1.2s infinite ease-in-out;
+            box-shadow: 0 0 20px #a855f7;
         }
-        
         .heart-loader span:after,
         .heart-loader span:before {
             content: '';
             position: absolute;
             width: 100%;
             height: 100%;
-            background: #FF6B6B;
+            background: #a855f7;
             border-radius: 50%;
         }
-        
-        .heart-loader span:before {
-            left: -50%;
-        }
-        
-        .heart-loader span:after {
-            top: -50%;
-        }
+        .heart-loader span:before { left: -50%; }
+        .heart-loader span:after { top: -50%; }
 
         @keyframes heartBeat {
             0% { transform: scale(1); }
@@ -109,31 +101,24 @@ def show_custom_loader():
             45% { transform: scale(1.1); }
             100% { transform: scale(1); }
         }
-        
         .loading-text {
-            margin-top: 50px;
-            color: white;
+            margin-top: 60px;
+            color: #e0e7ff;
             font-family: 'Courier New', monospace;
-            font-size: 1.5rem;
-            letter-spacing: 3px;
+            font-size: 1.2rem;
+            letter-spacing: 4px;
             animation: blink 1s infinite;
         }
-        
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     </style>
     <div class="loader-overlay">
-        <div class="heart-loader">
-            <span></span>
-        </div>
-        <div class="loading-text">ANALYZING BIOMETRICS...</div>
+        <div class="heart-loader"><span></span></div>
+        <div class="loading-text">PROCESSING BIOMETRICS...</div>
     </div>
     """
     placeholder = st.empty()
     placeholder.markdown(loader_html, unsafe_allow_html=True)
-    time.sleep(4)
+    time.sleep(4) # Force 4 second wait
     placeholder.empty()
 
 # --- DYNAMIC BACKGROUND ---
@@ -144,7 +129,6 @@ def get_background_style(theme_mode, score):
     }
     base_bg = gradients[theme_mode]
     
-    # Only show emojis in result mode
     if st.session_state.page == "interview" or score is None:
         return base_bg
 
@@ -162,19 +146,19 @@ themes = {
     "Dark": {
         "text_main": "#ffffff",
         "text_header": "#d1d5db", 
-        "card_bg": "rgba(30, 41, 59, 0.7)", # Dark Slate
+        "card_bg": "rgba(30, 41, 59, 0.7)", 
         "card_border": "rgba(255, 255, 255, 0.1)",
         "score_box_bg": "rgba(0,0,0,0.3)",
-        "button_grad": "linear-gradient(90deg, #6366f1, #8b5cf6)", # Indigo to Purple
+        "button_grad": "linear-gradient(90deg, #6366f1, #8b5cf6)", 
         "highlight": "#a78bfa"
     },
     "Light": {
-        "text_main": "#1e293b", # Slate 800
+        "text_main": "#1e293b", 
         "text_header": "#475569",
         "card_bg": "rgba(255, 255, 255, 0.9)", 
         "card_border": "#e2e8f0",
         "score_box_bg": "rgba(255,255,255,0.6)",
-        "button_grad": "linear-gradient(90deg, #3b82f6, #06b6d4)", # Blue to Cyan
+        "button_grad": "linear-gradient(90deg, #3b82f6, #06b6d4)", 
         "highlight": "#0ea5e9"
     }
 }
@@ -182,7 +166,7 @@ themes = {
 current_theme = themes[st.session_state.theme_mode]
 current_bg = get_background_style(st.session_state.theme_mode, st.session_state.get('score'))
 
-# --- CSS ---
+# --- CSS STYLING ---
 st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap');
@@ -197,7 +181,7 @@ st.markdown(f"""
     /* Global Text Colors */
     h1, h2, h3, h4, h5, h6, p, label {{ color: {current_theme['text_main']} !important; }}
     
-    /* INPUT FIELDS - WHITE BOX / BLACK TEXT */
+    /* INPUT FIELDS - FORCE WHITE BG / BLACK TEXT */
     .stTextInput > div > div > input, 
     .stNumberInput > div > div > input,
     .stSelectbox > div > div > div {{
@@ -208,7 +192,7 @@ st.markdown(f"""
         padding: 10px;
     }}
     
-    /* Dropdown specific overrides */
+    /* Dropdown text fix */
     div[data-baseweb="select"] > div {{ background-color: #ffffff !important; color: #000000 !important; }}
     div[data-testid="stSelectbox"] div[class*="st-"] {{ color: #000000 !important; }}
     
@@ -236,7 +220,7 @@ st.markdown(f"""
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }}
     
-    /* Section Headers */
+    /* Headers */
     .section-title {{
         font-size: 1.2rem;
         font-weight: 700;
@@ -260,15 +244,6 @@ st.markdown(f"""
     li {{ padding-left: 1.5em; text-indent: -1.5em; margin-bottom: 10px; font-weight: 500; }}
     li::before {{ content: "●"; color: {current_theme['highlight']}; padding-right: 10px; }}
     
-    /* Top Bar Styling */
-    .top-bar-container {{
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-bottom: 20px;
-        border-bottom: 1px solid {current_theme['card_border']};
-        margin-bottom: 20px;
-    }}
 </style>
 """, unsafe_allow_html=True)
 
@@ -297,19 +272,21 @@ def call_gemini(prompt, is_json=True):
 MODEL_COLUMNS = [
     'Age', 'Gender', 'Academic_Level', 'Avg_Daily_Usage_Hours', 'Affects_Academic_Performance', 'Sleep_Hours_Per_Night', 'Conflicts_Over_Social_Media', 'Addicted_Score', 'Most_Used_Platform_Facebook', 'Most_Used_Platform_Instagram', 'Most_Used_Platform_KakaoTalk', 'Most_Used_Platform_LINE', 'Most_Used_Platform_LinkedIn', 'Most_Used_Platform_Snapchat', 'Most_Used_Platform_TikTok', 'Most_Used_Platform_Twitter', 'Most_Used_Platform_VKontakte', 'Most_Used_Platform_WeChat', 'Most_Used_Platform_WhatsApp', 'Most_Used_Platform_YouTube', 'Relationship_Status_Complicated', 'Relationship_Status_In Relationship', 'Relationship_Status_Single']
 
-# --- TOP NAVIGATION BAR (Logo Left, Theme Toggle Right) ---
+# ==========================================
+# TOP NAVIGATION BAR
+# ==========================================
+# Layout: Logo (Left) | Spacer | Theme Toggle (Right)
 top_col1, top_col2, top_col3 = st.columns([1, 6, 2])
 
 with top_col1:
-    # Attempt to display the uploaded logo
+    # DISPLAY UPLOADED LOGO
     if os.path.exists(LOGO_FILENAME):
-        st.image(LOGO_FILENAME, width=120)
+        st.image(LOGO_FILENAME, width=150) 
     else:
-        # Fallback text logo if image is missing
-        st.markdown(f"### 💜 Wellness V2")
+        st.error(f"Image not found: {LOGO_FILENAME}")
 
 with top_col3:
-    # Theme Toggle aligned to the right
+    # THEME TOGGLE
     st.markdown('<div style="text-align: right;">', unsafe_allow_html=True)
     st.toggle("Dark Mode", value=(st.session_state.theme_mode == "Dark"), key="theme_toggle", on_change=toggle_theme)
     st.markdown('</div>', unsafe_allow_html=True)
@@ -352,7 +329,7 @@ if st.session_state.page == "interview":
             submitted = st.form_submit_button("🏁 FINISH & ANALYZE")
             
         if submitted:
-            # 1. TRIGGER LOADING SCREEN
+            # 1. TRIGGER 4-SECOND LOADER
             show_custom_loader()
             
             # 2. SAVE DATA
@@ -411,11 +388,11 @@ elif st.session_state.page == "results":
     st.markdown(f'<h3 style="text-align:center; color:{current_theme["highlight"]}; margin-bottom:20px;">✨ AI Insights</h3>', unsafe_allow_html=True)
     col1, col2, col3 = st.columns(3)
     
-    # --- AI TILES WITH LOADER LOGIC ---
+    # --- AI TILES WITH LOADER ---
     with col1:
         st.markdown('<div style="text-align:center;">', unsafe_allow_html=True)
         if st.button("📊 My Persona"):
-            show_custom_loader() # Trigger Loader
+            show_custom_loader()
             with st.spinner("Finalizing..."):
                 prompt = f"Based on: {json.dumps(data)}. Return JSON: {{'persona': 'Fun Title', 'analysis': 'Short analysis', 'tips': ['Tip 1', 'Tip 2']}}"
                 res = call_gemini(prompt)
@@ -425,7 +402,7 @@ elif st.session_state.page == "results":
     with col2:
         st.markdown('<div style="text-align:center;">', unsafe_allow_html=True)
         if st.button("🕰️ Future Self"):
-            show_custom_loader() # Trigger Loader
+            show_custom_loader()
             with st.spinner("Connecting..."):
                 prompt = f"Write a note from future 2029 self based on habits: {json.dumps(data)}. Max 50 words."
                 res = call_gemini(prompt, is_json=False)
@@ -435,7 +412,7 @@ elif st.session_state.page == "results":
     with col3:
         st.markdown('<div style="text-align:center;">', unsafe_allow_html=True)
         if st.button("🍃 Detox Plan"):
-            show_custom_loader() # Trigger Loader
+            show_custom_loader()
             with st.spinner("Planning..."):
                 prompt = f"3-day detox for {data['Platform']} user. JSON: {{'days': [{{'day': 'Day 1', 'theme': 'Theme', 'tasks': ['Task 1', 'Task 2']}}]}}"
                 res = call_gemini(prompt)
