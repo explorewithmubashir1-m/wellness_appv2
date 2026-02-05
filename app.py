@@ -5,6 +5,7 @@ import json
 import time
 import requests
 import numpy as np
+import base64
 
 # --- PAGE CONFIGURATION (Must be first) ---
 st.set_page_config(
@@ -15,29 +16,59 @@ st.set_page_config(
 )
 
 # --- CONFIGURATION ---
-MODEL_FILE = 'mental_health_model.joblib' # Ensure this matches your file name
+MODEL_FILE = 'mental_health_model.joblib' 
 GEMINI_MODEL = 'gemini-2.5-flash'
 API_KEY = st.secrets.get("GEMINI_API_KEY", None)
 
 # --- THEME MANAGEMENT ---
-# Initialize session state for theme if not present
 if "theme_mode" not in st.session_state:
     st.session_state.theme_mode = "Dark"
 
 def toggle_theme():
-    # Callback to toggle theme
     if st.session_state.theme_toggle:
         st.session_state.theme_mode = "Dark"
     else:
         st.session_state.theme_mode = "Light"
 
+# --- DYNAMIC BACKGROUND GENERATOR ---
+def get_background_style(theme_mode, score):
+    """
+    Generates a CSS background string. 
+    If a score exists: adds an emoji pattern layer on top of the gradient.
+    """
+    # Base Gradients
+    gradients = {
+        "Dark": "radial-gradient(circle at 10% 20%, #0f172a 0%, #1e1b4b 90%)",
+        "Light": "linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%)"
+    }
+    base_bg = gradients[theme_mode]
+    
+    # If no score calculated yet, return just the gradient
+    if score is None:
+        return base_bg
+
+    # Determine Emoji based on score
+    emoji = "😊" if score >= 6 else "😔"
+    
+    # Create an SVG pattern of the emoji
+    # We use opacity 0.05 (5%) so it doesn't distract from the text
+    svg = f"""
+    <svg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'>
+        <text x='50%' y='50%' font-size='40' text-anchor='middle' dominant-baseline='middle' opacity='0.05'>{emoji}</text>
+    </svg>
+    """
+    # Encode SVG to Base64 for CSS
+    b64_svg = base64.b64encode(svg.encode('utf-8')).decode('utf-8')
+    emoji_layer = f"url('data:image/svg+xml;base64,{b64_svg}')"
+    
+    # Return layered background (Emoji Pattern on top of Gradient)
+    return f"{emoji_layer}, {base_bg}"
+
 # --- DEFINE THEME PALETTES ---
-# We define variables for colors so we can swap them easily
 themes = {
     "Dark": {
-        "bg_image": "radial-gradient(circle at 10% 20%, #0f172a 0%, #1e1b4b 90%)",
-        "text_main": "#e2e8f0",         # Light Grey for dark bg
-        "text_header": "#94a3b8",       # Slate 400
+        "text_main": "#e2e8f0",
+        "text_header": "#94a3b8",
         "sidebar_bg": "rgba(15, 23, 42, 0.6)",
         "card_bg": "rgba(255, 255, 255, 0.03)",
         "card_border": "rgba(255, 255, 255, 0.1)",
@@ -45,59 +76,47 @@ themes = {
         "input_text": "#f8fafc",
         "score_box_bg": "radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0) 70%)",
         "glass_shadow": "0 4px 6px -1px rgba(0, 0, 0, 0.3)",
-        "gradient_title": "linear-gradient(to right, #22d3ee, #818cf8, #c084fc)" # Cyan to Purple
+        "gradient_title": "linear-gradient(to right, #22d3ee, #818cf8, #c084fc)" 
     },
     "Light": {
-        "bg_image": "linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%)", # Soft White/Gray
-        "text_main": "#1e293b",         # Slate 900 (Dark Navy) for light bg
-        "text_header": "#475569",       # Slate 600
+        "text_main": "#1e293b",
+        "text_header": "#475569",
         "sidebar_bg": "rgba(255, 255, 255, 0.7)",
-        "card_bg": "rgba(255, 255, 255, 0.6)", # More opaque for light mode
-        "card_border": "rgba(203, 213, 225, 0.6)", # Light grey border
+        "card_bg": "rgba(255, 255, 255, 0.6)",
+        "card_border": "rgba(203, 213, 225, 0.6)",
         "input_bg": "rgba(255, 255, 255, 0.9)",
         "input_text": "#0f172a",
         "score_box_bg": "radial-gradient(circle, rgba(0,0,0,0.05) 0%, rgba(255,255,255,0) 70%)",
-        "glass_shadow": "0 4px 15px rgba(0, 0, 0, 0.05)", # Softer shadow
-        "gradient_title": "linear-gradient(to right, #2563eb, #7c3aed, #db2777)" # Blue to Pink (Darker for visibility)
+        "glass_shadow": "0 4px 15px rgba(0, 0, 0, 0.05)",
+        "gradient_title": "linear-gradient(to right, #2563eb, #7c3aed, #db2777)"
     }
 }
 
-# Get current theme colors
 current_theme = themes[st.session_state.theme_mode]
+# Get the background style based on current score (if any)
+current_bg = get_background_style(st.session_state.theme_mode, st.session_state.get('score'))
 
-# --- CUSTOM CSS (Dynamic) ---
+# --- CUSTOM CSS ---
 st.markdown(f"""
 <style>
-    /* IMPORT FONT */
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
 
-    /* GLOBAL THEME */
     .stApp {{
-        background: {current_theme['bg_image']};
+        background: {current_bg};
         color: {current_theme['text_main']};
         font-family: 'Outfit', sans-serif;
         transition: background 0.5s ease;
     }}
 
-    /* HEADERS & TEXT */
-    h1, h2, h3, h4, h5, h6, p, li {{
-        color: {current_theme['text_main']} !important;
-    }}
-    
-    .sidebar-header {{
-        color: {current_theme['text_header']} !important;
-        font-weight: 600;
-        letter-spacing: 0.05em;
-    }}
+    h1, h2, h3, h4, h5, h6, p, li {{ color: {current_theme['text_main']} !important; }}
+    .sidebar-header {{ color: {current_theme['text_header']} !important; font-weight: 600; letter-spacing: 0.05em; }}
 
-    /* SIDEBAR STYLING */
     section[data-testid="stSidebar"] {{
         background-color: {current_theme['sidebar_bg']};
         border-right: 1px solid {current_theme['card_border']};
         backdrop-filter: blur(20px);
     }}
 
-    /* INPUT FIELDS (Glass Style) */
     .stTextInput > div > div > input, 
     .stNumberInput > div > div > input,
     .stSelectbox > div > div > div,
@@ -106,19 +125,13 @@ st.markdown(f"""
         color: {current_theme['input_text']} !important;
         border: 1px solid {current_theme['card_border']} !important;
         border-radius: 8px !important;
-        caret-color: {current_theme['text_main']};
     }}
     
-    /* Ensure dropdown text is visible in Light Mode */
-    div[data-baseweb="popover"] {{
-        background-color: {current_theme['input_bg']} !important;
-    }}
-    div[data-baseweb="select"] ul {{
+    div[data-baseweb="popover"], div[data-baseweb="select"] ul {{
         background-color: {current_theme['input_bg']} !important;
         color: {current_theme['input_text']} !important;
     }}
     
-    /* BUTTONS */
     .stButton > button {{
         background: linear-gradient(90deg, #3b82f6, #8b5cf6) !important;
         color: white !important;
@@ -126,16 +139,9 @@ st.markdown(f"""
         border-radius: 8px !important;
         font-weight: 600 !important;
         padding: 0.6rem 1.2rem !important;
-        transition: all 0.3s ease;
         box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
     }}
     
-    .stButton > button:hover {{
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5);
-    }}
-
-    /* CUSTOM CARDS */
     .glass-card {{
         background: {current_theme['card_bg']};
         border: 1px solid {current_theme['card_border']};
@@ -146,7 +152,6 @@ st.markdown(f"""
         box-shadow: {current_theme['glass_shadow']};
     }}
 
-    /* GRADIENT TEXT TITLE */
     .gradient-text {{
         background: {current_theme['gradient_title']};
         -webkit-background-clip: text;
@@ -154,7 +159,6 @@ st.markdown(f"""
         font-weight: 800;
     }}
     
-    /* SCORE BOX */
     .score-container {{
         text-align: center;
         padding: 2rem;
@@ -165,19 +169,8 @@ st.markdown(f"""
         margin-bottom: 2rem;
     }}
     
-    /* LIST ITEMS */
-    li {{
-        padding-left: 1.5em; 
-        text-indent: -1.5em;
-        margin-bottom: 8px;
-    }}
-    
-    li::before {{
-        content: "▹";
-        color: #3b82f6;
-        padding-right: 8px;
-        font-weight: bold;
-    }}
+    li {{ padding-left: 1.5em; text-indent: -1.5em; margin-bottom: 8px; }}
+    li::before {{ content: "▹"; color: #3b82f6; padding-right: 8px; font-weight: bold; }}
 
 </style>
 """, unsafe_allow_html=True)
@@ -200,7 +193,6 @@ def call_gemini(prompt, is_json=True, max_retries=3):
         return None
         
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent?key={API_KEY}"
-    
     for i in range(max_retries):
         payload = {"contents": [{"parts": [{"text": prompt}]}]}
         if is_json:
@@ -217,17 +209,14 @@ def call_gemini(prompt, is_json=True, max_retries=3):
 
 # --- ML FEATURE PREP ---
 MODEL_COLUMNS = [
-    'Age', 'Gender', 'Academic_Level', 'Avg_Daily_Usage_Hours', 'Affects_Academic_Performance', 'Sleep_Hours_Per_Night', 'Conflicts_Over_Social_Media', 'Addicted_Score', 'Most_Used_Platform_Facebook', 'Most_Used_Platform_Instagram', 'Most_Used_Platform_KakaoTalk', 'Most_Used_Platform_LINE', 'Most_Used_Platform_LinkedIn', 'Most_Used_Platform_Snapchat', 'Most_Used_Platform_TikTok', 'Most_Used_Platform_Twitter', 'Most_Used_Platform_VKontakte', 'Most_Used_Platform_WeChat', 'Most_Used_Platform_WhatsApp', 'Most_Used_Platform_YouTube', 'Relationship_Status_Complicated', 'Relationship_Status_In Relationship', 'Relationship_Status_Single']
+    'Age', 'Gender', 'Academic_Level', 'Avg_Daily_Usage_Hours', 'Affects_Academic_Performance', 'Sleep_Hours_Per_Night', 'Conflicts_Over_Social_Media', 'Addicted_Score', 'Most_Used_Platform_Facebook', 'Most_Used_Platform_Instagram', 'Most_Used_Platform_KakaoTalk', 'Most_Used_Platform_LINE', 'Most_Used_Platform_LinkedIn', 'Most_Used_Platform_Snapchat', 'Most_Used_Platform_TikTok', 'Most_Used_Platform_Twitter', 'Most_Used_Platform_VKontakte', 'Most_Used_Platform_WeChat', 'Most_Used_Platform_WhatsApp', 'Most_Used_Platform_YouTube', 'Most_Used_Platform_YouTube', 'Relationship_Status_Complicated', 'Relationship_Status_In Relationship', 'Relationship_Status_Single']
 
 # --- SIDEBAR UI ---
 with st.sidebar:
-    # THEME TOGGLE SWITCH
     st.markdown('<p class="sidebar-header">🎨 Appearance</p>', unsafe_allow_html=True)
-    # The toggle returns True if On (Dark), False if Off (Light)
     toggle_state = st.toggle("Dark Mode", value=(st.session_state.theme_mode == "Dark"), key="theme_toggle", on_change=toggle_theme)
     
     st.markdown("---")
-    
     st.markdown('<p class="sidebar-header">👤 User Profile</p>', unsafe_allow_html=True)
     age = st.number_input("Age", 10, 100, 20)
     gender = st.selectbox("Gender", ["Male", "Female"])
@@ -256,42 +245,35 @@ st.markdown(f'<p style="font-size: 1.2rem; color: {current_theme["text_header"]}
 # --- APP LOGIC ---
 if calculate_button:
     st.session_state.ai_results = {} 
-    
-    # Prepare Data
     input_df = pd.DataFrame(0, index=[0], columns=MODEL_COLUMNS)
     try:
         input_df['Gender'] = 1 if gender == "Female" else 0 
         input_df['Age'] = age
-        input_df['Academic_Level'] = 1 # Simplified for demo
+        input_df['Academic_Level'] = 1 
         input_df['Avg_Daily_Usage_Hours'] = avg_daily_usage
         input_df['Addicted_Score'] = addiction
         input_df['Conflicts_Over_Social_Media'] = conflicts
         input_df['Affects_Academic_Performance'] = 1 if affects_perf == "Yes" else 0
         
-        # Safe Prediction
         if model:
             plat_col = f"Most_Used_Platform_{platform}"
             if plat_col in MODEL_COLUMNS: input_df[plat_col] = 1
             wellness_score = model.predict(input_df)[0]
         else:
-            # Fallback Calculation
             base_score = 10 - (avg_daily_usage * 0.3) - (addiction * 0.2) + (sleep * 0.2)
             wellness_score = max(1, min(10, base_score)) 
 
         st.session_state['score'] = wellness_score
         st.session_state['user_data_ai'] = {"Age": age, "Hours": avg_daily_usage, "Platform": platform, "Addiction": addiction, "Sleep": sleep}
+        st.rerun() # Rerun immediately to apply the emoji background
     except Exception as e:
         st.error(f"Prediction Error: {e}")
 
 # --- RESULTS DISPLAY ---
 if 'score' in st.session_state:
     score = st.session_state['score']
-    
-    # Determine Color based on score
-    # We keep these colors consistent as they indicate status (Red/Amber/Green)
     score_color = "#ef4444" if score < 4 else "#f59e0b" if score < 7 else "#10b981"
     
-    # Score Section
     st.markdown(f"""
     <div class="score-container">
         <h3 style="margin:0; color:{current_theme['text_header']} !important; text-transform:uppercase; letter-spacing:2px; font-size:1rem;">Calculated Wellness Score</h3>
@@ -302,10 +284,8 @@ if 'score' in st.session_state:
     </div>
     """, unsafe_allow_html=True)
 
-    # AI Section
     st.markdown('<br><h3 class="gradient-text">✨ AI Command Center</h3>', unsafe_allow_html=True)
-    
-    data = st.session_state['user_data_ai']
+    data = st.session_state.get('user_data_ai', {})
     col1, col2, col3 = st.columns(3)
     
     with col1:
@@ -335,12 +315,10 @@ if 'score' in st.session_state:
                 if res: st.session_state.ai_results['detox'] = json.loads(res); st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
 
-    # Results Render Logic
     if st.session_state.get('ai_results'):
         st.markdown("<br>", unsafe_allow_html=True)
         results = st.session_state.ai_results
         
-        # Analysis Card
         if 'analysis' in results:
             r = results['analysis']
             st.markdown(f"""
@@ -352,13 +330,10 @@ if 'score' in st.session_state:
                 <p style="font-style:italic;">"{r.get('analysis', '')}"</p>
                 <hr style="border-color:{current_theme['card_border']};">
                 <p style="font-weight:bold; color:{current_theme['text_header']}; font-size:0.9rem;">RECOMMENDATIONS</p>
-                <ul>
-                    {"".join([f"<li>{t}</li>" for t in r.get('tips', [])])}
-                </ul>
+                <ul>{"".join([f"<li>{t}</li>" for t in r.get('tips', [])])}</ul>
             </div>
             """, unsafe_allow_html=True)
 
-        # Future Self Card
         if 'future' in results:
             st.markdown(f"""
             <div class="glass-card" style="border-left: 4px solid #f59e0b;">
@@ -372,7 +347,6 @@ if 'score' in st.session_state:
             </div>
             """, unsafe_allow_html=True)
 
-        # Detox Card
         if 'detox' in results:
             r = results['detox']
             days_html = ""
@@ -384,7 +358,6 @@ if 'score' in st.session_state:
                     <ul style="margin-top:5px;">{tasks_html}</ul>
                 </div>
                 """
-            
             st.markdown(f"""
             <div class="glass-card">
                 <div style="display:flex; align-items:center; gap:10px; margin-bottom:15px;">
