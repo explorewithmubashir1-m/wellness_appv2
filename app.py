@@ -6,11 +6,13 @@ import time
 import requests
 import numpy as np
 import base64
+from PIL import Image
+import os
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
     page_title="Social Impact AI",
-    page_icon="🎈",
+    page_icon="fq49a6fq49a6fq49.jpg", # Using logo as favicon if available
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -18,20 +20,14 @@ st.set_page_config(
 # --- CONFIGURATION ---
 MODEL_FILE = 'mental_health_model.joblib' 
 GEMINI_MODEL = 'gemini-2.5-flash'
+LOGO_FILENAME = "Gemini_Generated_Image_fq49a6fq49a6fq49.jpg"
 API_KEY = st.secrets.get("GEMINI_API_KEY", None)
 
-# --- STATE MANAGEMENT (FIXED HERE) ---
+# --- STATE MANAGEMENT ---
 if "page" not in st.session_state:
     st.session_state.page = "interview"
 if "theme_mode" not in st.session_state:
     st.session_state.theme_mode = "Light"
-# FIX: Initialize ai_results immediately so it always exists
-if "ai_results" not in st.session_state:
-    st.session_state.ai_results = {}
-if "inputs" not in st.session_state:
-    st.session_state.inputs = {}
-if "score" not in st.session_state:
-    st.session_state.score = None
 
 def toggle_theme():
     if st.session_state.theme_toggle:
@@ -47,11 +43,104 @@ def reset_interview():
     st.session_state.ai_results = {}
     st.session_state.score = None
 
+# --- LOADER ANIMATION FUNCTION ---
+def show_custom_loader():
+    """
+    Displays a full-screen overlay with a 'Heart-Tech' pulsing loader 
+    for 4 seconds to simulate processing.
+    """
+    loader_html = """
+    <style>
+        .loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        
+        .heart-loader {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            transform: rotate(45deg);
+            transform-origin: center;
+        }
+        
+        .heart-loader span {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #FF6B6B;
+            animation: heartBeat 1.2s infinite ease-in-out;
+        }
+        
+        .heart-loader span:after,
+        .heart-loader span:before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: #FF6B6B;
+            border-radius: 50%;
+        }
+        
+        .heart-loader span:before {
+            left: -50%;
+        }
+        
+        .heart-loader span:after {
+            top: -50%;
+        }
+
+        @keyframes heartBeat {
+            0% { transform: scale(1); }
+            15% { transform: scale(1.1); }
+            30% { transform: scale(1); }
+            45% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .loading-text {
+            margin-top: 50px;
+            color: white;
+            font-family: 'Courier New', monospace;
+            font-size: 1.5rem;
+            letter-spacing: 3px;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+    <div class="loader-overlay">
+        <div class="heart-loader">
+            <span></span>
+        </div>
+        <div class="loading-text">ANALYZING BIOMETRICS...</div>
+    </div>
+    """
+    placeholder = st.empty()
+    placeholder.markdown(loader_html, unsafe_allow_html=True)
+    time.sleep(4)
+    placeholder.empty()
+
 # --- DYNAMIC BACKGROUND ---
 def get_background_style(theme_mode, score):
     gradients = {
-        "Dark": "linear-gradient(135deg, #240b36 0%, #2d3436 74%)", 
-        "Light": "linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)" 
+        "Dark": "linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)", 
+        "Light": "linear-gradient(120deg, #f0f9ff 0%, #cbebff 100%)" 
     }
     base_bg = gradients[theme_mode]
     
@@ -73,20 +162,20 @@ themes = {
     "Dark": {
         "text_main": "#ffffff",
         "text_header": "#d1d5db", 
-        "card_bg": "rgba(40, 40, 60, 0.5)",
-        "card_border": "rgba(255, 255, 255, 0.15)",
-        "score_box_bg": "rgba(0,0,0,0.2)",
-        "button_grad": "linear-gradient(90deg, #8E2DE2, #4A00E0)", 
-        "highlight": "#c084fc"
+        "card_bg": "rgba(30, 41, 59, 0.7)", # Dark Slate
+        "card_border": "rgba(255, 255, 255, 0.1)",
+        "score_box_bg": "rgba(0,0,0,0.3)",
+        "button_grad": "linear-gradient(90deg, #6366f1, #8b5cf6)", # Indigo to Purple
+        "highlight": "#a78bfa"
     },
     "Light": {
-        "text_main": "#2c3e50", 
-        "text_header": "#576574",
-        "card_bg": "rgba(255, 255, 255, 0.85)", 
-        "card_border": "#ffffff",
-        "score_box_bg": "rgba(255,255,255,0.5)",
-        "button_grad": "linear-gradient(90deg, #FF9966, #FF5E62)", 
-        "highlight": "#FF5E62"
+        "text_main": "#1e293b", # Slate 800
+        "text_header": "#475569",
+        "card_bg": "rgba(255, 255, 255, 0.9)", 
+        "card_border": "#e2e8f0",
+        "score_box_bg": "rgba(255,255,255,0.6)",
+        "button_grad": "linear-gradient(90deg, #3b82f6, #06b6d4)", # Blue to Cyan
+        "highlight": "#0ea5e9"
     }
 }
 
@@ -105,9 +194,10 @@ st.markdown(f"""
         transition: background 0.5s ease;
     }}
 
+    /* Global Text Colors */
     h1, h2, h3, h4, h5, h6, p, label {{ color: {current_theme['text_main']} !important; }}
     
-    /* INPUT FIELDS - GLOBAL OVERRIDE (White Box / Black Text) */
+    /* INPUT FIELDS - WHITE BOX / BLACK TEXT */
     .stTextInput > div > div > input, 
     .stNumberInput > div > div > input,
     .stSelectbox > div > div > div {{
@@ -118,7 +208,7 @@ st.markdown(f"""
         padding: 10px;
     }}
     
-    /* Dropdowns */
+    /* Dropdown specific overrides */
     div[data-baseweb="select"] > div {{ background-color: #ffffff !important; color: #000000 !important; }}
     div[data-testid="stSelectbox"] div[class*="st-"] {{ color: #000000 !important; }}
     
@@ -138,36 +228,47 @@ st.markdown(f"""
     /* Cards */
     .glass-card {{
         background: {current_theme['card_bg']};
-        border: 2px solid {current_theme['card_border']};
-        border-radius: 25px;
+        border: 1px solid {current_theme['card_border']};
+        border-radius: 20px;
         padding: 2rem;
-        backdrop-filter: blur(10px);
+        backdrop-filter: blur(12px);
         margin-bottom: 1.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }}
     
     /* Section Headers */
     .section-title {{
-        font-size: 1.5rem;
-        font-weight: 800;
+        font-size: 1.2rem;
+        font-weight: 700;
         margin-top: 1rem;
         margin-bottom: 1rem;
         color: {current_theme['highlight']} !important;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 1.5px;
     }}
     
     /* Score Box */
     .score-container {{
         text-align: center;
-        padding: 2.5rem;
+        padding: 3rem;
         border-radius: 30px;
         background: {current_theme['score_box_bg']};
-        border: 2px solid {current_theme['card_border']};
+        border: 1px solid {current_theme['card_border']};
         margin: 2rem 0;
     }}
     
     li {{ padding-left: 1.5em; text-indent: -1.5em; margin-bottom: 10px; font-weight: 500; }}
     li::before {{ content: "●"; color: {current_theme['highlight']}; padding-right: 10px; }}
+    
+    /* Top Bar Styling */
+    .top-bar-container {{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 20px;
+        border-bottom: 1px solid {current_theme['card_border']};
+        margin-bottom: 20px;
+    }}
 </style>
 """, unsafe_allow_html=True)
 
@@ -196,21 +297,30 @@ def call_gemini(prompt, is_json=True):
 MODEL_COLUMNS = [
     'Age', 'Gender', 'Academic_Level', 'Avg_Daily_Usage_Hours', 'Affects_Academic_Performance', 'Sleep_Hours_Per_Night', 'Conflicts_Over_Social_Media', 'Addicted_Score', 'Most_Used_Platform_Facebook', 'Most_Used_Platform_Instagram', 'Most_Used_Platform_KakaoTalk', 'Most_Used_Platform_LINE', 'Most_Used_Platform_LinkedIn', 'Most_Used_Platform_Snapchat', 'Most_Used_Platform_TikTok', 'Most_Used_Platform_Twitter', 'Most_Used_Platform_VKontakte', 'Most_Used_Platform_WeChat', 'Most_Used_Platform_WhatsApp', 'Most_Used_Platform_YouTube', 'Relationship_Status_Complicated', 'Relationship_Status_In Relationship', 'Relationship_Status_Single']
 
-# --- SIDEBAR (Settings Only) ---
-with st.sidebar:
-    st.markdown("### ⚙️ Settings")
-    st.toggle("Night Mode", value=(st.session_state.theme_mode == "Dark"), key="theme_toggle", on_change=toggle_theme)
-    if st.session_state.page == "results":
-        st.markdown("---")
-        if st.button("🔄 Retake Interview"):
-            reset_interview()
-            st.rerun()
+# --- TOP NAVIGATION BAR (Logo Left, Theme Toggle Right) ---
+top_col1, top_col2, top_col3 = st.columns([1, 6, 2])
+
+with top_col1:
+    # Attempt to display the uploaded logo
+    if os.path.exists(LOGO_FILENAME):
+        st.image(LOGO_FILENAME, width=120)
+    else:
+        # Fallback text logo if image is missing
+        st.markdown(f"### 💜 Wellness V2")
+
+with top_col3:
+    # Theme Toggle aligned to the right
+    st.markdown('<div style="text-align: right;">', unsafe_allow_html=True)
+    st.toggle("Dark Mode", value=(st.session_state.theme_mode == "Dark"), key="theme_toggle", on_change=toggle_theme)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown("---")
 
 # ==========================================
 # PAGE 1: THE INTERVIEW
 # ==========================================
 if st.session_state.page == "interview":
-    st.markdown(f'<h1 style="text-align:center; font-size: 3rem;">📝 Social Impact Interview</h1>', unsafe_allow_html=True)
+    st.markdown(f'<h1 style="text-align:center; font-size: 3rem; margin-top:1rem;">📝 Wellness Check-In</h1>', unsafe_allow_html=True)
     st.markdown('<p style="text-align:center; opacity:0.8; margin-bottom:3rem;">Answer a few questions to unlock your digital wellness score.</p>', unsafe_allow_html=True)
 
     with st.form("interview_form"):
@@ -242,9 +352,10 @@ if st.session_state.page == "interview":
             submitted = st.form_submit_button("🏁 FINISH & ANALYZE")
             
         if submitted:
-            # FIX: Ensure ai_results is reset here to avoid carrying over old data
-            st.session_state.ai_results = {}
+            # 1. TRIGGER LOADING SCREEN
+            show_custom_loader()
             
+            # 2. SAVE DATA
             st.session_state.inputs = {
                 "Age": age, "Gender": gender, "Academic_Level": academic_level,
                 "Avg_Daily_Usage_Hours": avg_daily_usage, "Platform": platform,
@@ -252,6 +363,7 @@ if st.session_state.page == "interview":
                 "Affects_Performance": affects_perf, "Conflicts": conflicts
             }
             
+            # 3. CALCULATE SCORE
             input_df = pd.DataFrame(0, index=[0], columns=MODEL_COLUMNS)
             try:
                 input_df['Gender'] = 1 if gender == "Female" else 0 
@@ -299,10 +411,12 @@ elif st.session_state.page == "results":
     st.markdown(f'<h3 style="text-align:center; color:{current_theme["highlight"]}; margin-bottom:20px;">✨ AI Insights</h3>', unsafe_allow_html=True)
     col1, col2, col3 = st.columns(3)
     
+    # --- AI TILES WITH LOADER LOGIC ---
     with col1:
         st.markdown('<div style="text-align:center;">', unsafe_allow_html=True)
         if st.button("📊 My Persona"):
-            with st.spinner("Analyzing..."):
+            show_custom_loader() # Trigger Loader
+            with st.spinner("Finalizing..."):
                 prompt = f"Based on: {json.dumps(data)}. Return JSON: {{'persona': 'Fun Title', 'analysis': 'Short analysis', 'tips': ['Tip 1', 'Tip 2']}}"
                 res = call_gemini(prompt)
                 if res: st.session_state.ai_results['analysis'] = json.loads(res); st.rerun()
@@ -311,6 +425,7 @@ elif st.session_state.page == "results":
     with col2:
         st.markdown('<div style="text-align:center;">', unsafe_allow_html=True)
         if st.button("🕰️ Future Self"):
+            show_custom_loader() # Trigger Loader
             with st.spinner("Connecting..."):
                 prompt = f"Write a note from future 2029 self based on habits: {json.dumps(data)}. Max 50 words."
                 res = call_gemini(prompt, is_json=False)
@@ -320,6 +435,7 @@ elif st.session_state.page == "results":
     with col3:
         st.markdown('<div style="text-align:center;">', unsafe_allow_html=True)
         if st.button("🍃 Detox Plan"):
+            show_custom_loader() # Trigger Loader
             with st.spinner("Planning..."):
                 prompt = f"3-day detox for {data['Platform']} user. JSON: {{'days': [{{'day': 'Day 1', 'theme': 'Theme', 'tasks': ['Task 1', 'Task 2']}}]}}"
                 res = call_gemini(prompt)
@@ -335,7 +451,7 @@ elif st.session_state.page == "results":
             r = results['analysis']
             st.markdown(f"""
             <div class="glass-card">
-                <h3 style="color:#4DA3FF !important;">📊 {r.get('persona', 'User')}</h3>
+                <h3 style="color:#0ea5e9 !important;">📊 {r.get('persona', 'User')}</h3>
                 <p>"{r.get('analysis', '')}"</p>
                 <hr style="opacity:0.2;">
                 <strong>💡 Quick Tips:</strong>
@@ -359,7 +475,7 @@ elif st.session_state.page == "results":
                 days_html += f"<div style='background:{current_theme['card_bg']}; padding:1rem; margin-bottom:10px; border-radius:10px; border:1px solid {current_theme['card_border']}'><strong>{d.get('day')}: {d.get('theme')}</strong><ul>{tasks}</ul></div>"
             st.markdown(f"""
             <div class="glass-card">
-                <h3 style="color:#6BCB77 !important;">🍃 Detox Challenge</h3>
+                <h3 style="color:#22c55e !important;">🍃 Detox Challenge</h3>
                 {days_html}
             </div>
             """, unsafe_allow_html=True)
