@@ -29,6 +29,12 @@ if "page" not in st.session_state:
     st.session_state.page = "interview"
 if "theme_mode" not in st.session_state:
     st.session_state.theme_mode = "Light"
+if "ai_results" not in st.session_state:
+    st.session_state.ai_results = {} 
+if "score" not in st.session_state:
+    st.session_state.score = None
+if "inputs" not in st.session_state:
+    st.session_state.inputs = {}
 
 def toggle_theme():
     if st.session_state.theme_toggle:
