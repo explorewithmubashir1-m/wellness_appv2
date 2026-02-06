@@ -9,10 +9,17 @@ import base64
 from PIL import Image
 import os
 
+# --- FILE CONFIGURATION ---
+# 1. The image for the Browser Tab Icon (Favicon)
+FAVICON_FILENAME = "Gemini_Generated_Image_5b19745b19745b19.jpg"
+
+# 2. The image for the App Logo (Top Left)
+LOGO_FILENAME = "Gemini_Generated_Image_fq49a6fq49a6fq49.jpg"
+
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
     page_title="Wellness V2",
-    page_icon="💜",
+    page_icon=FAVICON_FILENAME, # <--- Updated Favicon Here
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -20,8 +27,6 @@ st.set_page_config(
 # --- CONFIGURATION ---
 MODEL_FILE = 'mental_health_model.joblib' 
 GEMINI_MODEL = 'gemini-2.5-flash'
-# CHANGE THIS PATH IF NEEDED
-LOGO_FILENAME = "Gemini_Generated_Image_5b19745b19745b19.png"
 API_KEY = st.secrets.get("GEMINI_API_KEY", None)
 
 # --- STATE MANAGEMENT ---
@@ -29,8 +34,6 @@ if "page" not in st.session_state:
     st.session_state.page = "interview"
 if "theme_mode" not in st.session_state:
     st.session_state.theme_mode = "Light"
-
-# Initialize Data Stores to prevent errors
 if "ai_results" not in st.session_state:
     st.session_state.ai_results = {} 
 if "score" not in st.session_state:
@@ -53,10 +56,10 @@ def reset_interview():
     st.session_state.score = None
     st.session_state.inputs = {}
 
-# --- CUSTOM LOADER (Updated: "Synthesizing" Style) ---
+# --- CUSTOM LOADER (Cyber-Heart) ---
 def show_custom_loader():
     """
-    Displays a High-Tech 'Cyber-Heart' loader with rotating rings.
+    Displays the 'Synthesizing Information' loader for 4 seconds.
     """
     loader_html = """
     <style>
@@ -66,7 +69,7 @@ def show_custom_loader():
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(15, 23, 42, 0.95); /* Deep dark blue/black */
+            background: rgba(15, 23, 42, 0.95);
             z-index: 99999;
             display: flex;
             flex-direction: column;
@@ -74,90 +77,45 @@ def show_custom_loader():
             align-items: center;
             backdrop-filter: blur(8px);
         }
-        
-        .loader-container {
-            position: relative;
-            width: 120px;
-            height: 120px;
-        }
-
-        /* The Spinning Rings */
-        .ring {
-            position: absolute;
-            border-radius: 50%;
-            border: 4px solid transparent;
-        }
-        
+        .loader-container { position: relative; width: 120px; height: 120px; }
+        .ring { position: absolute; border-radius: 50%; border: 4px solid transparent; }
         .ring-1 {
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            border-top-color: #0ea5e9; /* Cyan */
-            border-right-color: #0ea5e9;
+            top: 0; left: 0; width: 100%; height: 100%;
+            border-top-color: #0ea5e9; border-right-color: #0ea5e9;
             animation: spin 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
         }
-        
         .ring-2 {
-            top: 15%; left: 15%;
-            width: 70%; height: 70%;
-            border-bottom-color: #a855f7; /* Purple */
-            border-left-color: #a855f7;
+            top: 15%; left: 15%; width: 70%; height: 70%;
+            border-bottom-color: #a855f7; border-left-color: #a855f7;
             animation: spin-reverse 2s linear infinite;
         }
-
-        /* The Glowing Heart Core */
         .heart-core {
-            position: absolute;
-            top: 50%; left: 50%;
-            width: 30px; height: 30px;
-            background: #ec4899; /* Pink */
-            transform: translate(-50%, -50%) rotate(45deg);
-            animation: heartbeat 1.2s ease-in-out infinite;
-            box-shadow: 0 0 20px #ec4899;
+            position: absolute; top: 50%; left: 50%; width: 30px; height: 30px;
+            background: #ec4899; transform: translate(-50%, -50%) rotate(45deg);
+            animation: heartbeat 1.2s ease-in-out infinite; box-shadow: 0 0 20px #ec4899;
         }
         .heart-core:before, .heart-core:after {
-            content: "";
-            position: absolute;
-            width: 30px; height: 30px;
-            background: #ec4899;
-            border-radius: 50%;
+            content: ""; position: absolute; width: 30px; height: 30px;
+            background: #ec4899; border-radius: 50%;
         }
-        .heart-core:before { left: -15px; }
-        .heart-core:after { top: -15px; }
-
-        /* Animations */
+        .heart-core:before { left: -15px; } .heart-core:after { top: -15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes spin-reverse { 0% { transform: rotate(360deg); } 100% { transform: rotate(-360deg); } }
-        
         @keyframes heartbeat {
             0% { transform: translate(-50%, -50%) rotate(45deg) scale(0.8); opacity: 0.8; }
             50% { transform: translate(-50%, -50%) rotate(45deg) scale(1.1); opacity: 1; }
             100% { transform: translate(-50%, -50%) rotate(45deg) scale(0.8); opacity: 0.8; }
         }
-
-        /* Text Styling */
         .loading-text {
-            margin-top: 40px;
-            color: #e2e8f0;
-            font-family: 'Courier New', monospace;
-            font-size: 1.2rem;
-            letter-spacing: 2px;
-            font-weight: 600;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
+            margin-top: 40px; color: #e2e8f0; font-family: 'Courier New', monospace;
+            font-size: 1.2rem; letter-spacing: 2px; font-weight: 600;
+            text-transform: uppercase; display: flex; align-items: center;
         }
-        
-        /* Blinking Cursor Effect */
         .loading-text::after {
-            content: "█";
-            margin-left: 5px;
-            animation: blink 0.8s infinite;
-            color: #0ea5e9;
+            content: "█"; margin-left: 5px; animation: blink 0.8s infinite; color: #0ea5e9;
         }
-        
         @keyframes blink { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
     </style>
-    
     <div class="loader-overlay">
         <div class="loader-container">
             <div class="ring ring-1"></div>
@@ -333,7 +291,7 @@ with top_col1:
         st.image(LOGO_FILENAME, width=150) 
     else:
         st.markdown(f"### 💜 WELLNESS V2") 
-        st.caption("Logo file not found.")
+        st.caption("Logo not found.")
 
 with top_col3:
     st.markdown('<div style="text-align: right;">', unsafe_allow_html=True)
