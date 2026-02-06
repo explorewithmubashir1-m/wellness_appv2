@@ -200,7 +200,7 @@ MODEL_COLUMNS = [
     'Most_Used_Platform_TikTok', 'Most_Used_Platform_Twitter', 
     'Most_Used_Platform_VKontakte', 'Most_Used_Platform_WeChat', 
     'Most_Used_Platform_WhatsApp', 'Most_Used_Platform_YouTube', 
-    'Most_Used_Platform_Youtube', 'Relationship_Status_Complicated', 
+    'Relationship_Status_Complicated', 
     'Relationship_Status_In Relationship', 'Relationship_Status_Single'
 ]
 
