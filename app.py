@@ -356,12 +356,12 @@ if st.session_state.page == "interview":
                 if model:
                     plat_col = f"Most_Used_Platform_{platform}"
                     if plat_col in MODEL_COLUMNS: input_df[plat_col] = 1
-                    Mental Health_score = model.predict(input_df)[0]
+                    mental_health = model.predict(input_df)[0]
                 else:
                     base = 10 - (avg_daily_usage * 0.3) - (addiction * 0.2) + (sleep * 0.2)
-                    Mental Health_score = max(1, min(10, base))
+                    mental_health = max(1, min(10, base))
 
-                st.session_state.score = Mental Health_score
+                st.session_state.score = mental_health
                 go_to_results()
                 st.rerun()
             except Exception as e:
