@@ -1,9 +1,10 @@
 # ==============================================================================
-# SOCIAL IMPACT & WELLNESS AI DASHBOARD - V2.0 (ENTERPRISE EDITION)
+# MINDCHECK AI - MENTAL HEALTH & SOCIAL IMPACT DASHBOARD (ENTERPRISE EDITION)
 # ==============================================================================
-# AUTHOR: Mubashir Mohsin and Gemini 3 Pro
+# AUTHOR: Mubashir Mohsin and Gemini (AI Assistant)
 # DATE: 2-5-2026
-# PURPOSE: A Streamlit application to analyze digital habits and mental wellness.
+# PURPOSE: A Streamlit application to calculate Mental Health scores based on
+#          digital habits and lifestyle metrics.
 # ==============================================================================
 
 import streamlit as st
@@ -23,8 +24,8 @@ import os
 # These are the exact filenames provided for the visual identity of the app.
 # Ensure these files exist in the root directory.
 # ==============================================================================
-FAVICON_FILENAME = "Gemini_Generated_Image_5b19745b19745b19.jpg"
-LOGO_FILENAME = "Gemini_Generated_Image_fq49a6fq49a6fq49.jpg"
+FAVICON_FILENAME = "Gemini_Generated_Image_g704tpg704tpg704.png"
+LOGO_FILENAME = "Gemini_Generated_Image_g704tpg704tpg704.png"
 MODEL_FILE = 'mental_health_model.joblib' 
 GEMINI_MODEL = 'gemini-2.5-flash'
 
@@ -36,7 +37,7 @@ API_KEY = st.secrets.get("GEMINI_API_KEY", None)
 # 2. PAGE SETUP & INITIALIZATION
 # ==============================================================================
 st.set_page_config(
-    page_title="Wellness V2",
+    page_title="MindCheck AI",
     page_icon=FAVICON_FILENAME,
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -471,7 +472,6 @@ def render_navbar():
     """
     Renders the TOP NAVIGATION BAR.
     Layout: [LOGO] ----- [HOME BUTTON] ----- [THEME TOGGLE]
-    This satisfies the constraint of keeping the home button in between.
     """
     # Create a container styled like a pill/bar
     st.markdown('<div class="nav-container-wrapper">', unsafe_allow_html=True)
@@ -484,7 +484,7 @@ def render_navbar():
         if os.path.exists(LOGO_FILENAME):
             st.image(LOGO_FILENAME, width=110)
         else:
-            st.markdown(f"<h3 style='margin:0; color:{current['highlight']}'>Wellness AI</h3>", unsafe_allow_html=True)
+            st.markdown(f"<h3 style='margin:0; color:{current['highlight']}'>MindCheck AI</h3>", unsafe_allow_html=True)
 
     # 2. HOME BUTTON (Center - In between)
     with col_home:
@@ -589,10 +589,10 @@ if st.session_state.page == "home":
     st.markdown(f"""
     <div class="animate-enter" style="text-align: center; padding: 4rem 0;">
         <h1 style="font-size: 4.5rem; margin-bottom: 1rem; background: {current['btn_gradient']}; -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-            Wellness V2
+            MindCheck AI
         </h1>
         <p style="font-size: 1.4rem; color: {current['text_secondary']}; max-width: 700px; margin: 0 auto 3rem auto;">
-            Your personal AI-powered companion for tracking digital habits and improving mental resilience.
+            An AI that helps improve mental health.
         </p>
     </div>
     """, unsafe_allow_html=True)
@@ -675,7 +675,7 @@ elif st.session_state.page == "updates":
 # ------------------------------------------------------------------------------
 elif st.session_state.page == "interview":
     st.markdown('<div class="animate-enter">', unsafe_allow_html=True)
-    st.markdown(f'<h1 style="text-align:center; margin-bottom: 0.5rem;">📝 Wellness Check-In</h1>', unsafe_allow_html=True)
+    st.markdown(f'<h1 style="text-align:center; margin-bottom: 0.5rem;">📝 Mental Health Check-In</h1>', unsafe_allow_html=True)
     st.markdown(f'<p style="text-align:center; color:{current["text_secondary"]}; margin-bottom: 3rem;">Complete the assessment below to unlock your insights.</p>', unsafe_allow_html=True)
     
     # Using a Form for better UX
@@ -787,7 +787,7 @@ elif st.session_state.page == "results":
     # -----------------------------------------
     col_res_header, col_res_btn = st.columns([4, 1.2])
     with col_res_header:
-        st.markdown(f'<h1 style="margin:0;">Wellness Scorecard</h1>', unsafe_allow_html=True)
+        st.markdown(f'<h1 style="margin:0;">Mental Health Scorecard</h1>', unsafe_allow_html=True)
     with col_res_btn:
         if st.button("🔄 RESTART?", use_container_width=True):
             show_loader(duration=2)
@@ -809,7 +809,7 @@ elif st.session_state.page == "results":
 
     st.markdown(f"""
     <div style="text-align: center; padding: 3rem; background: {current['card_bg']}; border-radius: 30px; margin: 2rem 0; box-shadow: {current['card_shadow']}; backdrop-filter: blur(10px); border: 1px solid {current['card_border']};">
-        <h4 style="margin:0; opacity:0.6; letter-spacing: 3px;">COMPOSITE WELLNESS INDEX</h4>
+        <h4 style="margin:0; opacity:0.6; letter-spacing: 3px;">MENTAL HEALTH INDEX</h4>
         <h1 style="font-size: 7rem; font-weight: 900; margin: 0; color: {s_color} !important; text-shadow: 0 0 30px {s_color}40;">
             {score:.1f}<span style="font-size: 2.5rem; opacity: 0.4; color: {current['text_primary']};">/10</span>
         </h1>
@@ -941,7 +941,7 @@ elif st.session_state.page == "results":
 # ------------------------------------------------------------------------------
 st.markdown(f"""
 <div style="text-align: center; margin-top: 5rem; opacity: 0.5; font-size: 0.8rem;">
-    <p>Social Impact & Mental Health AI v2.0 • Powered by MindCheck AI • 2026</p>
+    <p>MindCheck AI v2.0 • Powered by MindCheck AI and Gemini AI • 2026</p>
 </div>
 """, unsafe_allow_html=True)
 
