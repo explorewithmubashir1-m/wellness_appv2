@@ -19,7 +19,7 @@ LOGO_FILENAME = "Gemini_Generated_Image_5b19745b19745b19"
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
     page_title="Wellness V2",
-    page_icon= "Gemini_Generated_Image_5b19745b19745b19" # <--- Updated Favicon Here
+    page_icon= FAVICON_FILENAME
     layout="wide",
     initial_sidebar_state="collapsed"
 )
