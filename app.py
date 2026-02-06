@@ -10,14 +10,13 @@ from PIL import Image
 import os
 
 # --- FILE CONFIGURATION ---
-# IMPORTANT: These file names must be inside quotes " "
 FAVICON_FILENAME = "Gemini_Generated_Image_5b19745b19745b19.png"
 LOGO_FILENAME = "Gemini_Generated_Image_5b19745b19745b19.png"
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
     page_title="Wellness V2",
-    page_icon=FAVICON_FILENAME, # This now uses the text variable defined above
+    page_icon=FAVICON_FILENAME,
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -54,8 +53,13 @@ def reset_interview():
     st.session_state.score = None
     st.session_state.inputs = {}
 
-# --- CUSTOM LOADER (Cyber-Heart) ---
-def show_custom_loader():
+# --- CUSTOM LOADER (Flexible Duration) ---
+def show_custom_loader(duration=4):
+    """
+    Displays the 'Synthesizing Information' loader.
+    Args:
+        duration (int): How many seconds to show the loader.
+    """
     loader_html = """
     <style>
         .loader-overlay {
@@ -122,7 +126,7 @@ def show_custom_loader():
     """
     placeholder = st.empty()
     placeholder.markdown(loader_html, unsafe_allow_html=True)
-    time.sleep(4) 
+    time.sleep(duration) 
     placeholder.empty()
 
 # --- DYNAMIC BACKGROUND ---
@@ -331,7 +335,7 @@ if st.session_state.page == "interview":
             submitted = st.form_submit_button("🏁 FINISH & ANALYZE")
             
         if submitted:
-            show_custom_loader()
+            show_custom_loader(duration=4) # 4 seconds for analysis
             st.session_state.inputs = {
                 "Age": age, "Gender": gender, "Academic_Level": academic_level,
                 "Avg_Daily_Usage_Hours": avg_daily_usage, "Platform": platform,
@@ -370,7 +374,30 @@ elif st.session_state.page == "results":
     score = st.session_state.score
     data = st.session_state.inputs
     
-    st.markdown(f'<h1 style="text-align:center; font-size: 3rem;">Your <span style="color:{current_theme["highlight"]}">Results</span> are In!</h1>', unsafe_allow_html=True)
+    # --- INPUT SUMMARY / PARAMETER RECAP ---
+    st.markdown(f"""
+    <div class="glass-card" style="padding: 1rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid {current_theme['highlight']};">
+        <div>
+            <strong style="color:{current_theme['highlight']}; font-size: 0.9rem;">RECAP:</strong>&nbsp;&nbsp;
+            <span style="font-size: 0.9rem;">
+                <b>{data.get('Age')}y/o {data.get('Gender')}</b> • 
+                <b>{data.get('Platform')}</b> ({data.get('Avg_Daily_Usage_Hours')}h/day) • 
+                Sleep: <b>{data.get('Sleep')}h</b> • 
+                Addiction: <b>{data.get('Addiction')}/10</b>
+            </span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Restart Button (Top Right of results area)
+    col_head_1, col_head_2 = st.columns([4, 1])
+    with col_head_1:
+        st.markdown(f'<h1 style="text-align:left; font-size: 3rem;">Your <span style="color:{current_theme["highlight"]}">Results</span> are In!</h1>', unsafe_allow_html=True)
+    with col_head_2:
+        if st.button("🔄 Restart?", use_container_width=True):
+            show_custom_loader(duration=2) # 2 seconds for reset
+            reset_interview()
+            st.rerun()
     
     score_color = "#FF6B6B" if score < 4 else "#FFD93D" if score < 7 else "#6BCB77"
     st.markdown(f"""
@@ -389,7 +416,7 @@ elif st.session_state.page == "results":
     with col1:
         st.markdown('<div style="text-align:center;">', unsafe_allow_html=True)
         if st.button("📊 My Persona"):
-            show_custom_loader()
+            show_custom_loader(duration=4)
             with st.spinner("Finalizing..."):
                 prompt = f"Based on: {json.dumps(data)}. Return JSON: {{'persona': 'Fun Title', 'analysis': 'Short analysis', 'tips': ['Tip 1', 'Tip 2']}}"
                 res = call_gemini(prompt)
@@ -399,7 +426,7 @@ elif st.session_state.page == "results":
     with col2:
         st.markdown('<div style="text-align:center;">', unsafe_allow_html=True)
         if st.button("🕰️ Future Self"):
-            show_custom_loader()
+            show_custom_loader(duration=4)
             with st.spinner("Connecting..."):
                 prompt = f"Write a note from future 2029 self based on habits: {json.dumps(data)}. Max 50 words."
                 res = call_gemini(prompt, is_json=False)
@@ -409,7 +436,7 @@ elif st.session_state.page == "results":
     with col3:
         st.markdown('<div style="text-align:center;">', unsafe_allow_html=True)
         if st.button("🍃 Detox Plan"):
-            show_custom_loader()
+            show_custom_loader(duration=4)
             with st.spinner("Planning..."):
                 prompt = f"3-day detox for {data['Platform']} user. JSON: {{'days': [{{'day': 'Day 1', 'theme': 'Theme', 'tasks': ['Task 1', 'Task 2']}}]}}"
                 res = call_gemini(prompt)
