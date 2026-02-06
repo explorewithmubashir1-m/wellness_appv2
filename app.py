@@ -10,16 +10,14 @@ from PIL import Image
 import os
 
 # --- FILE CONFIGURATION ---
-# 1. The image for the Browser Tab Icon (Favicon)
-FAVICON_FILENAME = "Gemini_Generated_Image_5b19745b19745b19"
-
-# 2. The image for the App Logo (Top Left)
-LOGO_FILENAME = "Gemini_Generated_Image_5b19745b19745b19"
+# IMPORTANT: These file names must be inside quotes " "
+FAVICON_FILENAME = "Gemini_Generated_Image_5b19745b19745b19.png"
+LOGO_FILENAME = "Gemini_Generated_Image_5b19745b19745b19.png"
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
     page_title="Wellness V2",
-    page_icon= FAVICON_FILENAME
+    page_icon=FAVICON_FILENAME, # This now uses the text variable defined above
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -58,9 +56,6 @@ def reset_interview():
 
 # --- CUSTOM LOADER (Cyber-Heart) ---
 def show_custom_loader():
-    """
-    Displays the 'Synthesizing Information' loader for 4 seconds.
-    """
     loader_html = """
     <style>
         .loader-overlay {
