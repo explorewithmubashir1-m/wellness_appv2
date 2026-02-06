@@ -10,12 +10,12 @@ from PIL import Image
 import os
 
 # --- FILE CONFIGURATION ---
-FAVICON_FILENAME = "Gemini_Generated_Image_7yh2m17yh2m17yh2.png"
-LOGO_FILENAME = "Gemini_Generated_Image_7yh2m17yh2m17yh2.png"
+FAVICON_FILENAME = "Gemini_Generated_Image_g704tpg704tpg704.png"
+LOGO_FILENAME = "Gemini_Generated_Image_g704tpg704tpg704.png"
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
-    page_title="Mental Health V2",
+    page_title="MindCheck V2",
     page_icon=FAVICON_FILENAME,
     layout="wide",
     initial_sidebar_state="collapsed"
