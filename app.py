@@ -20,8 +20,8 @@ st.set_page_config(
 # --- CONFIGURATION ---
 MODEL_FILE = 'mental_health_model.joblib' 
 GEMINI_MODEL = 'gemini-2.5-flash'
-# EXACT FILENAME YOU PROVIDED
-LOGO_FILENAME = "Gemini_Generated_Image_fq49a6fq49a6fq49.png"
+# CHANGE THIS PATH IF NEEDED
+LOGO_FILENAME = "Gemini_Generated_Image_fq49a6fq49a6fq49.jpg"
 API_KEY = st.secrets.get("GEMINI_API_KEY", None)
 
 # --- STATE MANAGEMENT ---
@@ -29,6 +29,8 @@ if "page" not in st.session_state:
     st.session_state.page = "interview"
 if "theme_mode" not in st.session_state:
     st.session_state.theme_mode = "Light"
+
+# Initialize Data Stores to prevent errors
 if "ai_results" not in st.session_state:
     st.session_state.ai_results = {} 
 if "score" not in st.session_state:
@@ -49,11 +51,12 @@ def reset_interview():
     st.session_state.page = "interview"
     st.session_state.ai_results = {}
     st.session_state.score = None
+    st.session_state.inputs = {}
 
-# --- CUSTOM LOADER (4 Seconds) ---
+# --- CUSTOM LOADER (Updated: "Synthesizing" Style) ---
 def show_custom_loader():
     """
-    Displays a full-screen pulsing heart loader for 4 seconds.
+    Displays a High-Tech 'Cyber-Heart' loader with rotating rings.
     """
     loader_html = """
     <style>
@@ -63,68 +66,110 @@ def show_custom_loader():
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(15, 23, 42, 0.95); /* Deep dark blue/black */
             z-index: 99999;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(8px);
         }
-        .heart-loader {
+        
+        .loader-container {
             position: relative;
-            width: 80px;
-            height: 80px;
-            transform: rotate(45deg);
-            transform-origin: center;
+            width: 120px;
+            height: 120px;
         }
-        .heart-loader span {
+
+        /* The Spinning Rings */
+        .ring {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #a855f7; /* Purple to match logo */
-            animation: heartBeat 1.2s infinite ease-in-out;
-            box-shadow: 0 0 20px #a855f7;
+            border-radius: 50%;
+            border: 4px solid transparent;
         }
-        .heart-loader span:after,
-        .heart-loader span:before {
-            content: '';
+        
+        .ring-1 {
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border-top-color: #0ea5e9; /* Cyan */
+            border-right-color: #0ea5e9;
+            animation: spin 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+        }
+        
+        .ring-2 {
+            top: 15%; left: 15%;
+            width: 70%; height: 70%;
+            border-bottom-color: #a855f7; /* Purple */
+            border-left-color: #a855f7;
+            animation: spin-reverse 2s linear infinite;
+        }
+
+        /* The Glowing Heart Core */
+        .heart-core {
             position: absolute;
-            width: 100%;
-            height: 100%;
-            background: #a855f7;
+            top: 50%; left: 50%;
+            width: 30px; height: 30px;
+            background: #ec4899; /* Pink */
+            transform: translate(-50%, -50%) rotate(45deg);
+            animation: heartbeat 1.2s ease-in-out infinite;
+            box-shadow: 0 0 20px #ec4899;
+        }
+        .heart-core:before, .heart-core:after {
+            content: "";
+            position: absolute;
+            width: 30px; height: 30px;
+            background: #ec4899;
             border-radius: 50%;
         }
-        .heart-loader span:before { left: -50%; }
-        .heart-loader span:after { top: -50%; }
+        .heart-core:before { left: -15px; }
+        .heart-core:after { top: -15px; }
 
-        @keyframes heartBeat {
-            0% { transform: scale(1); }
-            15% { transform: scale(1.1); }
-            30% { transform: scale(1); }
-            45% { transform: scale(1.1); }
-            100% { transform: scale(1); }
+        /* Animations */
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes spin-reverse { 0% { transform: rotate(360deg); } 100% { transform: rotate(-360deg); } }
+        
+        @keyframes heartbeat {
+            0% { transform: translate(-50%, -50%) rotate(45deg) scale(0.8); opacity: 0.8; }
+            50% { transform: translate(-50%, -50%) rotate(45deg) scale(1.1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) rotate(45deg) scale(0.8); opacity: 0.8; }
         }
+
+        /* Text Styling */
         .loading-text {
-            margin-top: 60px;
-            color: #e0e7ff;
+            margin-top: 40px;
+            color: #e2e8f0;
             font-family: 'Courier New', monospace;
             font-size: 1.2rem;
-            letter-spacing: 4px;
-            animation: blink 1s infinite;
+            letter-spacing: 2px;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
         }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        
+        /* Blinking Cursor Effect */
+        .loading-text::after {
+            content: "█";
+            margin-left: 5px;
+            animation: blink 0.8s infinite;
+            color: #0ea5e9;
+        }
+        
+        @keyframes blink { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
     </style>
+    
     <div class="loader-overlay">
-        <div class="heart-loader"><span></span></div>
-        <div class="loading-text">PROCESSING BIOMETRICS...</div>
+        <div class="loader-container">
+            <div class="ring ring-1"></div>
+            <div class="ring ring-2"></div>
+            <div class="heart-core"></div>
+        </div>
+        <div class="loading-text">SYNTHESIZING INFORMATION</div>
     </div>
     """
     placeholder = st.empty()
     placeholder.markdown(loader_html, unsafe_allow_html=True)
-    time.sleep(4) # Force 4 second wait
+    time.sleep(4) 
     placeholder.empty()
 
 # --- DYNAMIC BACKGROUND ---
@@ -281,18 +326,16 @@ MODEL_COLUMNS = [
 # ==========================================
 # TOP NAVIGATION BAR
 # ==========================================
-# Layout: Logo (Left) | Spacer | Theme Toggle (Right)
 top_col1, top_col2, top_col3 = st.columns([1, 6, 2])
 
 with top_col1:
-    # DISPLAY UPLOADED LOGO
     if os.path.exists(LOGO_FILENAME):
         st.image(LOGO_FILENAME, width=150) 
     else:
-        st.error(f"Image not found: {LOGO_FILENAME}")
+        st.markdown(f"### 💜 WELLNESS V2") 
+        st.caption("Logo file not found.")
 
 with top_col3:
-    # THEME TOGGLE
     st.markdown('<div style="text-align: right;">', unsafe_allow_html=True)
     st.toggle("Dark Mode", value=(st.session_state.theme_mode == "Dark"), key="theme_toggle", on_change=toggle_theme)
     st.markdown('</div>', unsafe_allow_html=True)
@@ -335,10 +378,7 @@ if st.session_state.page == "interview":
             submitted = st.form_submit_button("🏁 FINISH & ANALYZE")
             
         if submitted:
-            # 1. TRIGGER 4-SECOND LOADER
             show_custom_loader()
-            
-            # 2. SAVE DATA
             st.session_state.inputs = {
                 "Age": age, "Gender": gender, "Academic_Level": academic_level,
                 "Avg_Daily_Usage_Hours": avg_daily_usage, "Platform": platform,
@@ -346,7 +386,6 @@ if st.session_state.page == "interview":
                 "Affects_Performance": affects_perf, "Conflicts": conflicts
             }
             
-            # 3. CALCULATE SCORE
             input_df = pd.DataFrame(0, index=[0], columns=MODEL_COLUMNS)
             try:
                 input_df['Gender'] = 1 if gender == "Female" else 0 
@@ -394,7 +433,6 @@ elif st.session_state.page == "results":
     st.markdown(f'<h3 style="text-align:center; color:{current_theme["highlight"]}; margin-bottom:20px;">✨ AI Insights</h3>', unsafe_allow_html=True)
     col1, col2, col3 = st.columns(3)
     
-    # --- AI TILES WITH LOADER ---
     with col1:
         st.markdown('<div style="text-align:center;">', unsafe_allow_html=True)
         if st.button("📊 My Persona"):
@@ -425,7 +463,6 @@ elif st.session_state.page == "results":
                 if res: st.session_state.ai_results['detox'] = json.loads(res); st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
 
-    # Render AI Results
     if st.session_state.get('ai_results'):
         st.markdown("<br>", unsafe_allow_html=True)
         results = st.session_state.ai_results
