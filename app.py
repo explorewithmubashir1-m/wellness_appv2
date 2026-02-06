@@ -15,7 +15,7 @@ LOGO_FILENAME = "Gemini_Generated_Image_7yh2m17yh2m17yh2.png"
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
-    page_title="Wellness V2",
+    page_title="Mental Health V2",
     page_icon=FAVICON_FILENAME,
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -289,7 +289,7 @@ with top_col1:
     if os.path.exists(LOGO_FILENAME):
         st.image(LOGO_FILENAME, width=150) 
     else:
-        st.markdown(f"### 💜 WELLNESS V2") 
+        st.markdown(f"### 💜 Mental Health V2") 
         st.caption("Logo not found.")
 
 with top_col3:
@@ -303,8 +303,8 @@ st.markdown("---")
 # PAGE 1: THE INTERVIEW
 # ==========================================
 if st.session_state.page == "interview":
-    st.markdown(f'<h1 style="text-align:center; font-size: 3rem; margin-top:1rem;">📝 Wellness Check-In</h1>', unsafe_allow_html=True)
-    st.markdown('<p style="text-align:center; opacity:0.8; margin-bottom:3rem;">Answer a few questions to unlock your digital wellness score.</p>', unsafe_allow_html=True)
+    st.markdown(f'<h1 style="text-align:center; font-size: 3rem; margin-top:1rem;">📝 Mental Health Check-In</h1>', unsafe_allow_html=True)
+    st.markdown('<p style="text-align:center; opacity:0.8; margin-bottom:3rem;">Answer a few questions to unlock your digital Mental Health score.</p>', unsafe_allow_html=True)
 
     with st.form("interview_form"):
         c1, c2 = st.columns(2)
@@ -356,12 +356,12 @@ if st.session_state.page == "interview":
                 if model:
                     plat_col = f"Most_Used_Platform_{platform}"
                     if plat_col in MODEL_COLUMNS: input_df[plat_col] = 1
-                    wellness_score = model.predict(input_df)[0]
+                    Mental Health_score = model.predict(input_df)[0]
                 else:
                     base = 10 - (avg_daily_usage * 0.3) - (addiction * 0.2) + (sleep * 0.2)
-                    wellness_score = max(1, min(10, base))
+                    Mental Health_score = max(1, min(10, base))
 
-                st.session_state.score = wellness_score
+                st.session_state.score = Mental Health_score
                 go_to_results()
                 st.rerun()
             except Exception as e:
@@ -402,7 +402,7 @@ elif st.session_state.page == "results":
     score_color = "#FF6B6B" if score < 4 else "#FFD93D" if score < 7 else "#6BCB77"
     st.markdown(f"""
     <div class="score-container">
-        <h3 style="margin:0; opacity:0.7; letter-spacing:2px; font-size:1rem;">WELLNESS SCORE</h3>
+        <h3 style="margin:0; opacity:0.7; letter-spacing:2px; font-size:1rem;">Mental Health SCORE</h3>
         <h1 style="font-size: 6rem; font-weight: 800; margin: 0; color: {score_color} !important;">
             {score:.1f}<span style="font-size:2rem; opacity:0.5;">/10</span>
         </h1>
