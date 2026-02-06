@@ -10,8 +10,8 @@ from PIL import Image
 import os
 
 # --- FILE CONFIGURATION ---
-FAVICON_FILENAME = "Gemini_Generated_Image_5b19745b19745b19.png"
-LOGO_FILENAME = "Gemini_Generated_Image_5b19745b19745b19.png"
+FAVICON_FILENAME = "Gemini_Generated_Image_7yh2m17yh2m17yh2.png"
+LOGO_FILENAME = "Gemini_Generated_Image_7yh2m17yh2m17yh2.png"
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
