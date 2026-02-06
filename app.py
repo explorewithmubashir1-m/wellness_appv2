@@ -1,37 +1,10 @@
 # ==============================================================================
-# PROJECT: MINDCHECK AI - LUMINA MATERIAL HYBRID EDITION
+# MINDCHECK AI - MENTAL HEALTH & SOCIAL IMPACT DASHBOARD (ENTERPRISE EDITION)
 # ==============================================================================
-# VERSION: 6.0.0-ULTIMATE
-# DATE: February 05, 2026
-# ARCHITECTURE: Streamlit + Python + CSS3 Hybrid Engine
-# AUTHOR: Mubashir Mohsin & Gemini (AI Architect)
-# ==============================================================================
-#
-# [ SYSTEM DOCUMENTATION ]
-# ------------------------------------------------------------------------------
-# This application represents the convergence of two distinct design philosophies:
-#
-# 1. LIQUID GLASS (Apple VisionOS / iOS):
-#    - Characterized by high-blur backdrops (50px+).
-#    - High saturation layers to mimic light refraction.
-#    - Specular highlighting on borders to simulate physical thickness.
-#
-# 2. MATERIAL EXPRESSIVE (Android 14/15):
-#    - Characterized by "Spring" physics animations.
-#    - Large, playful border radii (Extra-Large shapes).
-#    - High contrast, vibrant tonal palettes.
-#
-# CODE STRUCTURE:
-# 1.0 - CORE CONFIGURATION & IMPORTS
-# 2.0 - ASSET LIBRARY (SVG VECTOR DATA)
-# 3.0 - CONTENT REPOSITORY (TEXT DATA)
-# 4.0 - VISUAL THEME ENGINE (CSS GENERATOR)
-# 5.0 - SESSION STATE MANAGER
-# 6.0 - BUSINESS LOGIC LAYER (AI & ML)
-# 7.0 - COMPONENT LIBRARY (UI WIDGETS)
-# 8.0 - ROUTING & PAGE CONTROLLERS
-# 9.0 - MAIN EXECUTION LOOP
-#
+# AUTHOR: Mubashir Mohsin and Gemini (AI Assistant)
+# DATE: 2-5-2026
+# PURPOSE: A Streamlit application to calculate Mental Health scores based on
+#          digital habits and lifestyle metrics.
 # ==============================================================================
 
 import streamlit as st
@@ -42,851 +15,713 @@ import time
 import requests
 import numpy as np
 import base64
-import random
+from PIL import Image
 import os
-from datetime import datetime
 
 # ==============================================================================
-# 1.0 CORE CONFIGURATION & IMPORTS
+# 1. FILE & ASSET CONFIGURATION
 # ==============================================================================
-
-# 1.1 FILE PATH CONSTANTS
-# -----------------------
-# While we have an internal AssetLibrary for fail-safety, we still look for
-# these files first to respect the user's uploaded assets.
-FAVICON_FILENAME = "Gemini_Generated_Image_5b19745b19745b19.jpg"
-LOGO_FILENAME = "Gemini_Generated_Image_fq49a6fq49a6fq49.jpg"
-MODEL_FILE = 'mental_health_model.joblib'
+# These are the exact filenames provided for the visual identity of the app.
+# Ensure these files exist in the root directory.
+# ==============================================================================
+FAVICON_FILENAME = "Gemini_Generated_Image_g704tpg704tpg704.png"
+LOGO_FILENAME = "Gemini_Generated_Image_g704tpg704tpg704.png"
+MODEL_FILE = 'mental_health_model.joblib' 
 GEMINI_MODEL = 'gemini-2.5-flash'
 
-# 1.2 SECURITY
-# ------------
+# Securely fetch API Key
 API_KEY = st.secrets.get("GEMINI_API_KEY", None)
-MODEL_COLUMNS = ['Age', 'Gender', 'Academic_Level', 'Avg_Daily_Usage_Hours', 'Affects_Academic_Performance', 'Sleep_Hours_Per_Night', 'Conflicts_Over_Social_Media', 'Addicted_Score', 'Most_Used_Platform_Facebook', 'Most_Used_Platform_Instagram', 'Most_Used_Platform_KakaoTalk', 'Most_Used_Platform_LINE', 'Most_Used_Platform_LinkedIn', 'Most_Used_Platform_Snapchat', 'Most_Used_Platform_TikTok', 'Most_Used_Platform_Twitter', 'Most_Used_Platform_VKontakte', 'Most_Used_Platform_WeChat', 'Most_Used_Platform_WhatsApp', 'Most_Used_Platform_YouTube', 'Most_Used_Platform_Youtube', 'Relationship_Status_Complicated', 'Relationship_Status_In Relationship', 'Relationship_Status_Single']
-# 1.3 PAGE SETUP
-# --------------
+
+
+# ==============================================================================
+# 2. PAGE SETUP & INITIALIZATION
+# ==============================================================================
 st.set_page_config(
     page_title="MindCheck AI",
     page_icon=FAVICON_FILENAME,
     layout="wide",
-    initial_sidebar_state="collapsed",
-    menu_items={
-        'Get Help': 'https://www.mentalhealth.gov',
-        'Report a bug': "mailto:support@mindcheck.ai",
-        'About': "MindCheck AI v6.0\nHybrid Design Architecture"
-    }
+    initial_sidebar_state="collapsed"
 )
 
-# ==============================================================================
-# 2.0 ASSET LIBRARY (SVG VECTOR DATA)
-# ==============================================================================
-# This class acts as a fail-safe. If external images are missing,
-# the app will render these high-quality SVGs instead.
-# ==============================================================================
-
-class AssetLibrary:
-    """
-    A static repository of Vector Graphics to ensure the UI looks premium
-    even without external image dependencies.
-    """
-    
-    @staticmethod
-    def get_logo_svg(color="#a855f7"):
-        """Returns the XML string for the Main Brand Logo."""
-        return f"""
-        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-                <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" style="stop-color:{color};stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:#0ea5e9;stop-opacity:1" />
-                </linearGradient>
-                <filter id="glow">
-                    <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
-                    <feMerge>
-                        <feMergeNode in="coloredBlur"/>
-                        <feMergeNode in="SourceGraphic"/>
-                    </feMerge>
-                </filter>
-            </defs>
-            <path d="M100,20 C55.8,20,20,55.8,20,100 s35.8,80,80,80 s80-35.8,80-80 S144.2,20,100,20 z" 
-                  fill="none" stroke="url(#grad1)" stroke-width="8" filter="url(#glow)" />
-            <path d="M60,100 L85,125 L140,70" 
-                  fill="none" stroke="url(#grad1)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
-            <circle cx="100" cy="100" r="90" fill="none" stroke="{color}" stroke-width="2" opacity="0.3">
-                <animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="10s" repeatCount="indefinite"/>
-            </circle>
-        </svg>
-        """
-
-    @staticmethod
-    def get_home_icon_svg():
-        return """
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-            <polyline points="9 22 9 12 15 12 15 22"></polyline>
-        </svg>
-        """
-
-    @staticmethod
-    def get_brain_icon_svg():
-        return """
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"></path>
-            <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"></path>
-        </svg>
-        """
-
-    @staticmethod
-    def get_profile_icon_svg():
-        return """
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-            <circle cx="12" cy="7" r="4"></circle>
-        </svg>
-        """
-
-    @staticmethod
-    def get_news_icon_svg():
-        return """
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1m2 13a2 2 0 0 1-2-2V7m2 13a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
-        </svg>
-        """
 
 # ==============================================================================
-# 3.0 CONTENT REPOSITORY (TEXT DATA)
+# 3. GLOBAL STATE MANAGEMENT
 # ==============================================================================
-# Separating content from logic allows for easier updates and translation support.
-# ==============================================================================
-
-class ContentRepository:
-    """
-    Holds all static text, legal disclaimers, and educational content.
-    """
-    
-    APP_TITLE = "MindCheck AI"
-    APP_SUBTITLE = "The Hybrid Intelligence for Mental Resilience."
-    
-    LEGAL_DISCLAIMER = """
-    <div style='
-        font-family: "SF Pro Text", sans-serif;
-        font-size: 0.75rem;
-        opacity: 0.6;
-        text-align: center;
-        padding: 20px;
-        margin-top: 40px;
-        border-top: 1px solid rgba(255,255,255,0.1);
-    '>
-        <strong>DISCLAIMER:</strong> This application is a demonstration of AI capabilities in mental health screening. 
-        It provides educational insights based on self-reported data. 
-        <strong>It is NOT a diagnostic tool.</strong> 
-        The results generated by MindCheck AI should not replace professional medical advice, diagnosis, or treatment. 
-        If you are experiencing a mental health crisis, please contact emergency services immediately.
-    </div>
-    """
-    
-    ABOUT_TEXT = """
-    ## The Philosophy
-    MindCheck AI was built to bridge the gap between digital habits and mental awareness.
-    Using advanced machine learning, we analyze patterns in your daily digital consumption
-    to provide a mirror to your mental state.
-    
-    ## The Technology
-    Built on a **Lumina-Material Hybrid** architecture, this app combines the fluid, 
-    glass-like aesthetics of modern spatial computing with the playful, expressive 
-    motion of touch-first interfaces.
-    """
-    
-    VERSION_INFO = "v6.0.0 (Build 2026.02.05)"
-
-# ==============================================================================
-# 4.0 VISUAL THEME ENGINE (CSS GENERATOR)
-# ==============================================================================
-# This is the heart of the UI. It generates thousands of lines of CSS 
-# dynamically based on the active theme state.
+# Initialize session state variables to handle navigation, themes, and data persistence.
 # ==============================================================================
 
-class ThemeEngine:
-    """
-    Manages color tokens, physics constants, and CSS injection.
-    """
-    
-    # 4.1 THEME DEFINITIONS
-    # ---------------------
-    THEMES = {
-        "Dark": {
-            # Backgrounds
-            "bg_layer": "radial-gradient(circle at 50% 0%, #111111 0%, #050505 100%)",
-            "bg_noise": "url('data:image/svg+xml;base64,...')", # Placeholder for noise texture
-            
-            # Liquid Glass Properties
-            "glass_surface": "rgba(20, 20, 20, 0.6)",
-            "glass_border": "rgba(255, 255, 255, 0.1)",
-            "glass_highlight": "rgba(255, 255, 255, 0.15)",
-            "glass_shadow": "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
-            
-            # Typography
-            "text_primary": "#ffffff",
-            "text_secondary": "#a1a1aa",
-            "text_tertiary": "#52525b",
-            
-            # Accents (Neon Cyber)
-            "accent_primary": "#a855f7", # Purple
-            "accent_secondary": "#ec4899", # Pink
-            "accent_tertiary": "#6366f1", # Indigo
-            
-            # Semantic Colors
-            "success": "#34d399",
-            "warning": "#fbbf24",
-            "danger": "#f87171",
-            "info": "#38bdf8",
-            
-            # Gradients
-            "brand_gradient": "linear-gradient(135deg, #a855f7 0%, #ec4899 100%)",
-            
-            # Physics
-            "blur_strength": "50px",
-            "saturation": "180%",
-            "brightness": "1.1"
-        },
-        "Light": {
-            # Backgrounds
-            "bg_layer": "radial-gradient(circle at 50% 0%, #f8fafc 0%, #e2e8f0 100%)",
-            
-            # Liquid Glass Properties
-            "glass_surface": "rgba(255, 255, 255, 0.65)",
-            "glass_border": "rgba(255, 255, 255, 0.8)",
-            "glass_highlight": "rgba(255, 255, 255, 0.9)",
-            "glass_shadow": "0 20px 40px -12px rgba(0, 0, 0, 0.1)",
-            
-            # Typography
-            "text_primary": "#0f172a",
-            "text_secondary": "#64748b",
-            "text_tertiary": "#94a3b8",
-            
-            # Accents (Oceanic)
-            "accent_primary": "#0ea5e9", # Sky
-            "accent_secondary": "#3b82f6", # Blue
-            "accent_tertiary": "#06b6d4", # Cyan
-            
-            # Semantic Colors
-            "success": "#10b981",
-            "warning": "#f59e0b",
-            "danger": "#ef4444",
-            "info": "#0ea5e9",
-            
-            # Gradients
-            "brand_gradient": "linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%)",
-            
-            # Physics
-            "blur_strength": "35px",
-            "saturation": "200%",
-            "brightness": "1.05"
-        }
-    }
+if "page" not in st.session_state:
+    st.session_state.page = "home"
 
-    @staticmethod
-    def get_current_theme():
-        mode = st.session_state.get("theme_mode", "Light")
-        return ThemeEngine.THEMES[mode]
+if "theme_mode" not in st.session_state:
+    st.session_state.theme_mode = "Light"
 
-    @staticmethod
-    def generate_css():
-        """
-        Constructs the massive CSS block for the application.
-        Incorporates Liquid Glass physics and Material 3 motion.
-        """
-        t = ThemeEngine.get_current_theme()
-        
-        # Define the SVG background pattern for score visualization
-        emoji = "🌟" if (st.session_state.get('score', 0) or 0) >= 6 else "🌧️"
-        svg_bg = f"""
-        <svg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'>
-            <text x='50%' y='50%' font-size='20' text-anchor='middle' dominant-baseline='middle' opacity='0.03'>{emoji}</text>
-        </svg>
-        """
-        b64_bg = base64.b64encode(svg_bg.encode('utf-8')).decode('utf-8')
-        bg_image_combined = f"url('data:image/svg+xml;base64,{b64_bg}'), {t['bg_layer']}"
+if "ai_results" not in st.session_state:
+    st.session_state.ai_results = {} 
 
-        return f"""
-        <style>
-            /* ====================================================================
-               1. FONT STACK IMPORT
-               ==================================================================== */
-            @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@100;300;400;500;600;700;900&family=Outfit:wght@300;400;600;800&display=swap');
-
-            /* ====================================================================
-               2. CSS VARIABLES (DESIGN TOKENS)
-               ==================================================================== */
-            :root {{
-                /* Colors */
-                --bg: {t['bg_layer']};
-                --surface: {t['glass_surface']};
-                --border: {t['glass_border']};
-                --highlight: {t['glass_highlight']};
-                --shadow: {t['glass_shadow']};
-                
-                --text-main: {t['text_primary']};
-                --text-sub: {t['text_secondary']};
-                
-                --accent: {t['accent_primary']};
-                --accent-glow: {t['accent_primary']}44;
-                
-                --brand-grad: {t['brand_gradient']};
-                
-                --success: {t['success']};
-                --warning: {t['warning']};
-                --danger: {t['danger']};
-                
-                /* Physics & Optics */
-                --blur: {t['blur_strength']};
-                --sat: {t['saturation']};
-                --bright: {t['brightness']};
-                
-                /* Geometry (Material 3 Expressive Shapes) */
-                --radius-xs: 8px;
-                --radius-sm: 16px;
-                --radius-md: 24px;
-                --radius-lg: 32px;
-                --radius-xl: 48px;
-                --radius-pill: 9999px;
-                
-                /* Animation Timing (Spring Physics) */
-                --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy */
-                --ease-fluid: cubic-bezier(0.4, 0, 0.2, 1); /* Standard */
-                --ease-snappy: cubic-bezier(0.075, 0.82, 0.165, 1); /* Fast */
-            }}
-
-            /* ====================================================================
-               3. GLOBAL RESET & SCAFFOLDING
-               ==================================================================== */
-            .stApp {{
-                background: {bg_image_combined};
-                background-attachment: fixed;
-                background-size: cover;
-                font-family: 'SF Pro Display', 'Outfit', sans-serif;
-                color: var(--text-main);
-                transition: background 0.8s var(--ease-fluid);
-            }}
-            
-            .block-container {{
-                padding-top: 1rem !important;
-                padding-bottom: 6rem !important;
-                max-width: 1200px;
-            }}
-
-            /* ====================================================================
-               4. COMPONENT: LIQUID GLASS CARD (The Core Container)
-               ==================================================================== */
-            .liquid-card {{
-                position: relative;
-                background: var(--surface);
-                
-                /* The Optical Engine */
-                backdrop-filter: blur(var(--blur)) saturate(var(--sat)) brightness(var(--bright));
-                -webkit-backdrop-filter: blur(var(--blur)) saturate(var(--sat)) brightness(var(--bright));
-                
-                /* Refractive Border */
-                border: 1px solid var(--border);
-                border-top: 1px solid rgba(255,255,255,0.4);
-                border-left: 1px solid rgba(255,255,255,0.2);
-                
-                border-radius: var(--radius-lg);
-                padding: 40px;
-                margin-bottom: 30px;
-                
-                /* Depth Simulation */
-                box-shadow: 
-                    0 20px 40px -10px var(--shadow),
-                    inset 0 0 20px rgba(255,255,255,0.05);
-                    
-                transform-style: preserve-3d;
-                transition: transform 0.5s var(--ease-spring), box-shadow 0.5s var(--ease-fluid);
-                
-                overflow: hidden;
-            }}
-            
-            /* Hover State: Lift & Glow */
-            .liquid-card:hover {{
-                transform: translateY(-8px) scale(1.01);
-                box-shadow: 
-                    0 30px 60px -12px var(--shadow),
-                    0 0 0 2px var(--accent-glow);
-                z-index: 10;
-            }}
-            
-            /* Internal Sheen Animation (Light flowing across glass) */
-            .liquid-card::before {{
-                content: '';
-                position: absolute;
-                top: 0; left: -100%;
-                width: 50%; height: 100%;
-                background: linear-gradient(
-                    90deg,
-                    transparent,
-                    rgba(255,255,255,0.2),
-                    transparent
-                );
-                transform: skewX(-25deg);
-                transition: 0.5s;
-                pointer-events: none;
-            }}
-            
-            .liquid-card:hover::before {{
-                animation: sheen 0.8s forwards;
-            }}
-            
-            @keyframes sheen {{
-                100% {{ left: 150%; }}
-            }}
-
-            /* ====================================================================
-               5. COMPONENT: NAVIGATION DOCK (Floating Pill)
-               ==================================================================== */
-            .nav-dock-container {{
-                width: 100%;
-                display: flex;
-                justify-content: center;
-                margin-top: 20px;
-                margin-bottom: 50px;
-                position: sticky;
-                top: 20px;
-                z-index: 999;
-            }}
-            
-            .nav-dock {{
-                background: var(--surface);
-                backdrop-filter: blur(40px) saturate(180%);
-                -webkit-backdrop-filter: blur(40px) saturate(180%);
-                border: 1px solid var(--border);
-                border-radius: var(--radius-pill);
-                
-                /* Dynamic Sizing */
-                padding: 12px 30px;
-                width: 90%;
-                max-width: 1000px;
-                
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                
-                box-shadow: 0 15px 35px -10px var(--shadow);
-                
-                /* Bounce entrance */
-                animation: dock-pop 0.8s var(--ease-spring);
-            }}
-            
-            @keyframes dock-pop {{
-                0% {{ transform: translateY(-50px) scale(0.8); opacity: 0; }}
-                100% {{ transform: translateY(0) scale(1); opacity: 1; }}
-            }}
-
-            /* ====================================================================
-               6. COMPONENT: EXPRESSIVE BUTTONS (Haptic Feedack Sim)
-               ==================================================================== */
-            .stButton > button {{
-                background: var(--brand-grad) !important;
-                color: white !important;
-                border: none !important;
-                border-radius: var(--radius-md) !important;
-                padding: 16px 32px !important;
-                
-                font-family: 'Outfit', sans-serif !important;
-                font-weight: 700 !important;
-                font-size: 1rem !important;
-                letter-spacing: 0.5px !important;
-                text-transform: uppercase !important;
-                
-                /* Physics */
-                transition: all 0.3s var(--ease-spring) !important;
-                box-shadow: 0 10px 20px -5px var(--accent-glow) !important;
-                
-                width: 100%;
-                position: relative;
-                overflow: hidden;
-            }}
-            
-            .stButton > button:hover {{
-                transform: translateY(-4px) scale(1.02);
-                box-shadow: 0 20px 40px -10px var(--accent-glow) !important;
-                filter: brightness(1.1);
-            }}
-            
-            .stButton > button:active {{
-                transform: scale(0.92); /* Significant press effect */
-                box-shadow: 0 5px 10px -5px var(--accent-glow) !important;
-            }}
-            
-            /* Secondary Button Variant (Outline) */
-            .stButton > button.secondary {{
-                background: transparent !important;
-                border: 2px solid var(--text-main) !important;
-                color: var(--text-main) !important;
-            }}
-
-            /* ====================================================================
-               7. COMPONENT: INPUTS (Pure White Requirement)
-               ==================================================================== */
-            /* Enforcing strict white/black contrast for accessibility */
-            .stTextInput > div > div > input,
-            .stNumberInput > div > div > input,
-            .stSelectbox > div > div > div {{
-                background-color: #ffffff !important;
-                color: #000000 !important;
-                caret-color: var(--accent) !important;
-                
-                border: 2px solid rgba(0,0,0,0.05) !important;
-                border-radius: var(--radius-sm) !important;
-                padding: 14px 18px !important;
-                
-                font-weight: 600 !important;
-                transition: all 0.3s var(--ease-fluid);
-            }}
-            
-            .stTextInput > div > div > input:focus,
-            .stNumberInput > div > div > input:focus {{
-                border-color: var(--accent) !important;
-                box-shadow: 0 0 0 4px var(--accent-glow) !important;
-                transform: scale(1.01);
-            }}
-            
-            /* Dropdown Fixes */
-            div[data-baseweb="select"] > div {{ background-color: #ffffff !important; color: #000000 !important; border-radius: var(--radius-sm) !important; }}
-            div[data-testid="stSelectbox"] div[class*="st-"] {{ color: #000000 !important; }}
-            div[data-baseweb="popover"] {{ background-color: #ffffff !important; border-radius: var(--radius-sm) !important; box-shadow: 0 10px 40px rgba(0,0,0,0.2) !important; }}
-            div[role="option"] {{ color: #000000 !important; background-color: #ffffff !important; padding: 12px 20px !important; }}
-            div[role="option"]:hover {{ background-color: #f0f9ff !important; }}
-
-            /* ====================================================================
-               8. TYPOGRAPHY & DECORATION
-               ==================================================================== */
-            h1, .hero-font {{
-                font-family: 'Outfit', sans-serif;
-                font-weight: 800;
-                letter-spacing: -0.04em;
-                background: var(--brand-grad);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                margin-bottom: 20px;
-                text-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            }}
-            
-            .section-label {{
-                font-size: 0.85rem;
-                font-weight: 800;
-                letter-spacing: 0.15em;
-                text-transform: uppercase;
-                color: var(--accent);
-                margin-bottom: 15px;
-                display: flex; align-items: center; gap: 10px;
-            }}
-            
-            .section-label::after {{
-                content: ''; flex: 1; height: 2px;
-                background: linear-gradient(90deg, var(--accent), transparent);
-                opacity: 0.3;
-            }}
-
-            /* ====================================================================
-               9. ANIMATION LIBRARY
-               ==================================================================== */
-            .anim-enter {{
-                animation: slide-up 0.8s var(--ease-spring) forwards;
-                opacity: 0; transform: translateY(50px);
-            }}
-            
-            @keyframes slide-up {{
-                to {{ opacity: 1; transform: translateY(0); }}
-            }}
-            
-            .anim-float {{
-                animation: float 6s ease-in-out infinite;
-            }}
-            
-            @keyframes float {{
-                0% {{ transform: translateY(0px); }}
-                50% {{ transform: translateY(-15px); }}
-                100% {{ transform: translateY(0px); }}
-            }}
-
-            /* ====================================================================
-               10. LOADER OVERLAY (The Cyber Heart)
-               ==================================================================== */
-            .loader-screen {{
-                position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-                background: rgba(0,0,0,0.9);
-                backdrop-filter: blur(50px);
-                z-index: 999999;
-                display: flex; flex-direction: column; justify-content: center; align-items: center;
-            }}
-            
-            .loader-stage {{ position: relative; width: 200px; height: 200px; }}
-            
-            .orbit-1 {{
-                position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-                border-radius: 50%; border: 4px solid transparent;
-                border-top-color: var(--accent);
-                border-right-color: #0ea5e9;
-                animation: spin 2s linear infinite;
-            }}
-            
-            .orbit-2 {{
-                position: absolute; top: 20%; left: 20%; width: 60%; height: 60%;
-                border-radius: 50%; border: 4px solid transparent;
-                border-bottom-color: #ec4899;
-                border-left-color: #f59e0b;
-                animation: spin-rev 3s linear infinite;
-            }}
-            
-            .core-pulse {{
-                position: absolute; top: 50%; left: 50%; width: 40px; height: 40px;
-                background: var(--brand-grad); border-radius: 50%;
-                transform: translate(-50%, -50%);
-                animation: heartbeat 1.2s ease-in-out infinite;
-                box-shadow: 0 0 50px var(--accent);
-            }}
-            
-            .loader-text {{
-                margin-top: 40px;
-                color: white; font-family: 'Outfit';
-                font-weight: 800; letter-spacing: 0.3em;
-                animation: flicker 3s infinite;
-            }}
-            
-            @keyframes spin {{ 0% {{transform: rotate(0deg);}} 100% {{transform: rotate(360deg);}} }}
-            @keyframes spin-rev {{ 0% {{transform: rotate(360deg);}} 100% {{transform: rotate(-360deg);}} }}
-            @keyframes heartbeat {{ 
-                0% {{transform: translate(-50%,-50%) scale(1);}} 
-                15% {{transform: translate(-50%,-50%) scale(1.3);}} 
-                30% {{transform: translate(-50%,-50%) scale(1);}} 
-                100% {{transform: translate(-50%,-50%) scale(1);}} 
-            }}
-            @keyframes flicker {{ 
-                0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {{ opacity: 1; }} 
-                20%, 24%, 55% {{ opacity: 0.1; }} 
-            }}
-
-            /* ====================================================================
-               11. UTILITIES
-               ==================================================================== */
-            /* Custom Scrollbar */
-            ::-webkit-scrollbar {{ width: 10px; }}
-            ::-webkit-scrollbar-track {{ background: transparent; }}
-            ::-webkit-scrollbar-thumb {{
-                background: var(--border);
-                border-radius: 20px;
-                border: 3px solid transparent;
-                background-clip: content-box;
-            }}
-            ::-webkit-scrollbar-thumb:hover {{ background: var(--accent); }}
-            
-            /* Hide Footers */
-            footer {{ visibility: hidden; }}
-            #MainMenu {{ visibility: hidden; }}
-            
-        </style>
-        """
-
-# ==============================================================================
-# 5.0 COMPONENT LIBRARY (UI WIDGETS)
-# ==============================================================================
-
-class UILibrary:
-    """
-    Static class containing reusable UI rendering logic.
-    """
-    
-    @staticmethod
-    def render_navbar():
-        """Renders the top navigation dock."""
-        st.markdown('<div class="nav-dock-container"><div class="nav-dock">', unsafe_allow_html=True)
-        
-        c1, c2, c3 = st.columns([1.5, 3, 1.5])
-        
-        # Branding
-        with c1:
-            if os.path.exists(LOGO_FILENAME):
-                st.image(LOGO_FILENAME, width=130)
-            else:
-                # SVG Fallback
-                st.markdown(AssetLibrary.get_logo_svg(ThemeEngine.get_current_theme()['accent_primary']), unsafe_allow_html=True)
-                
-        # Navigation
-        with c2:
-            st.markdown("<div style='display:flex; justify-content:center; width:100%;'>", unsafe_allow_html=True)
-            if st.button("🏠 DASHBOARD HOME", key="nav_home_btn"):
-                go_to_page("home")
-                st.rerun()
-            st.markdown("</div>", unsafe_allow_html=True)
-            
-        # Controls
-        with c3:
-            st.markdown("<div style='display:flex; justify-content:flex-end; align-items:center; width:100%;'>", unsafe_allow_html=True)
-            is_dark = (st.session_state.theme_mode == "Dark")
-            st.toggle("Night Mode", value=is_dark, key="theme_toggle", on_change=toggle_theme)
-            st.markdown("</div>", unsafe_allow_html=True)
-            
-        st.markdown('</div></div>', unsafe_allow_html=True)
-
-    @staticmethod
-    def show_loader(duration=4):
-        """Displays the blocking loading screen."""
-        html = """
-        <div class="loader-screen">
-            <div class="loader-stage">
-                <div class="orbit-1"></div>
-                <div class="orbit-2"></div>
-                <div class="core-pulse"></div>
-            </div>
-            <div class="loader-text">SYNTHESIZING</div>
-        </div>
-        """
-        placeholder = st.empty()
-        placeholder.markdown(html, unsafe_allow_html=True)
-        time.sleep(duration)
-        placeholder.empty()
-
-    @staticmethod
-    def render_card_start(extra_styles=""):
-        st.markdown(f'<div class="liquid-card anim-enter" style="{extra_styles}">', unsafe_allow_html=True)
-
-    @staticmethod
-    def render_card_end():
-        st.markdown('</div>', unsafe_allow_html=True)
-
-# ==============================================================================
-# 6.0 BUSINESS LOGIC (ROUTING & CONTROLLERS)
-# ==============================================================================
-
-# 6.1 HELPER FUNCTIONS
-# --------------------
-def toggle_theme():
-    st.session_state.theme_mode = "Dark" if st.session_state.theme_toggle else "Light"
-
-def go_to_page(page):
-    st.session_state.page = page
-
-def reset_interview():
-    st.session_state.page = "interview"
+if "score" not in st.session_state:
     st.session_state.score = None
-    st.session_state.ai_results = {}
+
+if "inputs" not in st.session_state:
     st.session_state.inputs = {}
 
-# 6.2 INJECT STYLES
-# -----------------
-st.markdown(ThemeEngine.generate_css(), unsafe_allow_html=True)
 
-# 6.3 MAIN RENDER LOOP
-# --------------------
-UILibrary.render_navbar()
+# ==============================================================================
+# 4. CORE FUNCTIONS (LOGIC LAYER)
+# ==============================================================================
+# These functions handle the business logic, theme toggling, and navigation.
+# ==============================================================================
 
-# --- HOME PAGE ---
+def toggle_theme():
+    """
+    Switches the session state between 'Light' and 'Dark' modes.
+    Triggered by the toggle switch in the UI.
+    """
+    if st.session_state.theme_toggle:
+        st.session_state.theme_mode = "Dark"
+    else:
+        st.session_state.theme_mode = "Light"
+
+def go_to_page(page_name):
+    """
+    Updates the session state to navigate to a specific page.
+    Args:
+        page_name (str): The key for the page ('home', 'interview', 'results', etc.)
+    """
+    st.session_state.page = page_name
+
+def reset_interview():
+    """
+    Clears all interview data to allow the user to start fresh.
+    """
+    st.session_state.page = "interview"
+    st.session_state.ai_results = {}
+    st.session_state.score = None
+    st.session_state.inputs = {}
+
+@st.cache_resource
+def load_ml_model():
+    """
+    Loads the machine learning model from the .joblib file.
+    Cached to prevent reloading on every interaction.
+    """
+    try:
+        return joblib.load(MODEL_FILE)
+    except Exception as e:
+        return None
+
+def call_gemini(prompt, is_json=True):
+    """
+    Handles API calls to Google's Gemini Model.
+    Args:
+        prompt (str): The text prompt to send.
+        is_json (bool): Whether to request JSON output.
+    Returns:
+        str or None: The AI's response text.
+    """
+    if not API_KEY: return None
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent?key={API_KEY}"
+    payload = {"contents": [{"parts": [{"text": prompt}]}]}
+    if is_json: payload["generationConfig"] = {"responseMimeType": "application/json"}
+    try:
+        response = requests.post(url, headers={'Content-Type': 'application/json'}, json=payload, timeout=20)
+        if response.status_code == 200:
+            return response.json().get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text')
+    except: pass
+    return None
+
+# Load the model once at startup
+model = load_ml_model()
+
+# Define the columns expected by the ML model
+MODEL_COLUMNS = [
+    'Age', 'Gender', 'Academic_Level', 'Avg_Daily_Usage_Hours', 
+    'Affects_Academic_Performance', 'Sleep_Hours_Per_Night', 
+    'Conflicts_Over_Social_Media', 'Addicted_Score', 
+    'Most_Used_Platform_Facebook', 'Most_Used_Platform_Instagram', 
+    'Most_Used_Platform_KakaoTalk', 'Most_Used_Platform_LINE', 
+    'Most_Used_Platform_LinkedIn', 'Most_Used_Platform_Snapchat', 
+    'Most_Used_Platform_TikTok', 'Most_Used_Platform_Twitter', 
+    'Most_Used_Platform_VKontakte', 'Most_Used_Platform_WeChat', 
+    'Most_Used_Platform_WhatsApp', 'Most_Used_Platform_YouTube', 'Relationship_Status_Complicated', 
+    'Relationship_Status_In Relationship', 'Relationship_Status_Single'
+]
+
+
+# ==============================================================================
+# 5. ADVANCED DESIGN SYSTEM (CSS & THEME CONFIGURATION)
+# ==============================================================================
+# This section defines the visual identity of the app.
+# It includes a massive CSS injection that overrides Streamlit's defaults
+# to create a truly custom, app-like experience.
+# ==============================================================================
+
+# 5.1 THEME PALETTES
+# ------------------------------------------------------------------------------
+# Detailed color tokens for both modes.
+themes = {
+    "Dark": {
+        "bg_image": "linear-gradient(135deg, #020617 0%, #0f172a 50%, #1e1b4b 100%)",
+        "text_primary": "#f8fafc",
+        "text_secondary": "#94a3b8",
+        "accent_primary": "#8b5cf6", # Violet
+        "accent_secondary": "#6366f1", # Indigo
+        "card_bg": "rgba(30, 41, 59, 0.4)",
+        "card_border": "rgba(148, 163, 184, 0.1)",
+        "card_shadow": "0 8px 32px 0 rgba(0, 0, 0, 0.3)",
+        "input_bg": "#ffffff",
+        "input_text": "#000000",
+        "input_border": "#e2e8f0",
+        "btn_gradient": "linear-gradient(90deg, #6366f1, #a855f7)",
+        "btn_text": "#ffffff",
+        "btn_shadow": "0 4px 15px rgba(99, 102, 241, 0.4)",
+        "success": "#10b981",
+        "warning": "#f59e0b",
+        "danger": "#ef4444",
+        "highlight": "#c084fc"
+    },
+    "Light": {
+        "bg_image": "linear-gradient(120deg, #f0f9ff 0%, #e0f2fe 50%, #dbeafe 100%)",
+        "text_primary": "#0f172a",
+        "text_secondary": "#475569",
+        "accent_primary": "#0ea5e9", # Sky Blue
+        "accent_secondary": "#3b82f6", # Blue
+        "card_bg": "rgba(255, 255, 255, 0.7)",
+        "card_border": "rgba(255, 255, 255, 0.8)",
+        "card_shadow": "0 8px 32px 0 rgba(31, 38, 135, 0.07)",
+        "input_bg": "#ffffff",
+        "input_text": "#000000",
+        "input_border": "#cbd5e1",
+        "btn_gradient": "linear-gradient(90deg, #3b82f6, #06b6d4)",
+        "btn_text": "#ffffff",
+        "btn_shadow": "0 4px 15px rgba(59, 130, 246, 0.3)",
+        "success": "#10b981",
+        "warning": "#f59e0b",
+        "danger": "#ef4444",
+        "highlight": "#0ea5e9"
+    }
+}
+
+# Select current theme based on session state
+current = themes[st.session_state.theme_mode]
+
+# 5.2 DYNAMIC BACKGROUND GENERATOR
+# ------------------------------------------------------------------------------
+# Adds SVG patterns (emojis) to the background if a score is present.
+def get_background_style(mode, score):
+    base = current['bg_image']
+    if st.session_state.page != "results" or score is None:
+        return base
+    
+    # Determine Emoji
+    emoji = "🌟" if score >= 6 else "🌧️"
+    
+    # Generate SVG
+    svg = f"""
+    <svg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'>
+        <text x='50%' y='50%' font-size='35' text-anchor='middle' dominant-baseline='middle' opacity='0.15'>{emoji}</text>
+    </svg>
+    """
+    b64_svg = base64.b64encode(svg.encode('utf-8')).decode('utf-8')
+    return f"url('data:image/svg+xml;base64,{b64_svg}'), {base}"
+
+final_bg = get_background_style(st.session_state.theme_mode, st.session_state.score)
+
+# 5.3 COMPREHENSIVE CSS INJECTION
+# ------------------------------------------------------------------------------
+st.markdown(f"""
+<style>
+    /* =========================================
+       IMPORT EXTERNAL FONTS
+       ========================================= */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;600&display=swap');
+
+    /* =========================================
+       ROOT VARIABLES & RESET
+       ========================================= */
+    :root {{
+        --font-primary: 'Poppins', sans-serif;
+        --font-secondary: 'Inter', sans-serif;
+        --transition-speed: 0.3s;
+    }}
+
+    /* =========================================
+       MAIN CONTAINER STYLING
+       ========================================= */
+    .stApp {{
+        background: {final_bg};
+        background-attachment: fixed;
+        background-size: cover;
+        color: {current['text_primary']};
+        font-family: var(--font-primary);
+        transition: background 0.5s ease-in-out;
+    }}
+    
+    /* Remove top padding constraint from Streamlit */
+    .block-container {{
+        padding-top: 2rem;
+        padding-bottom: 5rem;
+        max-width: 1200px;
+    }}
+
+    /* =========================================
+       TYPOGRAPHY
+       ========================================= */
+    h1, h2, h3, h4, h5, h6 {{
+        color: {current['text_primary']} !important;
+        font-family: var(--font-primary);
+        font-weight: 800;
+        letter-spacing: -0.5px;
+    }}
+    
+    p, label, span, div {{
+        color: {current['text_primary']};
+        font-family: var(--font-secondary);
+    }}
+    
+    .section-header {{
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: {current['highlight']} !important;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid {current['highlight']};
+        padding-bottom: 0.5rem;
+        display: inline-block;
+    }}
+
+    /* =========================================
+       INPUT ELEMENTS (TEXTBOXES, SELECTS)
+       ========================================= */
+    /* CRITICAL REQUIREMENT: 
+       Inputs must be WHITE background with BLACK text 
+       regardless of the theme mode.
+    */
+    
+    /* Text Inputs & Number Inputs */
+    .stTextInput > div > div > input,
+    .stNumberInput > div > div > input {{
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        border: 2px solid {current['input_border']} !important;
+        border-radius: 12px !important;
+        padding: 12px 15px !important;
+        font-weight: 500 !important;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05) !important;
+        transition: all 0.2s ease;
+    }}
+    
+    .stTextInput > div > div > input:focus,
+    .stNumberInput > div > div > input:focus {{
+        border-color: {current['accent_primary']} !important;
+        box-shadow: 0 0 0 3px {current['accent_primary']}33 !important;
+        outline: none !important;
+    }}
+
+    /* Select Boxes (Dropdowns) */
+    .stSelectbox > div > div > div {{
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        border: 2px solid {current['input_border']} !important;
+        border-radius: 12px !important;
+        font-weight: 500 !important;
+    }}
+    
+    /* Dropdown Menu Items */
+    div[data-baseweb="select"] > div {{
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        border-radius: 12px !important;
+    }}
+    
+    div[data-baseweb="popover"],
+    div[data-baseweb="menu"] {{
+        background-color: #ffffff !important;
+    }}
+    
+    div[role="option"] {{
+        color: #000000 !important;
+    }}
+    
+    /* Selected Value Text */
+    div[data-testid="stSelectbox"] div[class*="st-"] {{
+        color: #000000 !important;
+    }}
+    
+    /* Sliders */
+    .stSlider > div > div > div > div {{
+        background-color: {current['accent_primary']} !important;
+    }}
+
+    /* =========================================
+       BUTTONS
+       ========================================= */
+    .stButton > button {{
+        background: {current['btn_gradient']} !important;
+        color: {current['btn_text']} !important;
+        border: none !important;
+        border-radius: 50px !important;
+        padding: 0.75rem 2rem !important;
+        font-size: 1rem !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.5px !important;
+        box-shadow: {current['btn_shadow']} !important;
+        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
+        width: 100%;
+        text-transform: uppercase;
+    }}
+    
+    .stButton > button:hover {{
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;
+    }}
+    
+    .stButton > button:active {{
+        transform: translateY(1px) scale(0.98);
+    }}
+
+    /* =========================================
+       CARDS & CONTAINERS (Glassmorphism)
+       ========================================= */
+    .glass-card {{
+        background: {current['card_bg']};
+        border: 1px solid {current['card_border']};
+        border-radius: 24px;
+        padding: 2.5rem;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        box-shadow: {current['card_shadow']};
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+    }}
+    
+    .glass-card:hover {{
+        transform: translateY(-5px);
+        border-color: {current['highlight']};
+    }}
+
+    /* =========================================
+       NAVBAR STYLING
+       ========================================= */
+    .nav-container {{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: {current['card_bg']};
+        border: 1px solid {current['card_border']};
+        backdrop-filter: blur(12px);
+        padding: 10px 30px;
+        border-radius: 20px;
+        margin-bottom: 40px;
+        box-shadow: {current['card_shadow']};
+    }}
+    
+    .nav-item {{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }}
+
+    /* =========================================
+       CUSTOM LISTS
+       ========================================= */
+    ul.custom-list {{
+        list-style: none;
+        padding: 0;
+    }}
+    
+    ul.custom-list li {{
+        padding-left: 20px;
+        position: relative;
+        margin-bottom: 10px;
+        color: {current['text_primary']};
+    }}
+    
+    ul.custom-list li::before {{
+        content: "•";
+        color: {current['highlight']};
+        font-weight: bold;
+        font-size: 1.5rem;
+        position: absolute;
+        left: 0;
+        top: -5px;
+    }}
+
+    /* =========================================
+       ANIMATIONS
+       ========================================= */
+    @keyframes fadeIn {{
+        from {{ opacity: 0; transform: translateY(20px); }}
+        to {{ opacity: 1; transform: translateY(0); }}
+    }}
+    
+    .animate-enter {{
+        animation: fadeIn 0.6s ease-out forwards;
+    }}
+    
+</style>
+""", unsafe_allow_html=True)
+
+
+# ==============================================================================
+# 6. UI COMPONENT FUNCTIONS
+# ==============================================================================
+
+def render_navbar():
+    """
+    Renders the TOP NAVIGATION BAR.
+    Layout: [LOGO] ----- [HOME BUTTON] ----- [THEME TOGGLE]
+    """
+    # Create a container styled like a pill/bar
+    st.markdown('<div class="nav-container-wrapper">', unsafe_allow_html=True)
+    
+    # We use Streamlit columns to layout the items horizontally
+    col_logo, col_spacer1, col_home, col_spacer2, col_toggle = st.columns([1.5, 0.5, 2, 0.5, 1.5])
+    
+    # 1. LOGO (Left)
+    with col_logo:
+        if os.path.exists(LOGO_FILENAME):
+            st.image(LOGO_FILENAME, width=110)
+        else:
+            st.markdown(f"<h3 style='margin:0; color:{current['highlight']}'>MindCheck AI</h3>", unsafe_allow_html=True)
+
+    # 2. HOME BUTTON (Center - In between)
+    with col_home:
+        st.markdown('<div style="display: flex; justify-content: center; height: 100%; align-items: center;">', unsafe_allow_html=True)
+        # Use a secondary button style for navigation to differentiate from main actions
+        if st.button("🏠 DASHBOARD HOME", key="nav_home_btn", use_container_width=True):
+            go_to_page("home")
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    # 3. DARK MODE TOGGLE (Right)
+    with col_toggle:
+        st.markdown('<div style="display: flex; justify-content: flex-end; height: 100%; align-items: center;">', unsafe_allow_html=True)
+        # Theme toggle logic
+        is_dark = (st.session_state.theme_mode == "Dark")
+        st.toggle("Night Mode", value=is_dark, key="theme_toggle", on_change=toggle_theme)
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+    st.markdown('</div>', unsafe_allow_html=True)
+    # Add a visual divider
+    st.markdown(f"<hr style='border: 0; height: 1px; background: {current['card_border']}; margin-bottom: 2rem;'>", unsafe_allow_html=True)
+
+def show_loader(duration=4):
+    """
+    Displays the custom 'Synthesizing Information' full-screen overlay.
+    """
+    # HTML/CSS for the loader
+    loader_html = """
+    <style>
+        .loader-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.95); z-index: 999999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            backdrop-filter: blur(10px);
+        }
+        .loader-box { position: relative; width: 150px; height: 150px; }
+        
+        /* Ring Animation */
+        .cyber-ring {
+            position: absolute; border-radius: 50%; border: 4px solid transparent;
+        }
+        .cr-1 {
+            top: 0; left: 0; width: 100%; height: 100%;
+            border-top-color: #0ea5e9; border-right-color: #0ea5e9;
+            animation: spin 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.5);
+        }
+        .cr-2 {
+            top: 20%; left: 20%; width: 60%; height: 60%;
+            border-bottom-color: #a855f7; border-left-color: #a855f7;
+            animation: spin-rev 2s linear infinite;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
+        }
+        
+        /* Heartbeat Core */
+        .core {
+            position: absolute; top: 50%; left: 50%; width: 20px; height: 20px;
+            background: #ec4899; border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulse 1s ease-in-out infinite;
+            box-shadow: 0 0 30px #ec4899;
+        }
+
+        @keyframes spin { 0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);} }
+        @keyframes spin-rev { 0% {transform: rotate(360deg);} 100% {transform: rotate(-360deg);} }
+        @keyframes pulse { 0% {transform: translate(-50%, -50%) scale(1);} 50% {transform: translate(-50%, -50%) scale(1.5);} 100% {transform: translate(-50%, -50%) scale(1);} }
+        
+        .txt {
+            margin-top: 40px; color: #fff; font-family: 'Courier New', monospace;
+            font-size: 1.2rem; letter-spacing: 3px; font-weight: bold;
+        }
+    </style>
+    <div class="loader-overlay">
+        <div class="loader-box">
+            <div class="cyber-ring cr-1"></div>
+            <div class="cyber-ring cr-2"></div>
+            <div class="core"></div>
+        </div>
+        <div class="txt">SYNTHESIZING...</div>
+    </div>
+    """
+    placeholder = st.empty()
+    placeholder.markdown(loader_html, unsafe_allow_html=True)
+    time.sleep(duration)
+    placeholder.empty()
+
+
+# ==============================================================================
+# 7. MAIN APPLICATION ROUTER
+# ==============================================================================
+# This section directs the user to the correct page based on session state.
+# ==============================================================================
+
+# RENDER THE NAVIGATION BAR ON EVERY PAGE
+render_navbar()
+
+# ------------------------------------------------------------------------------
+# PAGE: HOME
+# ------------------------------------------------------------------------------
 if st.session_state.page == "home":
+    # Hero Section
     st.markdown(f"""
-    <div class="anim-enter" style="text-align: center; padding: 80px 0 60px 0;">
-        <h1 style="font-size: 5rem; margin-bottom: 20px; line-height: 1.1;">MindCheck AI</h1>
-        <p style="font-size: 1.5rem; opacity: 0.7; max-width: 600px; margin: 0 auto;">
-            {ContentRepository.APP_SUBTITLE}
+    <div class="animate-enter" style="text-align: center; padding: 4rem 0;">
+        <h1 style="font-size: 4.5rem; margin-bottom: 1rem; background: {current['btn_gradient']}; -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            MindCheck AI
+        </h1>
+        <p style="font-size: 1.4rem; color: {current['text_secondary']}; max-width: 700px; margin: 0 auto 3rem auto;">
+            An AI that helps improve mental health.
         </p>
     </div>
     """, unsafe_allow_html=True)
+
+    # Main Navigation Grid (3 Large Buttons)
+    grid_c1, grid_c2, grid_c3 = st.columns(3, gap="large")
     
-    c1, c2, c3 = st.columns(3, gap="medium")
-    
-    with c1:
-        st.markdown('<div class="liquid-card anim-enter" style="text-align:center; height:100%;">', unsafe_allow_html=True)
-        st.markdown('<div class="anim-float" style="font-size: 3.5rem; margin-bottom:20px;">👤</div>', unsafe_allow_html=True)
-        st.markdown('<h3>Profile</h3>', unsafe_allow_html=True)
-        st.markdown('<p style="opacity:0.6; margin-bottom:30px;">Developer Information.</p>', unsafe_allow_html=True)
-        if st.button("About Me!", key="btn_about"):
+    with grid_c1:
+        st.markdown('<div class="animate-enter">', unsafe_allow_html=True)
+        # Using cards for visual weight
+        st.markdown(f"""
+        <div style="background:{current['card_bg']}; padding:20px; border-radius:20px; text-align:center; height:100%;">
+            <div style="font-size:3rem; margin-bottom:10px;">👤</div>
+            <h3 style="margin-bottom:15px;">Profile</h3>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("About Me!", use_container_width=True):
             go_to_page("about")
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
-        
-    with c2:
-        t = ThemeEngine.get_current_theme()
-        st.markdown(f'<div class="liquid-card anim-enter" style="text-align:center; height:100%; border:2px solid {t["accent_primary"]};">', unsafe_allow_html=True)
-        st.markdown('<div class="anim-float" style="font-size: 3.5rem; margin-bottom:20px;">🧠</div>', unsafe_allow_html=True)
-        st.markdown(f'<h3 style="color:{t["accent_primary"]} !important;">MindCheck AI</h3>', unsafe_allow_html=True)
-        st.markdown('<p style="opacity:0.6; margin-bottom:30px;">Start your assessment.</p>', unsafe_allow_html=True)
-        if st.button("START CHECK-IN", key="btn_start"):
+
+    with grid_c2:
+        st.markdown('<div class="animate-enter">', unsafe_allow_html=True)
+        st.markdown(f"""
+        <div style="background:{current['card_bg']}; padding:20px; border-radius:20px; text-align:center; height:100%; border: 2px solid {current['accent_primary']};">
+            <div style="font-size:3rem; margin-bottom:10px;">🧠</div>
+            <h3 style="margin-bottom:15px; color:{current['accent_primary']} !important;">MindCheck AI</h3>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("START CHECK-IN", type="primary", use_container_width=True):
             go_to_page("interview")
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
-        
-    with c3:
-        st.markdown('<div class="liquid-card anim-enter" style="text-align:center; height:100%;">', unsafe_allow_html=True)
-        st.markdown('<div class="anim-float" style="font-size: 3.5rem; margin-bottom:20px;">📢</div>', unsafe_allow_html=True)
-        st.markdown('<h3>Updates</h3>', unsafe_allow_html=True)
-        st.markdown('<p style="opacity:0.6; margin-bottom:30px;">Latest Version News.</p>', unsafe_allow_html=True)
-        if st.button("Latest Update", key="btn_update"):
+
+    with grid_c3:
+        st.markdown('<div class="animate-enter">', unsafe_allow_html=True)
+        st.markdown(f"""
+        <div style="background:{current['card_bg']}; padding:20px; border-radius:20px; text-align:center; height:100%;">
+            <div style="font-size:3rem; margin-bottom:10px;">📢</div>
+            <h3 style="margin-bottom:15px;">News</h3>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("Latest Update", use_container_width=True):
             go_to_page("updates")
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
-# --- ABOUT PAGE ---
+# ------------------------------------------------------------------------------
+# PAGE: ABOUT ME
+# ------------------------------------------------------------------------------
 elif st.session_state.page == "about":
-    st.markdown('<div class="anim-enter">', unsafe_allow_html=True)
-    st.markdown('<h1 style="text-align:center; margin-bottom: 40px;">About Me</h1>', unsafe_allow_html=True)
-    t = ThemeEngine.get_current_theme()
-    st.markdown(f"""
-    <div class="liquid-card" style="text-align: center; max-width: 600px; margin: 0 auto; padding: 80px 40px;">
-        <h2 style="font-weight: 300; font-size: 4rem; background: {t['brand_gradient']}; -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Hi.</h2>
-    </div>
-    """, unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-
-# --- UPDATES PAGE ---
-elif st.session_state.page == "updates":
-    st.markdown('<div class="anim-enter">', unsafe_allow_html=True)
-    st.markdown('<h1 style="text-align:center; margin-bottom: 40px;">Latest Updates</h1>', unsafe_allow_html=True)
-    t = ThemeEngine.get_current_theme()
-    st.markdown(f"""
-    <div class="liquid-card" style="text-align: center; max-width: 600px; margin: 0 auto; padding: 80px 40px;">
-        <h2 style="font-weight: 300; font-size: 4rem; background: {t['brand_gradient']}; -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Hello</h2>
-    </div>
-    """, unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-
-# --- INTERVIEW PAGE ---
-elif st.session_state.page == "interview":
-    st.markdown('<div class="anim-enter">', unsafe_allow_html=True)
-    st.markdown(f'<h1 style="text-align:center; margin-bottom: 10px;">📝 Mental Health Check-In</h1>', unsafe_allow_html=True)
-    st.markdown(f'<p style="text-align:center; opacity:0.7; margin-bottom: 50px;">Complete the assessment below to unlock your insights.</p>', unsafe_allow_html=True)
+    st.markdown('<div class="animate-enter">', unsafe_allow_html=True)
+    st.markdown('<h1 style="text-align:center; margin-bottom: 2rem;">About Me</h1>', unsafe_allow_html=True)
     
+    # Simple card as requested
+    st.markdown(f"""
+    <div class="glass-card" style="text-align: center; max-width: 600px; margin: 0 auto;">
+        <h2 style="font-weight: 400; font-size: 2rem;">Hi.</h2>
+    </div>
+    """, unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# ------------------------------------------------------------------------------
+# PAGE: LATEST UPDATES
+# ------------------------------------------------------------------------------
+elif st.session_state.page == "updates":
+    st.markdown('<div class="animate-enter">', unsafe_allow_html=True)
+    st.markdown('<h1 style="text-align:center; margin-bottom: 2rem;">Latest Updates</h1>', unsafe_allow_html=True)
+    
+    # Simple card as requested
+    st.markdown(f"""
+    <div class="glass-card" style="text-align: center; max-width: 600px; margin: 0 auto;">
+        <h2 style="font-weight: 400; font-size: 2rem;">Hello</h2>
+    </div>
+    """, unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# ------------------------------------------------------------------------------
+# PAGE: INTERVIEW (INPUT FORM)
+# ------------------------------------------------------------------------------
+elif st.session_state.page == "interview":
+    st.markdown('<div class="animate-enter">', unsafe_allow_html=True)
+    st.markdown(f'<h1 style="text-align:center; margin-bottom: 0.5rem;">📝 Mental Health Check-In</h1>', unsafe_allow_html=True)
+    st.markdown(f'<p style="text-align:center; color:{current["text_secondary"]}; margin-bottom: 3rem;">Complete the assessment below to unlock your insights.</p>', unsafe_allow_html=True)
+    
+    # Using a Form for better UX
     with st.form("interview_form"):
+        # Create two columns for the form layout
         c1, c2 = st.columns(2, gap="large")
         
         with c1:
-            UILibrary.render_card_start("height: 100%;")
-            st.markdown('<div class="section-label">👤 Profile Details</div>', unsafe_allow_html=True)
-            age = st.number_input("How old are you?", 10, 100, 15)
+            st.markdown('<div class="glass-card" style="padding: 1.5rem;">', unsafe_allow_html=True)
+            st.markdown('<div class="section-header">👤 Profile Details</div>', unsafe_allow_html=True)
+            
+            age = st.number_input("How old are you?", 10, 100, 15, help="Your age helps us benchmark against peer groups.")
             gender = st.selectbox("Gender Identity", ["Male", "Female"])
-            academic_level = st.selectbox("Current School Level", ["High School", "Undergraduate", "Graduate", "Middle School"])
-            st.markdown('<br><div class="section-label">❤️ Health Metrics</div>', unsafe_allow_html=True)
+            academic_level = st.selectbox("Education Level", ["High School", "Undergraduate", "Graduate", "Middle School"])
+            
+            st.markdown('<br><div class="section-header">❤️ Health Metrics</div>', unsafe_allow_html=True)
             sleep = st.number_input("Average Sleep (Hours/Night)", 0.0, 24.0, 8.0, 0.5)
             rel_status = st.selectbox("Relationship Status", ["Single", "In a relationship", "Married", "Divorced"])
-            UILibrary.render_card_end()
-            
+            st.markdown('</div>', unsafe_allow_html=True)
+
         with c2:
-            UILibrary.render_card_start("height: 100%;")
-            st.markdown('<div class="section-label">📱 Digital Footprint</div>', unsafe_allow_html=True)
+            st.markdown('<div class="glass-card" style="padding: 1.5rem;">', unsafe_allow_html=True)
+            st.markdown('<div class="section-header">📱 Digital Footprint</div>', unsafe_allow_html=True)
+            
             avg_daily_usage = st.number_input("Daily Screen Time (Hours)", 0.0, 24.0, 4.0, 0.5)
             platform = st.selectbox("Dominant Platform", ["TikTok", "YouTube", "Instagram", "Twitter", "Facebook", "Snapchat", "WhatsApp", "LinkedIn"])
-            st.markdown("<br><label style='font-weight:600;'>Self-Perceived Addiction Level (1-10)</label>", unsafe_allow_html=True)
+            
+            st.markdown("<br><label>Self-Perceived Addiction Level</label>", unsafe_allow_html=True)
             addiction = st.slider("", 1, 10, 5)
-            st.markdown('<br><div class="section-label">⚠️ Impact Assessment</div>', unsafe_allow_html=True)
+            
+            st.markdown('<br><div class="section-header">⚠️ Impact Assessment</div>', unsafe_allow_html=True)
             affects_perf = st.radio("Does usage affect your grades/work?", ["No", "Yes"], horizontal=True)
             conflicts = st.number_input("Weekly conflicts caused by social media?", 0, 10, 0)
-            UILibrary.render_card_end()
-            
+            st.markdown('</div>', unsafe_allow_html=True)
+
+        # Submit Action
         st.markdown("<br>", unsafe_allow_html=True)
-        col_btn_layout = st.columns([1, 2, 1])[1]
-        with col_btn_layout:
+        col_spacer_l, col_submit, col_spacer_r = st.columns([1, 2, 1])
+        with col_submit:
             submitted = st.form_submit_button("🏁 ANALYZE MY DATA")
             
         if submitted:
-            UILibrary.show_loader(duration=4)
+            # 1. Show the cool loading animation (4 seconds)
+            show_loader(duration=4)
+            
+            # 2. Save Inputs to Session State
             st.session_state.inputs = {
                 "Age": age, "Gender": gender, "Academic_Level": academic_level,
                 "Avg_Daily_Usage_Hours": avg_daily_usage, "Platform": platform,
@@ -894,189 +729,220 @@ elif st.session_state.page == "interview":
                 "Affects_Performance": affects_perf, "Conflicts": conflicts
             }
             
-            # Prediction Logic
+            # 3. Prepare Data for Model
             input_df = pd.DataFrame(0, index=[0], columns=MODEL_COLUMNS)
             try:
+                # Map inputs to model format
                 input_df['Gender'] = 1 if gender == "Female" else 0 
                 input_df['Age'] = age
-                input_df['Academic_Level'] = 1 
+                input_df['Academic_Level'] = 1 # Simplified mapping for demo
                 input_df['Avg_Daily_Usage_Hours'] = avg_daily_usage
                 input_df['Addicted_Score'] = addiction
                 input_df['Conflicts_Over_Social_Media'] = conflicts
                 input_df['Affects_Academic_Performance'] = 1 if affects_perf == "Yes" else 0
                 
+                # One-hot encoding handling
                 if model:
                     plat_col = f"Most_Used_Platform_{platform}"
                     if plat_col in MODEL_COLUMNS: input_df[plat_col] = 1
                     wellness_score = model.predict(input_df)[0]
                 else:
+                    # Fallback logic if model fails/missing
                     base = 10 - (avg_daily_usage * 0.3) - (addiction * 0.2) + (sleep * 0.2)
-                    wellness_score = max(1.0, min(10.0, base))
+                    wellness_score = max(1, min(10, base))
 
+                # 4. Update State and Navigate
                 st.session_state.score = wellness_score
                 go_to_page("results")
                 st.rerun()
             except Exception as e:
-                st.error(f"Computation Error: {e}")
+                st.error(f"Calculation Error: {e}")
+    st.markdown('</div>', unsafe_allow_html=True)
 
-# --- RESULTS PAGE ---
+# ------------------------------------------------------------------------------
+# PAGE: RESULTS DASHBOARD
+# ------------------------------------------------------------------------------
 elif st.session_state.page == "results":
-    st.markdown('<div class="anim-enter">', unsafe_allow_html=True)
+    st.markdown('<div class="animate-enter">', unsafe_allow_html=True)
     score = st.session_state.score
     data = st.session_state.inputs
-    t = ThemeEngine.get_current_theme()
     
-    # Recap
+    # 1. Header & Recap Section
+    # -----------------------------------------
     st.markdown(f"""
-    <div class="liquid-card" style="padding: 1.2rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; border-left: 6px solid {t['accent_primary']};">
+    <div class="glass-card" style="padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; border-left: 6px solid {current['highlight']};">
         <div>
-            <strong style="color:{t['accent_primary']}; font-size: 0.85rem; letter-spacing: 1.5px; text-transform:uppercase;">ANALYSIS PARAMETERS:</strong>&nbsp;&nbsp;
-            <span style="font-size: 0.95rem; opacity:0.8;">
-                <b>{data.get('Age')}y/o {data.get('Gender')}</b> • 
-                <b>{data.get('Platform')}</b> ({data.get('Avg_Daily_Usage_Hours')}h/day)
+            <span style="font-weight: 800; color: {current['highlight']}; letter-spacing: 1px;">ANALYSIS COMPLETE</span><br>
+            <span style="font-size: 0.95rem; opacity: 0.8;">
+                User: <b>{data.get('Age')}y {data.get('Gender')}</b> | 
+                Focus: <b>{data.get('Platform')}</b> | 
+                Sleep: <b>{data.get('Sleep')}h</b>
             </span>
         </div>
-        <div style="font-size:1.5rem;">✅</div>
+        <div style="font-size: 2rem;">✅</div>
     </div>
     """, unsafe_allow_html=True)
-    
-    # Header Control
-    c_head, c_restart = st.columns([4, 1.2])
-    with c_head: st.markdown(f'<h1 style="text-align:left; font-size: 3rem; margin:0;">Mental Health Scorecard</h1>', unsafe_allow_html=True)
-    with c_restart:
-        if st.button("🔄 Restart?", use_container_width=True):
-            UILibrary.show_loader(2)
+
+    # 2. Main Title & Restart Button
+    # -----------------------------------------
+    col_res_header, col_res_btn = st.columns([4, 1.2])
+    with col_res_header:
+        st.markdown(f'<h1 style="margin:0;">Mental Health Scorecard</h1>', unsafe_allow_html=True)
+    with col_res_btn:
+        if st.button("🔄 RESTART?", use_container_width=True):
+            show_loader(duration=2)
             reset_interview()
             st.rerun()
-            
-    # Score Calculation
+
+    # 3. Big Score Display
+    # -----------------------------------------
+    # Color logic for score
     if score < 4:
-        s_color = t['danger']
-        msg = "Immediate Action Recommended"
+        s_color = current['danger']
+        msg = "Immediate Detox Recommended"
     elif score < 7:
-        s_color = t['warning']
+        s_color = current['warning']
         msg = "Moderate Impact Detected"
     else:
-        s_color = t['success']
-        msg = "Excellent Mental Balance"
-        
+        s_color = current['success']
+        msg = "Healthy Digital Balance"
+
     st.markdown(f"""
-    <div class="liquid-card" style="text-align: center; border: 2px solid {s_color}; position:relative; overflow:hidden;">
-        <div style="position:absolute; top:0; left:0; width:100%; height:8px; background:{s_color}; opacity:0.8;"></div>
-        <h3 style="margin-top:20px; opacity:0.6; letter-spacing:4px; font-size:1rem; font-weight:700;">MENTAL HEALTH INDEX</h3>
-        <h1 style="font-size: 9rem; font-weight: 900; margin: 10px 0; color: {s_color} !important; text-shadow: 0 0 40px {s_color}44; line-height:1;">
-            {score:.1f}<span style="font-size:2.5rem; opacity:0.5; color:{t['text_main']};">/10</span>
+    <div style="text-align: center; padding: 3rem; background: {current['card_bg']}; border-radius: 30px; margin: 2rem 0; box-shadow: {current['card_shadow']}; backdrop-filter: blur(10px); border: 1px solid {current['card_border']};">
+        <h4 style="margin:0; opacity:0.6; letter-spacing: 3px;">MENTAL HEALTH INDEX</h4>
+        <h1 style="font-size: 7rem; font-weight: 900; margin: 0; color: {s_color} !important; text-shadow: 0 0 30px {s_color}40;">
+            {score:.1f}<span style="font-size: 2.5rem; opacity: 0.4; color: {current['text_primary']};">/10</span>
         </h1>
-        <div style="background:{s_color}22; display:inline-block; padding:10px 25px; border-radius:100px; margin-bottom:20px;">
-            <p style="margin:0; color:{s_color} !important; font-weight:700; letter-spacing:0.5px;">{msg}</p>
+        <div style="display:inline-block; padding: 0.5rem 1.5rem; border-radius: 20px; background: {s_color}20; color: {s_color}; font-weight: bold; margin-top: 1rem;">
+            {msg}
         </div>
     </div>
     """, unsafe_allow_html=True)
+
+    # 4. AI Insights Grid
+    # -----------------------------------------
+    st.markdown(f'<h3 style="text-align:center; margin-bottom: 2rem; color:{current["highlight"]} !important;">✨ Generative AI Insights</h3>', unsafe_allow_html=True)
     
-    # AI Grid
-    st.markdown(f'<h3 style="text-align:center; color:{t["accent_primary"]}; margin: 50px 0 30px 0;">✨ Generative AI Insights</h3>', unsafe_allow_html=True)
-    c1, c2, c3 = st.columns(3, gap="medium")
+    col_ai_1, col_ai_2, col_ai_3 = st.columns(3, gap="medium")
     
-    with c1:
-        st.markdown('<div class="liquid-card" style="text-align:center; height:100%;">', unsafe_allow_html=True)
-        st.markdown('<div class="anim-float" style="font-size:2.5rem;">📊</div>', unsafe_allow_html=True)
-        st.markdown('<h4>My Persona</h4>', unsafe_allow_html=True)
-        st.markdown('<p style="font-size:0.8rem; opacity:0.7;">Deep behavioral analysis.</p>', unsafe_allow_html=True)
-        if st.button("Generate", key="btn_persona", use_container_width=True):
-            UILibrary.show_loader(4)
-            with st.spinner("Analyzing..."):
-                prompt = f"Based on: {json.dumps(data)}. Return JSON: {{'persona': 'Fun Title', 'analysis': 'Short analysis', 'tips': ['Tip 1', 'Tip 2']}}"
-                res = call_gemini_api(prompt)
-                if res: st.session_state.ai_results['analysis'] = json.loads(res); st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
+    # Feature 1: Persona Analysis
+    with col_ai_1:
+        st.markdown(f"""
+        <div class="glass-card" style="text-align:center; padding: 2rem; height: 100%;">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem;">📊</div>
+            <h4>Profile Analysis</h4>
+            <p style="font-size: 0.9rem;">Deep dive into your behavioral archetype.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("Generate Persona", key="btn_persona", use_container_width=True):
+            show_loader(duration=4)
+            with st.spinner("Analyzing behavioral patterns..."):
+                prompt = f"Based on this user data: {json.dumps(data)}. Return JSON with keys: 'persona' (Creative 2-3 word title), 'analysis' (1 sentence summary), 'tips' (Array of 2 short actionable tips)."
+                res = call_gemini(prompt)
+                if res: 
+                    st.session_state.ai_results['analysis'] = json.loads(res)
+                    st.rerun()
+
+    # Feature 2: Time Travel
+    with col_ai_2:
+        st.markdown(f"""
+        <div class="glass-card" style="text-align:center; padding: 2rem; height: 100%;">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem;">🕰️</div>
+            <h4>Time Travel</h4>
+            <p style="font-size: 0.9rem;">Receive a message from your future self.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("Connect to 2029", key="btn_future", use_container_width=True):
+            show_loader(duration=4)
+            with st.spinner("Establishing temporal link..."):
+                prompt = f"Write a dramatic but helpful note from this user's future self in 2029 based on their current habits: {json.dumps(data)}. Max 50 words. Be encouraging but real."
+                res = call_gemini(prompt, is_json=False)
+                if res: 
+                    st.session_state.ai_results['future'] = res
+                    st.rerun()
+
+    # Feature 3: Detox Plan
+    with col_ai_3:
+        st.markdown(f"""
+        <div class="glass-card" style="text-align:center; padding: 2rem; height: 100%;">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem;">🍃</div>
+            <h4>Detox Protocol</h4>
+            <p style="font-size: 0.9rem;">Get a custom 3-day cleansing schedule.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("Create Plan", key="btn_detox", use_container_width=True):
+            show_loader(duration=4)
+            with st.spinner("Drafting protocol..."):
+                prompt = f"Create a 3-day social media detox plan for a {data['Platform']} user. Return JSON: {{'days': [{{'day': 'Day 1', 'theme': 'Theme Name', 'tasks': ['Task 1', 'Task 2']}}]}}"
+                res = call_gemini(prompt)
+                if res: 
+                    st.session_state.ai_results['detox'] = json.loads(res)
+                    st.rerun()
+
+    # 5. Display AI Results
+    # -----------------------------------------
+    results = st.session_state.get('ai_results', {})
+    
+    if results:
+        st.markdown("<hr style='margin: 3rem 0; opacity: 0.2;'>", unsafe_allow_html=True)
+        st.markdown("### 🧬 Generated Insights")
         
-    with c2:
-        st.markdown('<div class="liquid-card" style="text-align:center; height:100%;">', unsafe_allow_html=True)
-        st.markdown('<div class="anim-float" style="font-size:2.5rem;">🕰️</div>', unsafe_allow_html=True)
-        st.markdown('<h4>Future Self</h4>', unsafe_allow_html=True)
-        st.markdown('<p style="font-size:0.8rem; opacity:0.7;">A message from 2029.</p>', unsafe_allow_html=True)
-        if st.button("Warp Time", key="btn_future", use_container_width=True):
-            UILibrary.show_loader(4)
-            with st.spinner("Establishing link..."):
-                prompt = f"Write a note from future 2029 self based on habits: {json.dumps(data)}. Max 50 words."
-                res = call_gemini_api(prompt, expect_json=False)
-                if res: st.session_state.ai_results['future'] = res; st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-    with c3:
-        st.markdown('<div class="liquid-card" style="text-align:center; height:100%;">', unsafe_allow_html=True)
-        st.markdown('<div class="anim-float" style="font-size:2.5rem;">🍃</div>', unsafe_allow_html=True)
-        st.markdown('<h4>Detox Plan</h4>', unsafe_allow_html=True)
-        st.markdown('<p style="font-size:0.8rem; opacity:0.7;">3-Day cleansing protocol.</p>', unsafe_allow_html=True)
-        if st.button("Build Plan", key="btn_detox", use_container_width=True):
-            UILibrary.show_loader(4)
-            with st.spinner("Drafting..."):
-                prompt = f"3-day detox for {data['Platform']} user. JSON: {{'days': [{{'day': 'Day 1', 'theme': 'Theme', 'tasks': ['Task 1']}}]}}"
-                res = call_gemini_api(prompt)
-                if res: st.session_state.ai_results['detox'] = json.loads(res); st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-    # Result Rendering
-    if st.session_state.get('ai_results'):
-        st.markdown("<br><hr style='opacity:0.2; margin: 3rem 0;'><br>", unsafe_allow_html=True)
-        results = st.session_state.ai_results
-        
+        # Display Analysis
         if 'analysis' in results:
             r = results['analysis']
             st.markdown(f"""
-            <div class="liquid-card anim-enter" style="border-left: 5px solid {t['accent_primary']};">
-                <h3 style="color:{t['accent_primary']} !important; margin:0;">📊 {r.get('persona', 'User')}</h3>
-                <p style="font-style:italic; font-size:1.15rem; opacity:0.9; margin-top:15px;">"{r.get('analysis', '')}"</p>
-                <div style="margin-top:25px; padding-top:20px; border-top:1px solid {t['glass_border']};">
-                    <strong style="text-transform:uppercase; font-size:0.8rem; letter-spacing:1px; opacity:0.7;">Key Recommendations:</strong>
-                    <ul style="margin-top:15px; list-style-type:none; padding:0;">
-                        {"".join([f"<li style='margin-bottom:10px; padding-left:20px; position:relative;'><span style='position:absolute; left:0; color:{t['accent_primary']};'>➤</span> {tip}</li>" for tip in r.get('tips', [])])}
+            <div class="glass-card" style="border-left: 5px solid {current['accent_primary']};">
+                <h3 style="color:{current['accent_primary']} !important; margin-top:0;">{r.get('persona', 'User')}</h3>
+                <p style="font-style: italic; font-size: 1.1rem; opacity: 0.9;">"{r.get('analysis', '')}"</p>
+                <div style="margin-top: 1.5rem;">
+                    <strong style="text-transform:uppercase; font-size:0.85rem; letter-spacing:1px; color:{current['text_secondary']};">Recommendations</strong>
+                    <ul class="custom-list" style="margin-top: 0.5rem;">
+                        {''.join([f'<li>{t}</li>' for t in r.get('tips', [])])}
                     </ul>
                 </div>
             </div>
             """, unsafe_allow_html=True)
-            
+
+        # Display Future Message
         if 'future' in results:
             st.markdown(f"""
-            <div class="liquid-card anim-enter" style="border-left: 5px solid {t['warning']};">
-                <h3 style="color:{t['warning']} !important; margin:0;">🕰️ Incoming Transmission (2029)</h3>
-                <p style="font-family: 'Courier New', monospace; font-size: 1.1rem; line-height: 1.7; margin-top:15px;">
+            <div class="glass-card" style="border-left: 5px solid {current['warning']}; background: {current['card_bg']};">
+                <h3 style="color:{current['warning']} !important; margin-top:0;">📨 Incoming Transmission (2029)</h3>
+                <p style="font-family: 'Courier New', monospace; font-size: 1.05rem; line-height: 1.6;">
                     {results['future']}
                 </p>
             </div>
             """, unsafe_allow_html=True)
-            
+
+        # Display Detox Plan
         if 'detox' in results:
             r = results['detox']
             days_html = ""
             for d in r.get('days', []):
-                tasks = "".join([f"<li style='margin-bottom:5px; opacity:0.9;'>• {t}</li>" for t in d.get('tasks', [])])
+                tasks = "".join([f"<li>{t}</li>" for t in d.get('tasks', [])])
                 days_html += f"""
-                <div style='background:rgba(255,255,255,0.03); padding:1.5rem; margin-bottom:15px; border-radius:20px; border:1px solid {t['glass_border']}'>
-                    <strong style="color:{t['success']}; font-size:1.2rem; display:block; margin-bottom:10px;">{d.get('day')}: {d.get('theme')}</strong>
-                    <ul style="list-style-type:none; padding-left:10px;">{tasks}</ul>
+                <div style="background:rgba(255,255,255,0.05); border:1px solid {current['card_border']}; padding:1rem; border-radius:12px; margin-bottom:1rem;">
+                    <strong style="color:{current['success']}; font-size:1.1rem;">{d.get('day')}: {d.get('theme')}</strong>
+                    <ul class="custom-list" style="margin-top:0.5rem;">{tasks}</ul>
                 </div>
                 """
+            
             st.markdown(f"""
-            <div class="liquid-card anim-enter" style="border-left: 5px solid {t['success']};">
-                <h3 style="color:{t['success']} !important; margin:0;">🍃 Detox Challenge</h3>
+            <div class="glass-card" style="border-left: 5px solid {current['success']};">
+                <h3 style="color:{current['success']} !important; margin-top:0;">🌱 Digital Detox Protocol</h3>
                 {days_html}
             </div>
             """, unsafe_allow_html=True)
-    
+            
     st.markdown('</div>', unsafe_allow_html=True)
 
-# ==============================================================================
-# 7.0 FOOTER
-# ==============================================================================
-st.markdown(ContentRepository.LEGAL_DISCLAIMER, unsafe_allow_html=True)
+# ------------------------------------------------------------------------------
+# FOOTER
+# ------------------------------------------------------------------------------
 st.markdown(f"""
-<br><br>
-<div style="text-align: center; margin-top: 2rem; opacity: 0.4; font-size: 0.8rem; font-family: 'SF Pro Display'; letter-spacing: 1px;">
-    <p>MindCheck AI v6.0.0 • Powered by Gemini • 2026</p>
-    <p style="font-size: 0.7rem;">Lumina Glass Engine Active • {st.session_state.theme_mode} Mode</p>
+<div style="text-align: center; margin-top: 5rem; opacity: 0.5; font-size: 0.8rem;">
+    <p>MindCheck AI v2.0 • Powered by MindCheck AI and Gemini AI • 2026</p>
 </div>
-<br>
 """, unsafe_allow_html=True)
 
 # End of Script
