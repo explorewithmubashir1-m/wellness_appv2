@@ -10,12 +10,12 @@ from PIL import Image
 import os
 
 # --- FILE CONFIGURATION ---
-FAVICON_FILENAME = "Gemini_Generated_Image_g704tpg704tpg704.png"
-LOGO_FILENAME = "Gemini_Generated_Image_g704tpg704tpg704.png"
+FAVICON_FILENAME = "Gemini_Generated_Image_5b19745b19745b19.jpg"
+LOGO_FILENAME = "Gemini_Generated_Image_fq49a6fq49a6fq49.jpg"
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
-    page_title="MindCheck V2",
+    page_title="MindCheck AI",
     page_icon=FAVICON_FILENAME,
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -28,7 +28,7 @@ API_KEY = st.secrets.get("GEMINI_API_KEY", None)
 
 # --- STATE MANAGEMENT ---
 if "page" not in st.session_state:
-    st.session_state.page = "interview"
+    st.session_state.page = "home" # Default to Home
 if "theme_mode" not in st.session_state:
     st.session_state.theme_mode = "Light"
 if "ai_results" not in st.session_state:
@@ -44,8 +44,8 @@ def toggle_theme():
     else:
         st.session_state.theme_mode = "Light"
 
-def go_to_results():
-    st.session_state.page = "results"
+def go_to_page(page_name):
+    st.session_state.page = page_name
 
 def reset_interview():
     st.session_state.page = "interview"
@@ -53,27 +53,14 @@ def reset_interview():
     st.session_state.score = None
     st.session_state.inputs = {}
 
-# --- CUSTOM LOADER (Flexible Duration) ---
+# --- CUSTOM LOADER ---
 def show_custom_loader(duration=4):
-    """
-    Displays the 'Synthesizing Information' loader.
-    Args:
-        duration (int): How many seconds to show the loader.
-    """
     loader_html = """
     <style>
         .loader-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(15, 23, 42, 0.95);
-            z-index: 99999;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.95); z-index: 99999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
             backdrop-filter: blur(8px);
         }
         .loader-container { position: relative; width: 120px; height: 120px; }
@@ -137,7 +124,8 @@ def get_background_style(theme_mode, score):
     }
     base_bg = gradients[theme_mode]
     
-    if st.session_state.page == "interview" or score is None:
+    # Only show emojis in result mode
+    if st.session_state.page != "results" or score is None:
         return base_bg
 
     emoji = "🌟" if score >= 6 else "🌧️" 
@@ -186,10 +174,9 @@ st.markdown(f"""
         transition: background 0.5s ease;
     }}
 
-    /* Global Text Colors */
     h1, h2, h3, h4, h5, h6, p, label {{ color: {current_theme['text_main']} !important; }}
     
-    /* INPUT FIELDS - FORCE WHITE BG / BLACK TEXT */
+    /* INPUTS */
     .stTextInput > div > div > input, 
     .stNumberInput > div > div > input,
     .stSelectbox > div > div > div {{
@@ -199,12 +186,10 @@ st.markdown(f"""
         border-radius: 12px !important;
         padding: 10px;
     }}
-    
-    /* Dropdown text fix */
     div[data-baseweb="select"] > div {{ background-color: #ffffff !important; color: #000000 !important; }}
     div[data-testid="stSelectbox"] div[class*="st-"] {{ color: #000000 !important; }}
     
-    /* Buttons */
+    /* BUTTONS */
     .stButton > button {{
         background: {current_theme['button_grad']} !important;
         color: white !important;
@@ -214,10 +199,11 @@ st.markdown(f"""
         padding: 0.8rem 2rem !important;
         box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         transition: transform 0.2s;
+        width: 100%; /* Make buttons full width for homepage */
     }}
-    .stButton > button:hover {{ transform: scale(1.05); }}
+    .stButton > button:hover {{ transform: scale(1.02); }}
 
-    /* Cards */
+    /* CARDS */
     .glass-card {{
         background: {current_theme['card_bg']};
         border: 1px solid {current_theme['card_border']};
@@ -228,7 +214,7 @@ st.markdown(f"""
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }}
     
-    /* Headers */
+    /* HEADERS */
     .section-title {{
         font-size: 1.2rem;
         font-weight: 700;
@@ -239,7 +225,7 @@ st.markdown(f"""
         letter-spacing: 1.5px;
     }}
     
-    /* Score Box */
+    /* SCORE BOX */
     .score-container {{
         text-align: center;
         padding: 3rem;
@@ -281,40 +267,87 @@ MODEL_COLUMNS = [
     'Age', 'Gender', 'Academic_Level', 'Avg_Daily_Usage_Hours', 'Affects_Academic_Performance', 'Sleep_Hours_Per_Night', 'Conflicts_Over_Social_Media', 'Addicted_Score', 'Most_Used_Platform_Facebook', 'Most_Used_Platform_Instagram', 'Most_Used_Platform_KakaoTalk', 'Most_Used_Platform_LINE', 'Most_Used_Platform_LinkedIn', 'Most_Used_Platform_Snapchat', 'Most_Used_Platform_TikTok', 'Most_Used_Platform_Twitter', 'Most_Used_Platform_VKontakte', 'Most_Used_Platform_WeChat', 'Most_Used_Platform_WhatsApp', 'Most_Used_Platform_YouTube', 'Relationship_Status_Complicated', 'Relationship_Status_In Relationship', 'Relationship_Status_Single']
 
 # ==========================================
-# TOP NAVIGATION BAR
+# SIDEBAR (Navigation & Theme)
 # ==========================================
-top_col1, top_col2, top_col3 = st.columns([1, 6, 2])
-
-with top_col1:
+with st.sidebar:
     if os.path.exists(LOGO_FILENAME):
-        st.image(LOGO_FILENAME, width=150) 
+        st.image(LOGO_FILENAME, width=120)
     else:
-        st.markdown(f"### 💜 Mental Health V2") 
-        st.caption("Logo not found.")
+        st.markdown(f"### 💜 Wellness V2")
 
-with top_col3:
-    st.markdown('<div style="text-align: right;">', unsafe_allow_html=True)
-    st.toggle("Dark Mode", value=(st.session_state.theme_mode == "Dark"), key="theme_toggle", on_change=toggle_theme)
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown("---")
+    
+    # HOME BUTTON (Always available)
+    if st.button("🏠 Home"):
+        go_to_page("home")
+        st.rerun()
 
-st.markdown("---")
+    st.markdown("---")
+    st.toggle("Night Mode", value=(st.session_state.theme_mode == "Dark"), key="theme_toggle", on_change=toggle_theme)
+
 
 # ==========================================
-# PAGE 1: THE INTERVIEW
+# PAGE ROUTING
 # ==========================================
-if st.session_state.page == "interview":
-    st.markdown(f'<h1 style="text-align:center; font-size: 3rem; margin-top:1rem;">📝 Mental Health Check-In</h1>', unsafe_allow_html=True)
-    st.markdown('<p style="text-align:center; opacity:0.8; margin-bottom:3rem;">Answer a few questions to unlock your digital Mental Health score.</p>', unsafe_allow_html=True)
+
+# --- 1. HOMEPAGE ---
+if st.session_state.page == "home":
+    st.markdown(f'<h1 style="text-align:center; font-size: 3.5rem; margin-top:2rem;">Welcome to <span style="color:{current_theme["highlight"]}">Wellness V2</span></h1>', unsafe_allow_html=True)
+    st.markdown('<p style="text-align:center; opacity:0.8; margin-bottom:4rem;">Your personal AI companion for digital well-being.</p>', unsafe_allow_html=True)
+
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown(f"""<div style="text-align:center; padding:1rem;">""", unsafe_allow_html=True)
+        if st.button("👤 About Me!", use_container_width=True):
+            go_to_page("about")
+            st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    with col2:
+        st.markdown(f"""<div style="text-align:center; padding:1rem;">""", unsafe_allow_html=True)
+        if st.button("🧠 MindCheck AI", use_container_width=True):
+            go_to_page("interview")
+            st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    with col3:
+        st.markdown(f"""<div style="text-align:center; padding:1rem;">""", unsafe_allow_html=True)
+        if st.button("📢 Latest Update", use_container_width=True):
+            go_to_page("updates")
+            st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
+
+# --- 2. ABOUT ME PAGE ---
+elif st.session_state.page == "about":
+    st.markdown(f'<h1 style="text-align:center;">About Me</h1>', unsafe_allow_html=True)
+    st.markdown(f"""
+    <div class="glass-card" style="text-align:center; font-size: 1.5rem;">
+        Hi.
+    </div>
+    """, unsafe_allow_html=True)
+
+# --- 3. LATEST UPDATES PAGE ---
+elif st.session_state.page == "updates":
+    st.markdown(f'<h1 style="text-align:center;">Latest Updates</h1>', unsafe_allow_html=True)
+    st.markdown(f"""
+    <div class="glass-card" style="text-align:center; font-size: 1.5rem;">
+        Hello
+    </div>
+    """, unsafe_allow_html=True)
+
+# --- 4. MINDCHECK AI (INTERVIEW) ---
+elif st.session_state.page == "interview":
+    st.markdown(f'<h1 style="text-align:center; font-size: 3rem; margin-top:1rem;">📝 Wellness Check-In</h1>', unsafe_allow_html=True)
+    st.markdown('<p style="text-align:center; opacity:0.8; margin-bottom:3rem;">Answer a few questions to unlock your digital wellness score.</p>', unsafe_allow_html=True)
 
     with st.form("interview_form"):
         c1, c2 = st.columns(2)
-        
         with c1:
             st.markdown('<div class="section-title">👤 About You</div>', unsafe_allow_html=True)
             age = st.number_input("How old are you?", 10, 100, 15)
             gender = st.selectbox("Gender", ["Male", "Female"])
             academic_level = st.selectbox("Current School Level", ["High School", "Undergraduate", "Graduate", "Middle School"])
-            
             st.markdown('<div class="section-title">❤️ Health & Life</div>', unsafe_allow_html=True)
             sleep = st.number_input("Average Sleep (Hours)", 0.0, 24.0, 8.0, 0.5)
             rel_status = st.selectbox("Relationship Status", ["Single", "In a relationship", "Married", "Divorced"])
@@ -324,7 +357,6 @@ if st.session_state.page == "interview":
             avg_daily_usage = st.number_input("Daily Screen Time (Hours)", 0.0, 24.0, 4.0, 0.5)
             platform = st.selectbox("Most Used App", ["TikTok", "YouTube", "Instagram", "Twitter", "Facebook", "Snapchat", "WhatsApp", "LinkedIn"])
             addiction = st.slider("Self-Perceived Addiction (1-10)", 1, 10, 5)
-            
             st.markdown('<div class="section-title">⚠️ Impact</div>', unsafe_allow_html=True)
             affects_perf = st.radio("Does it affect your grades?", ["No", "Yes"], horizontal=True)
             conflicts = st.number_input("Arguments caused by social media?", 0, 10, 0)
@@ -335,7 +367,7 @@ if st.session_state.page == "interview":
             submitted = st.form_submit_button("🏁 FINISH & ANALYZE")
             
         if submitted:
-            show_custom_loader(duration=4) # 4 seconds for analysis
+            show_custom_loader(duration=4)
             st.session_state.inputs = {
                 "Age": age, "Gender": gender, "Academic_Level": academic_level,
                 "Avg_Daily_Usage_Hours": avg_daily_usage, "Platform": platform,
@@ -356,25 +388,22 @@ if st.session_state.page == "interview":
                 if model:
                     plat_col = f"Most_Used_Platform_{platform}"
                     if plat_col in MODEL_COLUMNS: input_df[plat_col] = 1
-                    mental_health = model.predict(input_df)[0]
+                    wellness_score = model.predict(input_df)[0]
                 else:
                     base = 10 - (avg_daily_usage * 0.3) - (addiction * 0.2) + (sleep * 0.2)
-                    mental_health = max(1, min(10, base))
+                    wellness_score = max(1, min(10, base))
 
-                st.session_state.score = mental_health
-                go_to_results()
+                st.session_state.score = wellness_score
+                go_to_page("results")
                 st.rerun()
             except Exception as e:
                 st.error(f"Error: {e}")
 
-# ==========================================
-# PAGE 2: THE RESULTS DASHBOARD
-# ==========================================
+# --- 5. RESULTS PAGE ---
 elif st.session_state.page == "results":
     score = st.session_state.score
     data = st.session_state.inputs
     
-    # --- INPUT SUMMARY / PARAMETER RECAP ---
     st.markdown(f"""
     <div class="glass-card" style="padding: 1rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid {current_theme['highlight']};">
         <div>
@@ -389,20 +418,19 @@ elif st.session_state.page == "results":
     </div>
     """, unsafe_allow_html=True)
     
-    # Restart Button (Top Right of results area)
     col_head_1, col_head_2 = st.columns([4, 1])
     with col_head_1:
         st.markdown(f'<h1 style="text-align:left; font-size: 3rem;">Your <span style="color:{current_theme["highlight"]}">Results</span> are In!</h1>', unsafe_allow_html=True)
     with col_head_2:
         if st.button("🔄 Restart?", use_container_width=True):
-            show_custom_loader(duration=2) # 2 seconds for reset
+            show_custom_loader(duration=2)
             reset_interview()
             st.rerun()
     
     score_color = "#FF6B6B" if score < 4 else "#FFD93D" if score < 7 else "#6BCB77"
     st.markdown(f"""
     <div class="score-container">
-        <h3 style="margin:0; opacity:0.7; letter-spacing:2px; font-size:1rem;">Mental Health SCORE</h3>
+        <h3 style="margin:0; opacity:0.7; letter-spacing:2px; font-size:1rem;">WELLNESS SCORE</h3>
         <h1 style="font-size: 6rem; font-weight: 800; margin: 0; color: {score_color} !important;">
             {score:.1f}<span style="font-size:2rem; opacity:0.5;">/10</span>
         </h1>
