@@ -21,7 +21,7 @@ st.set_page_config(
 MODEL_FILE = 'mental_health_model.joblib' 
 GEMINI_MODEL = 'gemini-2.5-flash'
 # CHANGE THIS PATH IF NEEDED
-LOGO_FILENAME = "Gemini_Generated_Image_fq49a6fq49a6fq49.jpg"
+LOGO_FILENAME = "Gemini_Generated_Image_5b19745b19745b19.png"
 API_KEY = st.secrets.get("GEMINI_API_KEY", None)
 
 # --- STATE MANAGEMENT ---
