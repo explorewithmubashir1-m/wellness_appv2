@@ -11,15 +11,15 @@ import os
 
 # --- FILE CONFIGURATION ---
 # 1. The image for the Browser Tab Icon (Favicon)
-FAVICON_FILENAME = "Gemini_Generated_Image_5b19745b19745b19.jpg"
+FAVICON_FILENAME = "Gemini_Generated_Image_5b19745b19745b19"
 
 # 2. The image for the App Logo (Top Left)
-LOGO_FILENAME = "Gemini_Generated_Image_fq49a6fq49a6fq49.jpg"
+LOGO_FILENAME = "Gemini_Generated_Image_5b19745b19745b19"
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
     page_title="Wellness V2",
-    page_icon=FAVICON_FILENAME, # <--- Updated Favicon Here
+    page_icon=Gemini_Generated_Image_5b19745b19745b19, # <--- Updated Favicon Here
     layout="wide",
     initial_sidebar_state="collapsed"
 )
