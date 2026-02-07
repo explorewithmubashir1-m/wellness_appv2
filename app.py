@@ -207,7 +207,7 @@ st.markdown(f"""
     }}
     
     /* Global Reset */
-    .block-container {{ padding-top: 2rem; padding-bottom: 5rem; max-width: 1200px; }}
+    .block-container {{ padding-top: 2rem; padding-bottom: 5rem; max-width: 1000px; }}
     h1, h2, h3, h4, h5, h6 {{ color: {current['text_primary']} !important; font-family: var(--font-primary); font-weight: 700; }}
     p, label, span, div, li {{ color: {current['text_primary']}; font-family: var(--font-secondary); }}
 
@@ -403,19 +403,19 @@ if st.session_state.page == "home":
     </div>
     """, unsafe_allow_html=True)
 
-    # Main Navigation Grid
-    grid_c1, grid_c2, grid_c3 = st.columns(3, gap="large")
+    # Main Navigation Grid - Two Columns Only
+    grid_c1, grid_c2 = st.columns(2, gap="large")
     
     with grid_c1:
         st.markdown('<div class="animate-enter" style="animation-delay: 0.1s;">', unsafe_allow_html=True)
         st.markdown(f"""
-        <div class="glass-card" style="text-align:center; padding: 2rem; border-bottom: 4px solid {current['accent_secondary']};">
-            <div style="font-size:3.5rem; margin-bottom:15px;">👤</div>
-            <h3 style="margin-bottom:10px;">My Profile</h3>
-            <p style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 20px;">Manage your personal settings and history.</p>
+        <div class="glass-card" style="text-align:center; padding: 2rem; border-bottom: 4px solid {current['accent_secondary']}; height: 100%;">
+            <div style="font-size:3.5rem; margin-bottom:15px;">👨‍💻</div>
+            <h3 style="margin-bottom:10px;">About the Creator</h3>
+            <p style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 20px;">Meet Mubashir Mohsin and the story behind the app.</p>
         </div>
         """, unsafe_allow_html=True)
-        if st.button("About Me", use_container_width=True):
+        if st.button("Read Story", use_container_width=True):
             go_to_page("about")
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
@@ -423,7 +423,7 @@ if st.session_state.page == "home":
     with grid_c2:
         st.markdown('<div class="animate-enter" style="animation-delay: 0.2s;">', unsafe_allow_html=True)
         st.markdown(f"""
-        <div class="glass-card" style="text-align:center; padding: 2rem; border: 2px solid {current['accent_primary']}; box-shadow: 0 0 20px {current['accent_primary']}33;">
+        <div class="glass-card" style="text-align:center; padding: 2rem; border: 2px solid {current['accent_primary']}; box-shadow: 0 0 20px {current['accent_primary']}33; height: 100%;">
             <div style="font-size:3.5rem; margin-bottom:15px;">🧠</div>
             <h3 style="margin-bottom:10px; color:{current['accent_primary']} !important;">Start Check-In</h3>
             <p style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 20px;">Begin your comprehensive mental health assessment.</p>
@@ -434,52 +434,22 @@ if st.session_state.page == "home":
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
-    with grid_c3:
-        st.markdown('<div class="animate-enter" style="animation-delay: 0.3s;">', unsafe_allow_html=True)
-        st.markdown(f"""
-        <div class="glass-card" style="text-align:center; padding: 2rem; border-bottom: 4px solid {current['accent_secondary']};">
-            <div style="font-size:3.5rem; margin-bottom:15px;">📢</div>
-            <h3 style="margin-bottom:10px;">News Feed</h3>
-            <p style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 20px;">Latest updates on digital wellness.</p>
-        </div>
-        """, unsafe_allow_html=True)
-        if st.button("View Updates", use_container_width=True):
-            go_to_page("updates")
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-
 # ------------------------------------------------------------------------------
-# PAGE: ABOUT ME
+# PAGE: ABOUT THE CREATOR
 # ------------------------------------------------------------------------------
 elif st.session_state.page == "about":
     st.markdown('<div class="animate-enter">', unsafe_allow_html=True)
-    st.markdown('<h1 style="text-align:center; margin-bottom: 3rem;">About Me</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 style="text-align:center; margin-bottom: 3rem;">About the Creator</h1>', unsafe_allow_html=True)
     
-    col_centered = st.columns([1, 2, 1])[1]
+    col_centered = st.columns([1, 4, 1])[1]
     with col_centered:
         st.markdown(f"""
-        <div class="glass-card" style="text-align: center;">
-            <div style="font-size: 4rem; margin-bottom: 1rem;">👋</div>
-            <h2 style="font-weight: 600; font-size: 2.5rem; margin-bottom: 1rem;">Hi there.</h2>
-            <p>Welcome to your personal dashboard.</p>
-        </div>
-        """, unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-
-# ------------------------------------------------------------------------------
-# PAGE: LATEST UPDATES
-# ------------------------------------------------------------------------------
-elif st.session_state.page == "updates":
-    st.markdown('<div class="animate-enter">', unsafe_allow_html=True)
-    st.markdown('<h1 style="text-align:center; margin-bottom: 3rem;">Latest Updates</h1>', unsafe_allow_html=True)
-    
-    col_centered = st.columns([1, 2, 1])[1]
-    with col_centered:
-        st.markdown(f"""
-        <div class="glass-card" style="text-align: center;">
-            <div style="font-size: 4rem; margin-bottom: 1rem;">📰</div>
-            <h2 style="font-weight: 600; font-size: 2.5rem; margin-bottom: 1rem;">System Online</h2>
-            <p>All systems are functioning normally.</p>
+        <div class="glass-card" style="text-align: center; padding: 3rem;">
+            <div style="font-size: 4rem; margin-bottom: 1.5rem;">🚀</div>
+            <p style="font-size: 1.1rem; line-height: 1.8; margin-bottom: 2rem;">
+                "My name is <b>Mubashir Mohsin</b>, and I’m a 6th grader. I was inspired to create this web app after noticing a decline in my own grades. That spark led to a successful journey of building the Mental Health Calculator, which is powered by my very own <b>MindCheck AI</b>. I also want to give a quick shout-out to <b>Gemini AI</b> for helping me bring this project to life!"
+            </p>
+            <p style="opacity: 0.6; font-style: italic;">- February 6, 2026</p>
         </div>
         """, unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
@@ -619,10 +589,10 @@ elif st.session_state.page == "results":
     # Visual Progress Bar
     st.progress(score / 10)
 
-    # AI Grid
+    # AI Grid - TWO Features Only
     st.markdown(f'<h3 style="text-align:center; margin: 4rem 0 2rem 0; color:{current["highlight"]} !important;">✨ Generative AI Insights</h3>', unsafe_allow_html=True)
     
-    col_ai_1, col_ai_2, col_ai_3 = st.columns(3, gap="medium")
+    col_ai_1, col_ai_2 = st.columns(2, gap="medium")
     
     # Feature 1: Persona
     with col_ai_1:
@@ -660,24 +630,6 @@ elif st.session_state.page == "results":
                     st.session_state.ai_results['future'] = res
                     st.rerun()
 
-    # Feature 3: Detox
-    with col_ai_3:
-        st.markdown(f"""
-        <div class="glass-card" style="text-align:center; padding: 2rem; height: 100%;">
-            <div style="font-size: 2.5rem; margin-bottom: 1rem;">🍃</div>
-            <h4>Detox Protocol</h4>
-            <p style="font-size: 0.9rem; margin-bottom: 1.5rem;">Get a custom 3-day cleansing schedule.</p>
-        </div>
-        """, unsafe_allow_html=True)
-        if st.button("Create Plan", key="btn_detox", use_container_width=True):
-            show_loader(duration=3)
-            with st.spinner("Drafting protocol..."):
-                prompt = f"Create a 3-day social media detox plan for a {data['Platform']} user. Return JSON: {{'days': [{{'day': 'Day 1', 'theme': 'Theme Name', 'tasks': ['Task 1', 'Task 2']}}]}}"
-                res = call_gemini(prompt)
-                if res: 
-                    st.session_state.ai_results['detox'] = json.loads(res)
-                    st.rerun()
-
     # Results Display Area
     results = st.session_state.get('ai_results', {})
     if results:
@@ -710,27 +662,6 @@ elif st.session_state.page == "results":
                 </p>
             </div>
             """, unsafe_allow_html=True)
-
-        if 'detox' in results:
-            r = results['detox']
-            days_html = ""
-            for d in r.get('days', []):
-                tasks = "".join([f"<li>{t}</li>" for t in d.get('tasks', [])])
-                days_html += f"""
-                <div style="background:rgba(255,255,255,0.05); border:1px solid {current['card_border']}; padding:1.5rem; border-radius:16px; margin-bottom:1rem;">
-                    <strong style="color:{current['success']}; font-size:1.1rem; display:block; margin-bottom:0.5rem;">{d.get('day')}: {d.get('theme')}</strong>
-                    <ul class="custom-list">{tasks}</ul>
-                </div>
-                """
-            
-            st.markdown(f"""
-            <div class="glass-card" style="border-left: 5px solid {current['success']};">
-                <h3 style="color:{current['success']} !important; margin-top:0; margin-bottom: 1.5rem;">🌱 Digital Detox Protocol</h3>
-                {days_html}
-            </div>
-            """, unsafe_allow_html=True)
-            
-    st.markdown('</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
 # FOOTER
