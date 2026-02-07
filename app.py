@@ -1,8 +1,8 @@
 # ==============================================================================
-# MINDCHECK AI - TITANIUM EDITION (ENTERPRISE BUILD v3.0)
+# MINDCHECK AI - QUANTUM EDITION (v4.0)
 # ==============================================================================
 # AUTHOR: Mubashir Mohsin & Gemini
-# ENGINE: Titanium UI / CSS 4.0
+# ENGINE: Quantum CSS / Wizard Logic
 # DATE: 2026-02-06
 # ==============================================================================
 
@@ -13,10 +13,9 @@ import json
 import time
 import requests
 import os
-import base64
 
 # ==============================================================================
-# 1. SYSTEM CONFIGURATION & CONSTANTS
+# 1. SYSTEM CONFIGURATION
 # ==============================================================================
 PAGE_TITLE = "MindCheck AI"
 PAGE_ICON = "🧠"
@@ -32,16 +31,16 @@ st.set_page_config(
 )
 
 # ==============================================================================
-# 2. STATE MANAGEMENT & INITIALIZATION
+# 2. STATE MANAGEMENT & WIZARD LOGIC
 # ==============================================================================
-# We use a dictionary-based approach for cleaner state handling
+# We need to track the current question index for the wizard flow.
 DEFAULTS = {
     "page": "home",
     "theme_mode": "Light",
     "score": None,
     "inputs": {},
     "ai_results": {},
-    "loading": False
+    "wizard_step": 0, # Tracks which question we are on
 }
 
 for key, value in DEFAULTS.items():
@@ -49,44 +48,38 @@ for key, value in DEFAULTS.items():
         st.session_state[key] = value
 
 # ==============================================================================
-# 3. THE TITANIUM CSS ENGINE (MASSIVE STYLING CORE)
+# 3. QUANTUM CSS ENGINE (MASSIVE VISUAL CORE)
 # ==============================================================================
-# This engine handles all visual transformations, animations, and responsive logic.
-# ==============================================================================
-
-def inject_titanium_engine():
-    # Define Dynamic Color Palettes based on state
+def inject_quantum_engine():
+    # Define Dynamic Color Palettes
     if st.session_state.theme_mode == "Dark":
-        # Cyberpunk / Deep Space Theme
-        primary = "#8B5CF6"        # Vivid Violet
-        secondary = "#EC4899"      # Neon Pink
-        bg_grad = "linear-gradient(135deg, #0F172A 0%, #020617 100%)"
-        surface = "rgba(30, 41, 59, 0.4)"
-        surface_hover = "rgba(30, 41, 59, 0.7)"
-        border = "rgba(139, 92, 246, 0.2)"
-        text_main = "#F8FAFC"
-        text_sub = "#94A3B8"
-        shadow = "0 8px 32px 0 rgba(0, 0, 0, 0.5)"
-        input_bg = "rgba(15, 23, 42, 0.8)"
+        # Quantum Dark
+        primary = "#00f2ff"        # Cyan Neon
+        secondary = "#7000ff"      # Violet Neon
+        bg_grad = "linear-gradient(135deg, #050505 0%, #1a1a2e 100%)"
+        surface = "rgba(20, 20, 35, 0.6)"
+        surface_hover = "rgba(30, 30, 50, 0.8)"
+        border = "rgba(0, 242, 255, 0.15)"
+        text_main = "#ffffff"
+        text_sub = "#a0a0a0"
+        glow = "0 0 20px rgba(0, 242, 255, 0.2)"
+        input_bg = "rgba(0,0,0,0.5)"
     else:
-        # Aurora / Clean Tech Theme
-        primary = "#0EA5E9"        # Sky Blue
-        secondary = "#6366F1"      # Indigo
-        bg_grad = "linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%)"
-        surface = "rgba(255, 255, 255, 0.65)"
-        surface_hover = "rgba(255, 255, 255, 0.85)"
-        border = "rgba(255, 255, 255, 0.8)"
-        text_main = "#0F172A"
-        text_sub = "#475569"
-        shadow = "0 8px 32px 0 rgba(31, 38, 135, 0.07)"
-        input_bg = "#FFFFFF"
+        # Quantum Light
+        primary = "#2563eb"        # Royal Blue
+        secondary = "#9333ea"      # Purple
+        bg_grad = "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)"
+        surface = "rgba(255, 255, 255, 0.7)"
+        surface_hover = "rgba(255, 255, 255, 0.95)"
+        border = "rgba(37, 99, 235, 0.15)"
+        text_main = "#0f172a"
+        text_sub = "#64748b"
+        glow = "0 0 20px rgba(37, 99, 235, 0.1)"
+        input_bg = "#ffffff"
 
     css_code = f"""
     <style>
-        /* ---------------------------------------------------------------------
-           1. FONT IMPORT & GLOBAL RESET
-           --------------------------------------------------------------------- */
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
         :root {{
             --primary: {primary};
@@ -97,17 +90,12 @@ def inject_titanium_engine():
             --border: {border};
             --text-main: {text_main};
             --text-sub: {text_sub};
-            --shadow: {shadow};
+            --glow: {glow};
             --input-bg: {input_bg};
-            --radius-sm: 8px;
-            --radius-md: 16px;
-            --radius-lg: 24px;
-            --radius-full: 9999px;
-            --trans-speed: 0.3s;
         }}
 
         html, body, [class*="css"] {{
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Space Grotesk', sans-serif;
             color: var(--text-main);
         }}
 
@@ -116,744 +104,387 @@ def inject_titanium_engine():
             background-attachment: fixed;
             background-size: cover;
         }}
-
-        /* Hide Streamlit Default Elements for cleanliness */
-        #MainMenu {{visibility: hidden;}}
-        footer {{visibility: hidden;}}
-        header {{visibility: hidden;}}
-        .stDeployButton {{display:none;}}
-
-        /* ---------------------------------------------------------------------
-           2. TYPOGRAPHY SYSTEM
-           --------------------------------------------------------------------- */
-        h1 {{
-            font-weight: 800;
-            letter-spacing: -1.5px;
-            line-height: 1.1;
-        }}
         
-        h2 {{
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }}
+        /* Hide Default Elements */
+        #MainMenu, footer, header {{visibility: hidden;}}
         
-        h3, h4 {{
-            font-weight: 600;
-            opacity: 0.9;
-        }}
-
-        p, label, span, div {{
-            font-weight: 400;
-            line-height: 1.6;
-        }}
-
-        code {{
-            font-family: 'JetBrains Mono', monospace;
-            background: rgba(0,0,0,0.1);
-            padding: 2px 6px;
-            border-radius: 4px;
-        }}
-
         /* ---------------------------------------------------------------------
-           3. TITANIUM CARD ENGINE (The core container style)
+           QUANTUM CARD (3D TILT EFFECT & GLASS)
            --------------------------------------------------------------------- */
-        .titan-card {{
+        .quantum-card {{
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 2.5rem;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            box-shadow: var(--shadow);
+            border-radius: 24px;
+            padding: 3rem;
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            box-shadow: var(--glow), 0 8px 32px rgba(0,0,0,0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             margin-bottom: 2rem;
-            transition: all var(--trans-speed) cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }}
-
-        .titan-card:hover {{
-            transform: translateY(-5px) scale(1.005);
-            border-color: var(--primary);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            background: var(--surface-hover);
-        }}
-
-        /* Ambient Glow Effect behind cards */
-        .titan-card::before {{
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            opacity: 0;
-            transition: opacity 0.3s;
         }}
         
-        .titan-card:hover::before {{
-            opacity: 1;
+        .quantum-card:hover {{
+            transform: translateY(-5px) scale(1.01);
+            border-color: var(--primary);
+            box-shadow: 0 0 40px rgba(var(--primary), 0.3);
+        }}
+
+        /* Neon Line Animation */
+        .quantum-card::after {{
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; width: 0%; height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.5s ease;
+        }}
+        
+        .quantum-card:hover::after {{
+            width: 100%;
         }}
 
         /* ---------------------------------------------------------------------
-           4. INTERACTIVE INPUT FIELD STYLING
+           INPUT FIELDS (NEON GLOW)
            --------------------------------------------------------------------- */
-        /* Text Inputs & Numbers */
         .stTextInput > div > div > input,
         .stNumberInput > div > div > input {{
             background-color: var(--input-bg) !important;
             color: var(--text-main) !important;
-            border: 2px solid transparent !important;
-            border-radius: var(--radius-md) !important;
-            padding: 12px 15px !important;
-            font-family: 'Outfit', sans-serif !important;
+            border: 1px solid var(--border) !important;
+            border-radius: 12px !important;
+            padding: 15px !important;
+            font-family: 'Space Grotesk', sans-serif !important;
             transition: all 0.3s ease !important;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }}
 
         .stTextInput > div > div > input:focus,
         .stNumberInput > div > div > input:focus {{
             border-color: var(--primary) !important;
-            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2) !important;
-            transform: translateY(-1px);
+            box-shadow: 0 0 15px var(--primary) !important;
+            transform: scale(1.02);
         }}
-
-        /* Select Boxes */
+        
         .stSelectbox > div > div > div {{
             background-color: var(--input-bg) !important;
             color: var(--text-main) !important;
-            border-radius: var(--radius-md) !important;
             border: 1px solid var(--border) !important;
-            font-weight: 500 !important;
-        }}
-
-        /* Dropdown Menus */
-        div[data-baseweb="popover"], div[data-baseweb="menu"] {{
-            background-color: var(--input-bg) !important;
-            border: 1px solid var(--border) !important;
-            backdrop-filter: blur(20px);
-        }}
-        
-        div[role="option"] {{
-            color: var(--text-main) !important;
-        }}
-        
-        div[role="option"]:hover {{
-            background-color: var(--primary) !important;
-            color: #fff !important;
-        }}
-
-        /* Sliders */
-        .stSlider > div > div > div > div {{
-            background-color: var(--primary) !important;
-        }}
-
-        /* Radio Buttons */
-        .stRadio > div {{
-            background: transparent !important;
+            border-radius: 12px !important;
         }}
 
         /* ---------------------------------------------------------------------
-           5. BUTTON ARCHITECTURE
+           BUTTONS (HOLOGRAPHIC)
            --------------------------------------------------------------------- */
         .stButton > button {{
-            width: 100%;
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%) !important;
             color: #ffffff !important;
             border: none !important;
-            border-radius: var(--radius-full) !important;
-            padding: 0.8rem 2rem !important;
+            border-radius: 50px !important;
+            padding: 1rem 3rem !important;
             font-weight: 700 !important;
-            letter-spacing: 1px !important;
+            letter-spacing: 2px !important;
             text-transform: uppercase !important;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
-            position: relative;
-            overflow: hidden;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important;
+            width: 100%;
         }}
 
         .stButton > button:hover {{
-            transform: translateY(-3px) !important;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2) !important;
-            filter: brightness(1.1);
-        }}
-
-        .stButton > button:active {{
-            transform: translateY(1px) !important;
-            box-shadow: 0 5px 10px rgba(0,0,0,0.1) !important;
-        }}
-
-        /* Secondary Button Variation (Ghost) */
-        button[kind="secondary"] {{
-            background: transparent !important;
-            border: 2px solid var(--text-sub) !important;
-            color: var(--text-sub) !important;
+            transform: translateY(-5px) !important;
+            box-shadow: 0 0 30px var(--primary) !important;
+            filter: brightness(1.2);
         }}
 
         /* ---------------------------------------------------------------------
-           6. NAVIGATION BAR STYLING
+           WIZARD PROGRESS BAR
            --------------------------------------------------------------------- */
-        .nav-container {{
-            background: var(--surface);
-            border: 1px solid var(--border);
-            backdrop-filter: blur(15px);
-            padding: 15px 30px;
-            border-radius: var(--radius-full);
-            margin-bottom: 40px;
-            box-shadow: var(--shadow);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        .wizard-progress {{
+            width: 100%;
+            height: 6px;
+            background: rgba(128,128,128,0.2);
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            overflow: hidden;
         }}
         
-        .nav-brand {{
-            font-weight: 800;
-            font-size: 1.2rem;
+        .wizard-fill {{
+            height: 100%;
             background: linear-gradient(90deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }}
 
         /* ---------------------------------------------------------------------
-           7. ANIMATION KEYFRAMES
+           UTILITIES
            --------------------------------------------------------------------- */
-        @keyframes fadeIn {{
-            from {{ opacity: 0; transform: translateY(20px); }}
-            to {{ opacity: 1; transform: translateY(0); }}
+        .nav-bar {{
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 30px; background: var(--surface); border: 1px solid var(--border);
+            border-radius: 50px; margin-bottom: 40px; backdrop-filter: blur(20px);
         }}
         
-        @keyframes pulse {{
-            0% {{ box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4); }}
-            70% {{ box-shadow: 0 0 0 15px rgba(139, 92, 246, 0); }}
-            100% {{ box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }}
-        }}
+        .nav-title {{ font-weight: 800; letter-spacing: 1px; color: var(--primary); }}
 
         @keyframes float {{
-            0% {{ transform: translateY(0px); }}
-            50% {{ transform: translateY(-10px); }}
-            100% {{ transform: translateY(0px); }}
+            0% {{ transform: translateY(0px); }} 50% {{ transform: translateY(-10px); }} 100% {{ transform: translateY(0px); }}
         }}
+        .float-anim {{ animation: float 6s ease-in-out infinite; }}
         
-        .animate-enter {{
-            animation: fadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-        }}
-        
-        .animate-float {{
-            animation: float 6s ease-in-out infinite;
-        }}
+        .animate-slide {{ animation: slideIn 0.5s ease-out forwards; }}
+        @keyframes slideIn {{ from {{ opacity: 0; transform: translateX(20px); }} to {{ opacity: 1; transform: translateX(0); }} }}
 
-        /* ---------------------------------------------------------------------
-           8. CUSTOM UTILITY CLASSES
-           --------------------------------------------------------------------- */
-        .text-gradient {{
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }}
-        
-        .section-label {{
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--secondary);
-            font-weight: 700;
-            margin-bottom: 1rem;
-            border-bottom: 2px solid var(--border);
-            padding-bottom: 0.5rem;
-            display: block;
-        }}
-
-        .stat-value {{
-            font-size: 4rem;
-            font-weight: 800;
-            color: var(--primary);
-            line-height: 1;
-        }}
-
-        .footer-container {{
-            margin-top: 5rem;
-            padding-top: 2rem;
-            border-top: 1px solid var(--border);
-            text-align: center;
-            color: var(--text-sub);
-            font-size: 0.9rem;
-            opacity: 0.7;
-        }}
     </style>
     """
     st.markdown(css_code, unsafe_allow_html=True)
 
 # ==============================================================================
-# 4. LOGIC LAYER (BACKEND FUNCTIONS)
+# 4. BACKEND LOGIC
 # ==============================================================================
-
 def toggle_theme():
-    """Toggles dark/light mode and forces a rerun."""
-    if st.session_state.theme_toggle:
-        st.session_state.theme_mode = "Dark"
-    else:
-        st.session_state.theme_mode = "Light"
+    st.session_state.theme_mode = "Dark" if st.session_state.theme_toggle else "Light"
 
 def go_to_page(page_name):
-    """Router function to switch pages."""
     st.session_state.page = page_name
+    st.session_state.wizard_step = 0 # Reset wizard on navigation
 
 def reset_interview():
-    """Resets all session data for a new assessment."""
     st.session_state.page = "interview"
     st.session_state.ai_results = {}
     st.session_state.score = None
     st.session_state.inputs = {}
+    st.session_state.wizard_step = 0
+
+def next_step():
+    st.session_state.wizard_step += 1
+
+def prev_step():
+    st.session_state.wizard_step -= 1
 
 @st.cache_resource
 def load_ml_model():
-    """Attempts to load the ML model, handles failure gracefully."""
-    try:
-        return joblib.load(MODEL_FILE)
-    except:
-        return None
+    try: return joblib.load(MODEL_FILE)
+    except: return None
 
 def call_gemini(prompt, is_json=True):
-    """
-    Robust API caller for Google Gemini.
-    Includes timeout handling and JSON parsing support.
-    """
     if not API_KEY: return None
-    
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent?key={API_KEY}"
     payload = {"contents": [{"parts": [{"text": prompt}]}]}
-    
-    if is_json:
-        payload["generationConfig"] = {"responseMimeType": "application/json"}
-    
+    if is_json: payload["generationConfig"] = {"responseMimeType": "application/json"}
     try:
         response = requests.post(url, headers={'Content-Type': 'application/json'}, json=payload, timeout=20)
         if response.status_code == 200:
-            result = response.json()
-            return result.get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text')
-    except Exception as e:
-        st.error(f"AI Connection Error: {e}")
-        return None
+            return response.json().get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text')
+    except: pass
     return None
 
 # ==============================================================================
-# 5. UI COMPONENT LIBRARY (Reusable Widgets)
+# 5. UI COMPONENTS
 # ==============================================================================
-
 def render_navbar():
-    """Renders the custom Glassmorphism Navbar."""
-    st.markdown('<div class="nav-container">', unsafe_allow_html=True)
-    c1, c2, c3 = st.columns([3, 5, 2], gap="small")
-    
-    with c1:
-        st.markdown('<div class="nav-brand">MindCheck AI</div>', unsafe_allow_html=True)
-    
-    with c2:
-        # Centered Home Action
-        st.markdown('<div style="display:flex; justify-content:center; width:100%">', unsafe_allow_html=True)
-        if st.button("🏠 DASHBOARD", key="nav_home"):
-            go_to_page("home")
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-
+    st.markdown('<div class="nav-bar">', unsafe_allow_html=True)
+    c1, c2, c3 = st.columns([2,6,2])
+    with c1: st.markdown('<div class="nav-title">MINDCHECK AI</div>', unsafe_allow_html=True)
+    with c2: 
+        if st.button("DASHBOARD HOME", key="nav_home"): go_to_page("home"); st.rerun()
     with c3:
-        # Theme Toggle
-        st.markdown('<div style="display:flex; justify-content:flex-end">', unsafe_allow_html=True)
-        is_dark = (st.session_state.theme_mode == "Dark")
-        st.toggle("Night Mode", value=is_dark, key="theme_toggle", on_change=toggle_theme)
-        st.markdown('</div>', unsafe_allow_html=True)
-    
+        st.toggle("Night Mode", value=(st.session_state.theme_mode=="Dark"), key="theme_toggle", on_change=toggle_theme)
     st.markdown('</div>', unsafe_allow_html=True)
 
 def show_loader(duration=3):
-    """
-    Displays a CSS-only complex loader animation.
-    This replaces the standard Streamlit spinner with something 'Titanium'.
-    """
-    loader_css = """
+    loader_html = """
     <style>
-        .titan-loader-overlay {
+        .loader-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 9999;
-            backdrop-filter: blur(15px);
-            display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
+            background: rgba(0,0,0,0.9); z-index: 9999;
+            display: flex; justify-content: center; align-items: center; flex-direction: column;
+            backdrop-filter: blur(20px);
         }
-        .scanner {
-            position: relative; width: 200px; height: 4px; background: #333;
-            border-radius: 4px; overflow: hidden;
+        .quantum-spinner {
+            width: 80px; height: 80px; border: 5px solid transparent;
+            border-top-color: #00f2ff; border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
-        .scanner::after {
-            content: ''; position: absolute; top: 0; left: 0; width: 40%; height: 100%;
-            background: linear-gradient(90deg, transparent, #8B5CF6, transparent);
-            animation: scan 1s infinite ease-in-out alternate;
-        }
-        @keyframes scan { from { left: 0; } to { left: 60%; } }
-        .loader-text {
-            color: white; font-family: 'JetBrains Mono'; margin-top: 20px;
-            letter-spacing: 2px; font-size: 0.9rem;
-        }
+        @keyframes spin { 0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);} }
     </style>
-    <div class="titan-loader-overlay">
-        <div class="scanner"></div>
-        <div class="loader-text">PROCESSING NEURAL DATA...</div>
+    <div class="loader-overlay">
+        <div class="quantum-spinner"></div>
+        <h3 style="color:white; margin-top:20px; font-family:'Space Grotesk';">QUANTUM ANALYSIS INITIATED...</h3>
     </div>
     """
     placeholder = st.empty()
-    placeholder.markdown(loader_css, unsafe_allow_html=True)
+    placeholder.markdown(loader_html, unsafe_allow_html=True)
     time.sleep(duration)
     placeholder.empty()
 
 # ==============================================================================
-# 6. APPLICATION EXECUTION START
+# 6. APP EXECUTION
 # ==============================================================================
-
-# Inject the Massive CSS Engine
-inject_titanium_engine()
-
-# Render Global Navigation
+inject_quantum_engine()
 render_navbar()
-
-# Load Model
 model = load_ml_model()
-MODEL_COLUMNS = [
-    'Age', 'Gender', 'Academic_Level', 'Avg_Daily_Usage_Hours', 
-    'Affects_Academic_Performance', 'Sleep_Hours_Per_Night', 
-    'Conflicts_Over_Social_Media', 'Addicted_Score', 
-    'Most_Used_Platform_Facebook', 'Most_Used_Platform_Instagram', 
-    'Most_Used_Platform_KakaoTalk', 'Most_Used_Platform_LINE', 
-    'Most_Used_Platform_LinkedIn', 'Most_Used_Platform_Snapchat', 
-    'Most_Used_Platform_TikTok', 'Most_Used_Platform_Twitter', 
-    'Most_Used_Platform_VKontakte', 'Most_Used_Platform_WeChat', 
-    'Most_Used_Platform_WhatsApp', 'Most_Used_Platform_YouTube', 'Relationship_Status_Complicated', 
-    'Relationship_Status_In Relationship', 'Relationship_Status_Single'
-]
+MODEL_COLUMNS = ['Age', 'Gender', 'Academic_Level', 'Avg_Daily_Usage_Hours', 'Affects_Academic_Performance', 'Sleep_Hours_Per_Night', 'Conflicts_Over_Social_Media', 'Addicted_Score', 'Most_Used_Platform_Facebook', 'Most_Used_Platform_Instagram', 'Most_Used_Platform_KakaoTalk', 'Most_Used_Platform_LINE', 'Most_Used_Platform_LinkedIn', 'Most_Used_Platform_Snapchat', 'Most_Used_Platform_TikTok', 'Most_Used_Platform_Twitter', 'Most_Used_Platform_VKontakte', 'Most_Used_Platform_WeChat', 'Most_Used_Platform_WhatsApp', 'Most_Used_Platform_YouTube', 'Relationship_Status_Complicated', 'Relationship_Status_In Relationship', 'Relationship_Status_Single']
 
 # ==============================================================================
-# 7. PAGE ROUTING & LAYOUTS
+# 7. PAGE ROUTING
 # ==============================================================================
 
-# ------------------------------------------------------------------------------
-# PAGE: HOME DASHBOARD
-# ------------------------------------------------------------------------------
+# --- HOME PAGE ---
 if st.session_state.page == "home":
-    
-    # Hero Text Logic (Handles Night Mode Contrast Issue)
-    title_classes = "animate-enter"
-    title_style = "font-size: 5.5rem; text-align: center; margin-bottom: 0.5rem;"
-    
-    if st.session_state.theme_mode == "Light":
-        # Apply Gradient only in light mode
-        inner_html = '<span class="text-gradient">MindCheck AI</span>'
-    else:
-        # Solid white in dark mode for accessibility
-        inner_html = '<span style="color: #fff;">MindCheck AI</span>'
-
+    title_color = "#ffffff" if st.session_state.theme_mode == "Dark" else "#0f172a"
     st.markdown(f"""
-    <div class="{title_classes}" style="padding: 4rem 0; text-align: center;">
-        <h1 style="{title_style}">{inner_html}</h1>
-        <p style="font-size: 1.4rem; max-width: 650px; margin: 0 auto; opacity: 0.8;">
-            The enterprise-grade digital wellness companion powered by advanced generative AI.
-        </p>
+    <div style="text-align:center; padding: 4rem 0;">
+        <h1 style="font-size: 6rem; line-height:1; margin-bottom: 1rem; color:{title_color};">MindCheck AI</h1>
+        <p style="font-size: 1.5rem; opacity: 0.8;">Quantum-Enhanced Mental Wellness Calculator</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    col1, col2 = st.columns(2, gap="large")
+    with col1:
+        st.markdown(f"""
+        <div class="quantum-card" style="text-align:center;">
+            <div style="font-size:4rem; margin-bottom:1rem;" class="float-anim">🚀</div>
+            <h3>About the Creator</h3>
+            <p>Meet Mubashir Mohsin.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("READ STORY", use_container_width=True): go_to_page("about"); st.rerun()
+    with col2:
+        st.markdown(f"""
+        <div class="quantum-card" style="text-align:center;">
+            <div style="font-size:4rem; margin-bottom:1rem;" class="float-anim">🔮</div>
+            <h3>Start Check-In</h3>
+            <p>Begin the interactive assessment.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("LAUNCH WIZARD", type="primary", use_container_width=True): go_to_page("interview"); st.rerun()
+
+# --- ABOUT PAGE ---
+elif st.session_state.page == "about":
+    st.markdown('<div class="quantum-card" style="text-align:center; padding: 4rem;"><h1>About the Creator</h1><p style="font-size:1.2rem; line-height:2;">"My name is <b>Mubashir Mohsin</b>, and I’m a 6th grader. I was inspired to create this web app after noticing a decline in my own grades. That spark led to a successful journey of building the Mental Health Calculator, which is powered by my very own <b>MindCheck AI</b>. I also want to give a quick shout-out to <b>Gemini AI</b> for helping me bring this project to life!"</p><br><p style="opacity:0.5">- February 6, 2026</p></div>', unsafe_allow_html=True)
+
+# --- INTERVIEW WIZARD (STEP-BY-STEP) ---
+elif st.session_state.page == "interview":
+    # 1. Wizard Configuration
+    steps = [
+        {"title": "Profile", "fields": ["Age", "Gender", "Education"]},
+        {"title": "Habits", "fields": ["Platform", "Usage"]},
+        {"title": "Wellness", "fields": ["Sleep", "Addiction"]},
+        {"title": "Impact", "fields": ["Conflicts", "Performance"]}
+    ]
+    current_step_idx = st.session_state.wizard_step
+    
+    # 2. Progress Bar
+    progress = (current_step_idx / len(steps)) * 100
+    st.markdown(f"""
+    <div class="wizard-progress">
+        <div class="wizard-fill" style="width: {progress}%;"></div>
     </div>
     """, unsafe_allow_html=True)
 
-    # 2-Column Grid Layout (No News Feed)
-    col1, col2 = st.columns(2, gap="large")
-
-    with col1:
-        st.markdown('<div class="animate-enter" style="animation-delay: 0.1s; height: 100%;">', unsafe_allow_html=True)
-        st.markdown(f"""
-        <div class="titan-card" style="text-align: center;">
-            <div style="font-size: 4rem; margin-bottom: 1rem;" class="animate-float">👨‍💻</div>
-            <h3>About the Creator</h3>
-            <p style="margin-bottom: 2rem;">Discover the story of Mubashir Mohsin and the origin of MindCheck.</p>
-        </div>
-        """, unsafe_allow_html=True)
-        if st.button("Read Profile", use_container_width=True):
-            go_to_page("about")
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    with col2:
-        st.markdown('<div class="animate-enter" style="animation-delay: 0.2s; height: 100%;">', unsafe_allow_html=True)
-        st.markdown(f"""
-        <div class="titan-card" style="text-align: center; border-color: var(--primary);">
-            <div style="font-size: 4rem; margin-bottom: 1rem;" class="animate-float">🧠</div>
-            <h3 style="color: var(--primary);">Start Check-In</h3>
-            <p style="margin-bottom: 2rem;">Initialize the comprehensive mental health assessment protocol.</p>
-        </div>
-        """, unsafe_allow_html=True)
-        if st.button("LAUNCH SYSTEM", type="primary", use_container_width=True):
-            go_to_page("interview")
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-
-# ------------------------------------------------------------------------------
-# PAGE: ABOUT THE CREATOR
-# ------------------------------------------------------------------------------
-elif st.session_state.page == "about":
-    st.markdown('<div class="animate-enter">', unsafe_allow_html=True)
-    st.markdown('<h1 style="text-align:center; margin-bottom: 3rem;">Origin Story</h1>', unsafe_allow_html=True)
+    # 3. Wizard Container
+    st.markdown(f'<div class="animate-slide"><h2 style="text-align:center; margin-bottom:20px;">Step {current_step_idx + 1}: {steps[current_step_idx]["title"]}</h2>', unsafe_allow_html=True)
     
-    # Layout constraint for better readability
-    c_spacer_l, c_content, c_spacer_r = st.columns([1, 4, 1])
-    
-    with c_content:
-        st.markdown(f"""
-        <div class="titan-card" style="text-align: center; padding: 4rem;">
-            <div style="font-size: 5rem; margin-bottom: 2rem;">🚀</div>
-            <p style="font-size: 1.25rem; line-height: 2; margin-bottom: 2rem; font-weight: 300;">
-                "My name is <b>Mubashir Mohsin</b>, and I’m a 6th grader. I was inspired to create this web app after noticing a decline in my own grades. That spark led to a successful journey of building the Mental Health Calculator, which is powered by my very own <b>MindCheck AI</b>. I also want to give a quick shout-out to <b>Gemini AI</b> for helping me bring this project to life!"
-            </p>
-            <div style="height: 1px; width: 50px; background: var(--primary); margin: 0 auto 1rem auto;"></div>
-            <p style="font-family: 'JetBrains Mono'; font-size: 0.9rem; opacity: 0.6;">
-                LOG TIMESTAMP: FEBRUARY 6, 2026
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-
-# ------------------------------------------------------------------------------
-# PAGE: ASSESSMENT INTERVIEW
-# ------------------------------------------------------------------------------
-elif st.session_state.page == "interview":
-    st.markdown('<div class="animate-enter">', unsafe_allow_html=True)
-    st.markdown(f'<h1 style="text-align:center;">Assessment Protocol</h1>', unsafe_allow_html=True)
-    st.markdown(f'<p style="text-align:center; margin-bottom: 3rem; opacity: 0.7;">Please input your biometrics and digital habits below.</p>', unsafe_allow_html=True)
-    
-    with st.form("interview_form"):
-        col1, col2 = st.columns(2, gap="large")
+    # Use a container for the card to ensure variables persist
+    with st.container():
+        st.markdown('<div class="quantum-card">', unsafe_allow_html=True)
         
-        # Left Column: Bio Data
-        with col1:
-            st.markdown(f"""
-            <div class="titan-card" style="height: 100%;">
-                <span class="section-label">01 // BIOMETRICS</span>
-            """, unsafe_allow_html=True)
+        # --- STEP 0: PROFILE ---
+        if current_step_idx == 0:
+            st.session_state.inputs['Age'] = st.number_input("How old are you?", 10, 100, st.session_state.inputs.get('Age', 15))
+            st.session_state.inputs['Gender'] = st.selectbox("Gender Identity", ["Male", "Female"], index=0 if st.session_state.inputs.get('Gender') == "Male" else 1)
+            st.session_state.inputs['Academic_Level'] = st.selectbox("Education Level", ["High School", "Middle School", "Undergraduate", "Graduate"])
             
-            age = st.number_input("Age", 10, 100, 15)
-            gender = st.selectbox("Gender Identity", ["Male", "Female"])
-            academic_level = st.selectbox("Education Level", ["High School", "Undergraduate", "Graduate", "Middle School"])
-            
-            st.markdown('<div style="height: 20px;"></div>', unsafe_allow_html=True)
-            st.markdown('<span class="section-label">02 // HEALTH</span>', unsafe_allow_html=True)
-            
-            sleep = st.number_input("Avg Sleep (Hours)", 0.0, 24.0, 8.0, 0.5)
-            rel_status = st.selectbox("Relationship Status", ["Single", "In a relationship", "Married", "Divorced"])
-            
-            st.markdown('</div>', unsafe_allow_html=True)
+            if st.button("Next Step ➔"): next_step(); st.rerun()
 
-        # Right Column: Digital Data
-        with col2:
-            st.markdown(f"""
-            <div class="titan-card" style="height: 100%;">
-                <span class="section-label">03 // DIGITAL FOOTPRINT</span>
-            """, unsafe_allow_html=True)
+        # --- STEP 1: HABITS ---
+        elif current_step_idx == 1:
+            st.session_state.inputs['Platform'] = st.selectbox("Dominant Platform", ["TikTok", "YouTube", "Instagram", "Snapchat", "Other"])
+            st.session_state.inputs['Avg_Daily_Usage_Hours'] = st.number_input("Daily Screen Time (Hours)", 0.0, 24.0, st.session_state.inputs.get('Avg_Daily_Usage_Hours', 4.0))
             
-            avg_daily_usage = st.number_input("Screen Time (Daily Hrs)", 0.0, 24.0, 4.0, 0.5)
-            platform = st.selectbox("Dominant Platform", ["TikTok", "YouTube", "Instagram", "Twitter", "Facebook", "Snapchat", "WhatsApp", "LinkedIn"])
-            
-            st.markdown('<div style="height: 20px;"></div>', unsafe_allow_html=True)
-            
-            st.markdown('<label>Self-Perceived Addiction (1-10)</label>', unsafe_allow_html=True)
-            addiction = st.slider("", 1, 10, 5)
-            
-            st.markdown('<div style="height: 20px;"></div>', unsafe_allow_html=True)
-            
-            st.markdown('<span class="section-label">04 // IMPACT ANALYSIS</span>', unsafe_allow_html=True)
-            affects_perf = st.radio("Impacts Academic Performance?", ["No", "Yes"], horizontal=True)
-            conflicts = st.number_input("Weekly Offline Conflicts", 0, 10, 0)
-            
-            st.markdown('</div>', unsafe_allow_html=True)
+            c1, c2 = st.columns(2)
+            with c1: 
+                if st.button("⬅ Back"): prev_step(); st.rerun()
+            with c2: 
+                if st.button("Next Step ➔"): next_step(); st.rerun()
 
-        st.markdown("<br>", unsafe_allow_html=True)
+        # --- STEP 2: WELLNESS ---
+        elif current_step_idx == 2:
+            st.session_state.inputs['Sleep'] = st.number_input("Average Sleep (Hours)", 0.0, 24.0, st.session_state.inputs.get('Sleep', 8.0))
+            st.session_state.inputs['Addiction'] = st.slider("Self-Perceived Addiction (1-10)", 1, 10, st.session_state.inputs.get('Addiction', 5))
+            
+            c1, c2 = st.columns(2)
+            with c1: 
+                if st.button("⬅ Back"): prev_step(); st.rerun()
+            with c2: 
+                if st.button("Next Step ➔"): next_step(); st.rerun()
+
+        # --- STEP 3: IMPACT (FINAL) ---
+        elif current_step_idx == 3:
+            st.session_state.inputs['Conflicts'] = st.number_input("Weekly Offline Conflicts", 0, 20, st.session_state.inputs.get('Conflicts', 0))
+            st.session_state.inputs['Affects_Performance'] = st.radio("Impacts Grades?", ["No", "Yes"])
+            
+            c1, c2 = st.columns(2)
+            with c1: 
+                if st.button("⬅ Back"): prev_step(); st.rerun()
+            with c2: 
+                if st.button("🚀 FINALIZE ANALYSIS"):
+                    show_loader(4)
+                    # Calculate Score
+                    data = st.session_state.inputs
+                    base = 10 - (data['Avg_Daily_Usage_Hours'] * 0.35) - (data['Addiction'] * 0.25) + (data['Sleep'] * 0.15)
+                    st.session_state.score = max(1, min(10, base))
+                    go_to_page("results")
+                    st.rerun()
         
-        # Submit Logic
-        c_sub_1, c_sub_2, c_sub_3 = st.columns([1, 2, 1])
-        with c_sub_2:
-            submitted = st.form_submit_button("INITIATE ANALYSIS")
-            
-        if submitted:
-            show_loader(duration=3)
-            
-            # 1. State Update
-            st.session_state.inputs = {
-                "Age": age, "Gender": gender, "Academic_Level": academic_level,
-                "Avg_Daily_Usage_Hours": avg_daily_usage, "Platform": platform,
-                "Addiction": addiction, "Sleep": sleep, "Relationship": rel_status,
-                "Affects_Performance": affects_perf, "Conflicts": conflicts
-            }
-            
-            # 2. Score Calculation
-            input_df = pd.DataFrame(0, index=[0], columns=MODEL_COLUMNS)
-            try:
-                # Basic mapping logic
-                input_df['Gender'] = 1 if gender == "Female" else 0 
-                input_df['Age'] = age
-                input_df['Avg_Daily_Usage_Hours'] = avg_daily_usage
-                input_df['Addicted_Score'] = addiction
-                
-                # ML Prediction or Fallback
-                if model:
-                    plat_col = f"Most_Used_Platform_{platform}"
-                    if plat_col in MODEL_COLUMNS: input_df[plat_col] = 1
-                    wellness_score = model.predict(input_df)[0]
-                else:
-                    # Fallback Algorithm
-                    base = 10 - (avg_daily_usage * 0.35) - (addiction * 0.25) + (sleep * 0.15)
-                    wellness_score = max(1, min(10, base))
+        st.markdown('</div></div>', unsafe_allow_html=True)
 
-                st.session_state.score = wellness_score
-                go_to_page("results")
-                st.rerun()
-            except Exception as e:
-                st.error(f"System Failure: {e}")
-    st.markdown('</div>', unsafe_allow_html=True)
-
-# ------------------------------------------------------------------------------
-# PAGE: RESULTS ANALYTICS
-# ------------------------------------------------------------------------------
+# --- RESULTS PAGE ---
 elif st.session_state.page == "results":
-    st.markdown('<div class="animate-enter">', unsafe_allow_html=True)
     score = st.session_state.score
     data = st.session_state.inputs
     
-    # Context Header
+    # Color Logic
+    if score < 5: color = "#ff0055"
+    elif score < 8: color = "#ffaa00"
+    else: color = "#00ffaa"
+    
     st.markdown(f"""
-    <div class="titan-card" style="padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; border-left: 6px solid var(--primary); margin-bottom: 2rem;">
-        <div>
-            <span style="font-weight: 800; color: var(--primary); letter-spacing: 1px; font-size: 0.9rem;">STATUS: COMPLETE</span><br>
-            <span style="font-size: 1.1rem; font-weight: 600;">Subject: {data.get('Age')}y / {data.get('Gender')}</span>
-        </div>
-        <div style="text-align: right;">
-            <span style="font-size: 0.9rem; opacity: 0.7;">Focus Vector</span><br>
-            <b>{data.get('Platform')}</b>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # Title & Restart
-    c_head, c_btn = st.columns([4, 1.5])
-    with c_head:
-        st.markdown(f'<h2 style="margin:0;">Wellness Diagnostics</h2>', unsafe_allow_html=True)
-    with c_btn:
-        if st.button("🔄 RE-CALIBRATE", use_container_width=True):
-            show_loader(duration=2)
-            reset_interview()
-            st.rerun()
-
-    # Score Logic
-    if score < 4:
-        s_color = "#EF4444" # Red
-        msg = "CRITICAL: Immediate Digital Detox Required"
-    elif score < 7:
-        s_color = "#F59E0B" # Orange
-        msg = "WARNING: Moderate Lifestyle Adjustment Needed"
-    else:
-        s_color = "#10B981" # Green
-        msg = "OPTIMAL: Sustainable Digital Habits Detected"
-
-    # Big Score Card
-    st.markdown(f"""
-    <div class="titan-card" style="text-align: center; padding: 4rem 2rem; position: relative; overflow: hidden;">
-        <div style="position: absolute; top:0; left:0; width:100%; height:10px; background: {s_color};"></div>
-        <h4 style="margin:0; opacity:0.6; letter-spacing: 3px; font-size: 0.9rem; margin-bottom: 1rem;">COMPOSITE INDEX</h4>
-        <h1 style="font-size: 8rem; line-height: 1; margin: 0; color: {s_color} !important; text-shadow: 0 0 50px {s_color}44;">
-            {score:.1f}
-        </h1>
-        <p style="font-size: 1.5rem; opacity: 0.5; margin-top: -10px;">/ 10.0</p>
-        <div style="display:inline-block; padding: 0.75rem 2rem; border-radius: 50px; background: {s_color}22; color: {s_color}; font-weight: 700; margin-top: 2rem; border: 1px solid {s_color};">
-            {msg}
-        </div>
+    <div class="quantum-card" style="text-align: center; border-color: {color};">
+        <h4 style="letter-spacing:4px; opacity:0.7;">QUANTUM WELLNESS INDEX</h4>
+        <h1 style="font-size: 8rem; color: {color}; text-shadow: 0 0 50px {color}; margin: 0;">{score:.1f}</h1>
+        <p style="font-size: 1.2rem;">/ 10.0</p>
     </div>
     """, unsafe_allow_html=True)
     
-    st.progress(score / 10)
-
-    # AI Feature Grid - Only 2 Features as requested
-    st.markdown(f'<h3 style="text-align:center; margin: 4rem 0 2rem 0;">Generative Insights</h3>', unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align:center; margin: 40px 0;'>Generative Insights</h2>", unsafe_allow_html=True)
+    c1, c2 = st.columns(2)
     
-    col_ai_1, col_ai_2 = st.columns(2, gap="medium")
-    
-    # Feature 1: Persona
-    with col_ai_1:
-        st.markdown(f"""
-        <div class="titan-card" style="text-align:center; padding: 2rem; height: 100%;">
-            <div style="font-size: 2.5rem; margin-bottom: 1rem;">📊</div>
-            <h4>Psychometric Persona</h4>
-            <p style="font-size: 0.9rem; margin-bottom: 1.5rem;">Generate a behavioral archetype based on your input vectors.</p>
-        </div>
-        """, unsafe_allow_html=True)
-        if st.button("Generate Persona", key="btn_persona", use_container_width=True):
-            show_loader(duration=3)
-            with st.spinner("Accessing Gemini Neural Net..."):
-                prompt = f"Based on this user data: {json.dumps(data)}. Return JSON with keys: 'persona' (Creative 2-3 word title), 'analysis' (1 sentence summary), 'tips' (Array of 2 short actionable tips)."
-                res = call_gemini(prompt)
-                if res: 
-                    st.session_state.ai_results['analysis'] = json.loads(res)
-                    st.rerun()
+    with c1:
+        st.markdown('<div class="quantum-card" style="text-align:center;"><h3>👤 Persona Analysis</h3></div>', unsafe_allow_html=True)
+        if st.button("Generate Persona", use_container_width=True):
+             show_loader(3)
+             prompt = f"Data: {json.dumps(data)}. Return JSON: 'persona', 'analysis', 'tips'."
+             res = call_gemini(prompt)
+             if res: st.session_state.ai_results['analysis'] = json.loads(res); st.rerun()
+             
+    with c2:
+        st.markdown('<div class="quantum-card" style="text-align:center;"><h3>⏳ Time Travel</h3></div>', unsafe_allow_html=True)
+        if st.button("Connect to 2029", use_container_width=True):
+             show_loader(3)
+             prompt = f"Message from 2029 for user: {json.dumps(data)}. Max 50 words."
+             res = call_gemini(prompt, is_json=False)
+             if res: st.session_state.ai_results['future'] = res; st.rerun()
 
-    # Feature 2: Time Travel
-    with col_ai_2:
-        st.markdown(f"""
-        <div class="titan-card" style="text-align:center; padding: 2rem; height: 100%;">
-            <div style="font-size: 2.5rem; margin-bottom: 1rem;">🕰️</div>
-            <h4>Temporal Bridge</h4>
-            <p style="font-size: 0.9rem; margin-bottom: 1.5rem;">Receive a quantum transmission from your 2029 self.</p>
-        </div>
-        """, unsafe_allow_html=True)
-        if st.button("Connect to 2029", key="btn_future", use_container_width=True):
-            show_loader(duration=3)
-            with st.spinner("Establishing Timeline Link..."):
-                prompt = f"Write a dramatic but helpful note from this user's future self in 2029 based on their current habits: {json.dumps(data)}. Max 50 words. Be encouraging but real."
-                res = call_gemini(prompt, is_json=False)
-                if res: 
-                    st.session_state.ai_results['future'] = res
-                    st.rerun()
-
-    # Display Results
-    results = st.session_state.get('ai_results', {})
+    results = st.session_state.ai_results
     if results:
-        st.markdown("<div style='height: 40px;'></div>", unsafe_allow_html=True)
-        
-        # Persona Result
         if 'analysis' in results:
-            r = results['analysis']
-            st.markdown(f"""
-            <div class="titan-card" style="border-left: 5px solid var(--primary);">
-                <span class="section-label">ANALYSIS VECTOR 01</span>
-                <h3 style="color: var(--primary) !important; margin-top:0;">{r.get('persona', 'User')}</h3>
-                <p style="font-style: italic; font-size: 1.1rem; opacity: 0.9; margin-bottom: 1.5rem;">"{r.get('analysis', '')}"</p>
-                <div style="background: rgba(0,0,0,0.1); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border);">
-                    <strong style="text-transform:uppercase; font-size:0.8rem; letter-spacing:1px; color: var(--text-sub);">Optimization Strategy</strong>
-                    <ul class="custom-list" style="margin-top: 0.5rem;">
-                        {''.join([f'<li>{t}</li>' for t in r.get('tips', [])])}
-                    </ul>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-
-        # Future Message Result
+             r = results['analysis']
+             st.markdown(f"<div class='quantum-card'><h3>{r.get('persona')}</h3><p>{r.get('analysis')}</p></div>", unsafe_allow_html=True)
         if 'future' in results:
-            st.markdown(f"""
-            <div class="titan-card" style="border-left: 5px solid #F59E0B; background: var(--surface);">
-                <div style="display:flex; align-items:center; margin-bottom:1rem;">
-                    <span style="background:#F59E0B; color:#000; padding:2px 8px; border-radius:4px; font-size:0.7rem; font-weight:bold; margin-right:10px;">ENCRYPTED</span>
-                    <h3 style="color:#F59E0B !important; margin:0;">Incoming Transmission</h3>
-                </div>
-                <p style="font-family: 'JetBrains Mono', monospace; font-size: 1rem; line-height: 1.6; color: var(--text-main);">
-                    > {results['future']}
-                </p>
-            </div>
-            """, unsafe_allow_html=True)
+             st.markdown(f"<div class='quantum-card'><h3>Transmission Received</h3><p style='font-family:monospace'>{results['future']}</p></div>", unsafe_allow_html=True)
+             
+    if st.button("RESTART SYSTEM", use_container_width=True): reset_interview(); st.rerun()
 
 # ------------------------------------------------------------------------------
-# 8. SYSTEM FOOTER
+# FOOTER
 # ------------------------------------------------------------------------------
-st.markdown(f"""
-<div class="footer-container">
-    <p>MINDCHECK AI v3.0 // TITANIUM ENGINE ACTIVE // 2026</p>
-</div>
-""", unsafe_allow_html=True)
+st.markdown(f"<div style='text-align:center; margin-top:50px; opacity:0.5;'><p>MindCheck AI v4.0 • Quantum Edition • 2026</p></div>", unsafe_allow_html=True)
