@@ -6,17 +6,18 @@
 #  / ____ \| |____  | |  | |  | | |____| | \ \ _| |_| |__| |____) |
 # /_/    \_\______| |_|  |_|  |_|______|_|  \_\_____|\____/|_____/ 
 # 
-#  PROJECT AETHERIUS: THE DIAMOND CUT (BUILD v15.0.0)
+#  PROJECT AETHERIUS: PARALLAX UPDATE (BUILD v15.5.0)
 # ==============================================================================
 #  SYSTEM:       MindCheck AI (Aetherius Class)
-#  VERSION:      15.0.0 (Final Polish)
+#  VERSION:      15.5.0 (3D Tilt Core)
 #  ARCHITECT:    Mubashir Mohsin & Gemini (Neural Core)
-#  ENGINE:       Diamond-CSS Compiler v15.5
+#  ENGINE:       Diamond-CSS + VanillaTilt JS Injection
 #  DATE:         February 6, 2026
 #  STATUS:       GOLD MASTER
 # ==============================================================================
 
 import streamlit as st
+import streamlit.components.v1 as components
 import pandas as pd
 import joblib
 import json
@@ -37,7 +38,7 @@ from typing import List, Dict, Any, Optional
 
 class SystemConfig:
     APP_NAME = "MindCheck AI"
-    VERSION = "15.0.0"
+    VERSION = "15.5.0"
     AUTHOR = "Mubashir Mohsin"
     MODEL_PATH = 'mental_health_model.joblib'
     GEMINI_MODEL = 'gemini-2.5-flash'
@@ -67,13 +68,12 @@ API_KEY = st.secrets.get("GEMINI_API_KEY", None)
 class SessionManager:
     """
     Centralized controller for st.session_state.
-    Includes Device Profile Management.
     """
     
     DEFAULTS = {
         "page": "home",
         "theme": "Dark", 
-        "device_type": None, # None means selection screen is active
+        "device_type": None, 
         "inputs": {},
         "score": None,
         "ai_results": {},
@@ -107,7 +107,6 @@ class SessionManager:
 
     @staticmethod
     def set_device(device: str):
-        """Sets the optimization profile with a fake loading delay for polish."""
         with st.spinner(f"OPTIMIZING NEURAL INTERFACE FOR {device.upper()}..."):
             time.sleep(1.2)
         st.session_state.device_type = device
@@ -150,17 +149,15 @@ class DiamondEngine:
     def _get_tokens(cls, theme: str) -> Dict[str, str]:
         if theme == "Dark":
             return {
-                # --- AETHERIUS DARK (Deep Space) ---
                 "bg_root": "#000000",
                 "bg_grad": "radial-gradient(circle at 50% -20%, #2e1065 0%, #000000 100%)",
                 "surface": "rgba(20, 20, 25, 0.7)", 
                 "surface_highlight": "rgba(40, 40, 50, 0.8)",
                 "border": "rgba(255, 255, 255, 0.1)",
-                "border_hover": "rgba(255, 255, 255, 0.3)",
                 "text_main": "#ffffff",
                 "text_sub": "#94a3b8",
-                "accent": "#00f0ff", # Cyan
-                "accent_sec": "#7000ff", # Neon Violet
+                "accent": "#00f0ff", 
+                "accent_sec": "#7000ff", 
                 "input_bg": "#0a0a0a",
                 "input_text": "#ffffff",
                 "glass_blur": "30px",
@@ -170,17 +167,15 @@ class DiamondEngine:
             }
         else:
             return {
-                # --- AETHERIUS LIGHT (Diamond) ---
                 "bg_root": "#ffffff",
                 "bg_grad": "radial-gradient(circle at 50% -20%, #e0f2fe 0%, #f8fafc 100%)",
                 "surface": "rgba(255, 255, 255, 0.75)", 
                 "surface_highlight": "#ffffff",
                 "border": "rgba(255, 255, 255, 1)",
-                "border_hover": "#bae6fd",
                 "text_main": "#0f172a",
                 "text_sub": "#64748b",
-                "accent": "#0ea5e9", # Sky Blue
-                "accent_sec": "#6366f1", # Indigo
+                "accent": "#0ea5e9", 
+                "accent_sec": "#6366f1", 
                 "input_bg": "#ffffff",
                 "input_text": "#0f172a",
                 "glass_blur": "25px",
@@ -191,12 +186,8 @@ class DiamondEngine:
 
     @classmethod
     def _device_overrides(cls, device: str) -> str:
-        """
-        Injects CSS optimization based on the selected device.
-        """
         if device == "Phone":
             return """
-            /* --- PHONE OPTIMIZATIONS --- */
             .block-container { max-width: 100% !important; padding: 1rem 0.5rem !important; }
             h1 { font-size: 3.5rem !important; margin-bottom: 0.5rem !important; line-height: 1 !important; }
             h2 { font-size: 2rem !important; }
@@ -206,68 +197,38 @@ class DiamondEngine:
             """
         elif device == "Tablet":
             return """
-            /* --- TABLET OPTIMIZATIONS --- */
             .block-container { max-width: 900px !important; padding: 2rem !important; }
             h1 { font-size: 5rem !important; }
             .aether-card { padding: 2.5rem !important; }
             """
-        else: # Laptop/PC
-            return """
-            /* --- DESKTOP OPTIMIZATIONS --- */
-            .block-container { max-width: 1400px !important; }
-            """
+        else:
+            return ".block-container { max-width: 1400px !important; }"
 
     @classmethod
     def _typography(cls, t: Dict[str, str]) -> str:
         return f"""
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@200;400;600;800&family=Space+Grotesk:wght@300;500;700&family=JetBrains+Mono:wght@400;700&display=swap');
         
-        h1, h2, h3, h4, h5, h6 {{
-            font-family: 'Outfit', sans-serif;
-            color: {t['text_main']};
-            font-weight: 800;
-            letter-spacing: -0.03em;
-            text-transform: uppercase;
-        }}
-        
-        h1 {{ font-size: 6rem; line-height: 0.9; margin-bottom: 1.5rem; text-shadow: 0 4px 30px rgba(0,0,0,0.1); }}
-        h2 {{ font-size: 3rem; margin-bottom: 2rem; }}
-        h3 {{ font-size: 1.5rem; color: {t['accent']}; letter-spacing: 2px; }}
-        
-        p, li, span, label {{
-            font-family: 'Space Grotesk', sans-serif;
-            color: {t['text_sub']};
-            font-size: 1.1rem;
-            line-height: 1.7;
-            font-weight: 400;
-        }}
-        
+        h1, h2, h3, h4, h5, h6 {{ font-family: 'Outfit', sans-serif; color: {t['text_main']}; weight: 800; letter-spacing: -0.03em; text-transform: uppercase; }}
+        h1 {{ font-size: 4.5rem; line-height: 1.1; margin-bottom: 1rem; }}
+        h2 {{ font-size: 2.5rem; margin-bottom: 1.5rem; }}
+        h3 {{ font-size: 1.5rem; color: {t['accent']}; text-transform: uppercase; letter-spacing: 2px; }}
+        p, li, span, label {{ font-family: 'Space Grotesk', sans-serif; color: {t['text_sub']}; font-size: 1.05rem; line-height: 1.6; weight: 400; }}
         .code-font {{ font-family: 'JetBrains Mono', monospace; }}
-        
-        /* Selection Highlight */
-        ::selection {{
-            background: {t['accent']};
-            color: #ffffff;
-        }}
+        ::selection {{ background: {t['accent']}; color: #ffffff; }}
         """
 
     @classmethod
     def _containers(cls, t: Dict[str, str]) -> str:
         return f"""
-        .stApp {{
-            background-color: {t['bg_root']};
-            background-image: {t['bg_grad']};
-            background-attachment: fixed;
-            background-size: cover;
-        }}
-        
-        /* Custom Scrollbar */
+        .stApp {{ background-color: {t['bg_root']}; background-image: {t['bg_grad']}; background-attachment: fixed; background-size: cover; }}
         ::-webkit-scrollbar {{ width: 8px; height: 8px; }}
         ::-webkit-scrollbar-track {{ background: {t['scroll_track']}; }}
         ::-webkit-scrollbar-thumb {{ background: {t['scroll_thumb']}; border-radius: 4px; }}
         ::-webkit-scrollbar-thumb:hover {{ background: {t['accent']}; }}
         
-        /* --- AETHER CARD --- */
+        /* --- 3D TILT CARD BASE --- */
+        /* The tilt is handled by JS, but we need base styles */
         .aether-card {{
             background: {t['surface']};
             border: 1px solid {t['border']};
@@ -277,176 +238,44 @@ class DiamondEngine:
             -webkit-backdrop-filter: blur({t['glass_blur']});
             box-shadow: {t['shadow']};
             margin-bottom: 2rem;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-            overflow: hidden;
-        }}
-        
-        /* Glass Shine Effect */
-        .aether-card::before {{
-            content: '';
-            position: absolute;
-            top: 0; left: -100%; width: 50%; height: 100%;
-            background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent);
-            transform: skewX(-25deg);
-            transition: 0.5s;
-        }}
-        
-        .aether-card:hover::before {{ left: 150%; transition: 0.7s ease-in-out; }}
-        
-        .aether-card:hover {{
-            transform: translateY(-8px);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
-            border-color: {t['accent']};
+            transform-style: preserve-3d;
+            transform: perspective(1000px);
         }}
         """
 
     @classmethod
     def _inputs(cls, t: Dict[str, str]) -> str:
         return f"""
-        /* --- SOLID STATE INPUTS --- */
-        .stTextInput > div > div > input,
-        .stNumberInput > div > div > input {{
-            background-color: {t['input_bg']} !important;
-            color: {t['input_text']} !important;
-            border: 1px solid {t['border']} !important;
-            border-radius: 16px !important;
-            padding: 18px 24px !important;
-            font-weight: 500 !important;
-            font-family: 'JetBrains Mono', monospace !important;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-        }}
-        
-        .stTextInput > div > div > input:focus,
-        .stNumberInput > div > div > input:focus {{
-            border-color: {t['accent']} !important;
-            box-shadow: 0 0 0 4px {t['accent']}33 !important;
-            transform: scale(1.01);
-        }}
-        
-        /* Select Boxes */
-        .stSelectbox > div > div > div {{
-            background-color: {t['input_bg']} !important;
-            color: {t['input_text']} !important;
-            border: 1px solid {t['border']} !important;
-            border-radius: 16px !important;
-            padding: 5px !important;
-        }}
-        
-        /* Dropdown Options */
-        div[data-baseweb="popover"], div[data-baseweb="menu"] {{
-            background-color: {t['surface_highlight']} !important;
-            border: 1px solid {t['border']} !important;
-            border-radius: 16px !important;
-            overflow: hidden !important;
-        }}
-        
-        div[role="option"] {{
-            color: {t['input_text']} !important;
-            padding: 12px 20px !important;
-            font-family: 'Space Grotesk', sans-serif !important;
-        }}
-        
-        div[role="option"]:hover {{
-            background-color: {t['accent']} !important;
-            color: #ffffff !important;
-        }}
+        .stTextInput > div > div > input, .stNumberInput > div > div > input {{ background-color: {t['input_bg']} !important; color: {t['input_text']} !important; border: 1px solid {t['border']} !important; border-radius: 16px !important; padding: 18px 24px !important; font-weight: 500 !important; font-family: 'JetBrains Mono', monospace !important; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); transition: all 0.3s ease; }}
+        .stTextInput > div > div > input:focus, .stNumberInput > div > div > input:focus {{ border-color: {t['accent']} !important; box-shadow: 0 0 0 4px {t['accent']}33 !important; transform: scale(1.01); }}
+        .stSelectbox > div > div > div {{ background-color: {t['input_bg']} !important; color: {t['input_text']} !important; border: 1px solid {t['border']} !important; border-radius: 16px !important; padding: 5px !important; }}
+        div[data-baseweb="popover"], div[data-baseweb="menu"] {{ background-color: {t['surface_highlight']} !important; border: 1px solid {t['border']} !important; border-radius: 16px !important; overflow: hidden !important; }}
+        div[role="option"] {{ color: {t['input_text']} !important; padding: 12px 20px !important; font-family: 'Space Grotesk', sans-serif !important; }}
+        div[role="option"]:hover {{ background-color: {t['accent']} !important; color: #ffffff !important; }}
         """
 
     @classmethod
     def _components(cls, t: Dict[str, str]) -> str:
         return f"""
-        /* --- DIAMOND BUTTONS --- */
-        .stButton > button {{
-            width: 100%;
-            background: linear-gradient(135deg, {t['accent']} 0%, {t['accent_sec']} 100%) !important;
-            color: #ffffff !important;
-            border: none !important;
-            border-radius: 50px !important;
-            padding: 1.2rem 3rem !important;
-            font-family: 'Outfit', sans-serif !important;
-            font-weight: 800 !important;
-            letter-spacing: 2px !important;
-            text-transform: uppercase !important;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-            box-shadow: 0 10px 20px {t['accent']}44 !important;
-            position: relative;
-            overflow: hidden;
-        }}
-        
-        .stButton > button::after {{
-            content: '';
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 60%);
-            transform: scale(0);
-            transition: transform 0.5s;
-        }}
-        
+        .stButton > button {{ width: 100%; background: linear-gradient(135deg, {t['accent']} 0%, {t['accent_sec']} 100%) !important; color: #ffffff !important; border: none !important; border-radius: 50px !important; padding: 1.2rem 3rem !important; font-family: 'Outfit', sans-serif !important; font-weight: 800 !important; letter-spacing: 2px !important; text-transform: uppercase !important; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important; box-shadow: 0 10px 20px {t['accent']}44 !important; position: relative; overflow: hidden; }}
+        .stButton > button::after {{ content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 60%); transform: scale(0); transition: transform 0.5s; }}
         .stButton > button:active::after {{ transform: scale(2); opacity: 0; }}
-        
-        .stButton > button:hover {{
-            transform: translateY(-4px) !important;
-            box-shadow: 0 20px 40px {t['accent']}66 !important;
-            filter: brightness(1.1);
-        }}
-        
-        /* --- NAVBAR --- */
-        .aether-nav {{
-            background: {t['surface']};
-            border: 1px solid {t['border']};
-            backdrop-filter: blur({t['glass_blur']});
-            padding: 20px 40px;
-            border-radius: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 5rem;
-            position: sticky;
-            top: 25px;
-            z-index: 999;
-            box-shadow: {t['shadow']};
-        }}
-        
-        /* --- PROGRESS BAR --- */
-        .aether-progress-track {{
-            width: 100%; height: 6px; background: {t['border']};
-            border-radius: 10px; margin: 2rem 0; overflow: hidden;
-        }}
-        .aether-progress-fill {{
-            height: 100%; background: {t['accent']};
-            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 20px {t['accent']};
-        }}
-        
-        /* --- GAUGE (CSS ONLY) --- */
-        .gauge-wrapper {{
-            position: relative; width: 220px; height: 110px; margin: 0 auto; overflow: hidden;
-        }}
-        .gauge-bg {{
-            width: 220px; height: 220px; border-radius: 50%; background: {t['border']};
-        }}
-        .gauge-value {{
-            width: 220px; height: 220px; border-radius: 50%;
-            background: conic-gradient({t['accent']} 0%, {t['accent_sec']} var(--p), transparent var(--p));
-            mask: radial-gradient(transparent 65%, black 66%);
-            -webkit-mask: radial-gradient(transparent 65%, black 66%);
-            transform: rotate(-90deg);
-            position: absolute; top: 0; left: 0;
-        }}
+        .stButton > button:hover {{ transform: translateY(-4px) !important; box-shadow: 0 20px 40px {t['accent']}66 !important; filter: brightness(1.1); }}
+        .aether-nav {{ background: {t['surface']}; border: 1px solid {t['border']}; backdrop-filter: blur({t['glass_blur']}); padding: 20px 40px; border-radius: 100px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 5rem; position: sticky; top: 25px; z-index: 999; box-shadow: {t['shadow']}; }}
+        .aether-progress-track {{ width: 100%; height: 6px; background: {t['border']}; border-radius: 10px; margin: 2rem 0; overflow: hidden; }}
+        .aether-progress-fill {{ height: 100%; background: {t['accent']}; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 20px {t['accent']}; }}
+        .gauge-wrapper {{ position: relative; width: 220px; height: 110px; margin: 0 auto; overflow: hidden; }}
+        .gauge-bg {{ width: 220px; height: 220px; border-radius: 50%; background: {t['border']}; }}
+        .gauge-value {{ width: 220px; height: 220px; border-radius: 50%; background: conic-gradient({t['accent']} 0%, {t['accent_sec']} var(--p), transparent var(--p)); mask: radial-gradient(transparent 65%, black 66%); -webkit-mask: radial-gradient(transparent 65%, black 66%); transform: rotate(-90deg); position: absolute; top: 0; left: 0; }}
         """
 
     @classmethod
     def _animations(cls) -> str:
         return """
-        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
-        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-        
         .anim-enter { animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .anim-float { animation: float 6s ease-in-out infinite; }
-        .anim-pulse { animation: pulse 2s infinite; }
         """
 
     @classmethod
@@ -455,36 +284,65 @@ class DiamondEngine:
         device = st.session_state.device_type
         tokens = cls._get_tokens(theme)
         
-        # Base CSS generation
         css_block = f"""
         <style>
-            /* --- 1. TYPOGRAPHY --- */
             {cls._typography(tokens)}
-            
-            /* --- 2. CONTAINERS & LAYOUT --- */
             {cls._containers(tokens)}
-            
-            /* --- 3. INPUTS --- */
             {cls._inputs(tokens)}
-            
-            /* --- 4. COMPONENTS --- */
             {cls._components(tokens)}
-            
-            /* --- 5. ANIMATIONS --- */
             {cls._animations()}
-            
-            /* --- 6. UTILS --- */
+            {cls._device_overrides(device) if device else ""}
             #MainMenu, footer, header {{ visibility: hidden; }}
             .stDeployButton {{ display: none; }}
-            
-            /* --- 7. DEVICE OVERRIDES (The Adaptive Layer) --- */
-            {cls._device_overrides(device) if device else ""}
         </style>
         """
         st.markdown(css_block, unsafe_allow_html=True)
 
 # ==============================================================================
-# MODULE 4: PROCEDURAL GRAPHICS (ASSET GENERATOR)
+# MODULE 4: JS INJECTION (3D TILT ENGINE)
+# ==============================================================================
+
+class JSInjector:
+    @staticmethod
+    def inject_vanilla_tilt():
+        """
+        Injects VanillaTilt.js and attaches it to the .aether-card class.
+        Includes a MutationObserver to handle Streamlit re-renders.
+        """
+        js = """
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.2/vanilla-tilt.min.js"></script>
+        <script>
+        // Function to re-attach tilt
+        function attachTilt() {
+            const cards = document.querySelectorAll(".aether-card");
+            VanillaTilt.init(cards, {
+                max: 10,
+                speed: 400,
+                glare: true,
+                "max-glare": 0.3,
+                scale: 1.02
+            });
+        }
+        
+        // Observer to watch for Streamlit DOM changes
+        const observer = new MutationObserver((mutations) => {
+            attachTilt();
+        });
+        
+        // Start observing
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+        
+        // Initial attach
+        attachTilt();
+        </script>
+        """
+        components.html(js, height=0, width=0)
+
+# ==============================================================================
+# MODULE 5: PROCEDURAL GRAPHICS
 # ==============================================================================
 
 class AssetFactory:
@@ -520,7 +378,7 @@ class AssetFactory:
         """.encode('utf-8')).decode('utf-8')
 
 # ==============================================================================
-# MODULE 5: INTELLIGENCE CORE
+# MODULE 6: INTELLIGENCE CORE
 # ==============================================================================
 
 class IntelligenceCore:
@@ -538,7 +396,7 @@ class IntelligenceCore:
         return None
 
 # ==============================================================================
-# MODULE 6: UI COMPONENTS
+# MODULE 7: UI COMPONENTS
 # ==============================================================================
 
 class Components:
@@ -573,12 +431,12 @@ class Components:
         placeholder.empty()
 
 # ==============================================================================
-# MODULE 7: SCENES (PAGES)
+# MODULE 8: SCENES (PAGES)
 # ==============================================================================
 
 def view_device_selection():
     """Initial landing page for device optimization."""
-    # Special CSS just for this screen to make it pop
+    # Special CSS just for this screen
     st.markdown("""
     <style>
     .stApp { background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #000000 100%); }
@@ -829,7 +687,6 @@ def view_results():
     # RESULTS DISPLAY
     if 'analysis' in ai_results:
         r = ai_results['analysis']
-        # Theme dependent border color logic
         c_acc = "#00f0ff" if SessionManager.get("theme") == "Dark" else "#0ea5e9"
         
         st.markdown(f"""
@@ -860,6 +717,9 @@ def view_results():
 def main():
     SessionManager.init()
     
+    # 3D TILT ENGINE INJECTION
+    JSInjector.inject_vanilla_tilt()
+    
     # Logic Flow: Device Selection -> Navbar+App
     device = SessionManager.get("device_type")
     
@@ -878,7 +738,7 @@ def main():
         
         st.markdown("""
         <div class="aurora-footer" style="text-align:center; opacity:0.5; margin-top:50px;">
-            PROJECT AETHERIUS // MINDCHECK AI v15.0 // 2026
+            PROJECT AETHERIUS // MINDCHECK AI v15.5 // 2026
         </div>
         """, unsafe_allow_html=True)
 
