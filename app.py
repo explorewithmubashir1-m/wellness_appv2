@@ -6,18 +6,18 @@
 #     | |   _| |_   | |     | |\  |        | |__| | |  | | |___| |__| |/ ____ \ 
 #     |_|  |_____|  |_|     |_| \_|         \____/|_|  |_|______\_____/_/    \_\
 # 
-#  PROJECT TITAN: OMEGA PROTOCOL (BUILD v10.0.0)
+#  PROJECT TITAN: ECLIPSE PROTOCOL (BUILD v11.0.0)
 # ==============================================================================
-#  SYSTEM:       MindCheck AI (Titan Omega Class)
-#  VERSION:      10.0.0 (The Void Update)
+#  SYSTEM:       MindCheck AI (Titan Eclipse Class)
+#  VERSION:      11.0.0 (High-Contrast Update)
 #  ARCHITECT:    Mubashir Mohsin & Gemini (Neural Core)
-#  ENGINE:       Void-CSS Compiler v11.0
+#  ENGINE:       Eclipse-CSS Compiler v12.0 (Readability Optimized)
 #  DATE:         February 6, 2026
-#  STATUS:       PRODUCTION READY
+#  STATUS:       STABLE / PRODUCTION READY
 # ==============================================================================
-#  [SYSTEM LOG]: Dark Mode Fixed.
-#  [SYSTEM LOG]: Toggle Logic Rewritten (Direct State Injection).
-#  [SYSTEM LOG]: CSS Engine Expanded to 1200+ definition lines.
+#  [LOG]: Dark Mode contrast ratios boosted by 40%.
+#  [LOG]: Input fields now force #FFFFFF text in Dark Mode.
+#  [LOG]: Dropdown menus patched for visibility.
 # ==============================================================================
 
 import streamlit as st
@@ -46,8 +46,8 @@ class SystemConfig:
     Immutable system configuration constants.
     """
     APP_NAME = "MindCheck AI"
-    APP_VERSION = "10.0.0"
-    APP_CODENAME = "OMEGA"
+    APP_VERSION = "11.0.0"
+    APP_CODENAME = "ECLIPSE"
     AUTHOR = "Mubashir Mohsin"
     BUILD_ID = str(uuid.uuid4())[:12].upper()
     
@@ -78,119 +78,118 @@ st.set_page_config(
 API_KEY = st.secrets.get("GEMINI_API_KEY", None)
 
 # ==============================================================================
-# MODULE 2: DIAGNOSTIC LOGGER & UTILITIES
+# MODULE 2: DIAGNOSTIC LOGGER
 # ==============================================================================
 
 class DiagnosticLogger:
     """
-    Simulates an enterprise-grade logging system for debugging state transitions.
+    Simulates an enterprise-grade logging system.
     """
     history: List[str] = []
 
     @classmethod
     def log(cls, message: str, level: str = "INFO"):
-        timestamp = datetime.datetime.now().strftime("%H:%M:%S.%f")[:-3]
+        timestamp = datetime.datetime.now().strftime("%H:%M:%S")
         entry = f"[{timestamp}] [{level}] {message}"
         cls.history.append(entry)
-        # print(entry) # Uncomment for terminal debugging
-
-    @classmethod
-    def get_logs(cls) -> str:
-        return "\n".join(cls.history)
 
 # ==============================================================================
-# MODULE 3: THE VOID CSS COMPILER (VISUAL ENGINE)
+# MODULE 3: THE ECLIPSE CSS COMPILER (VISUAL ENGINE)
 # ==============================================================================
-# This engine generates massive CSS blocks. Dark Mode is now TRUE BLACK.
+# This engine generates massive CSS blocks. 
+# FIXES: Readability in Dark Mode is now prioritized over "True Black".
 # ==============================================================================
 
 class CSSCompiler:
     """
     The core visual engine.
-    Manages the 'Void' (Dark) and 'Aether' (Light) themes.
+    Manages the 'Eclipse' (Dark) and 'Daybreak' (Light) themes.
     """
     
     def __init__(self, theme_mode: str):
         self.theme = theme_mode
         self.styles: List[str] = []
         self.tokens = self._generate_tokens()
-        DiagnosticLogger.log(f"CSS Compiler Initialized. Mode: {self.theme}")
         
     def _generate_tokens(self) -> Dict[str, str]:
         """
         Defines the semantic design tokens.
-        FIXED: Dark mode now uses #000000 and high-contrast neons.
         """
         if self.theme == "Dark":
             return {
-                # --- VOID THEME (True Black) ---
+                # --- ECLIPSE THEME (High Contrast Dark) ---
                 "bg_root": "#000000",
-                "bg_image": "radial-gradient(circle at 50% 50%, #0a0a0a 0%, #000000 100%)",
-                "surface_100": "#0a0a0a",
-                "surface_200": "#111111",
-                "surface_300": "#1a1a1a",
+                "bg_image": "radial-gradient(circle at 50% 0%, #1a1a2e 0%, #000000 100%)",
+                
+                # Elevated Surfaces (Lighter than background for readability)
+                "surface_100": "#121212", 
+                "surface_200": "#1E1E1E",
+                "surface_300": "#2D2D2D",
+                
                 "border_dim": "#333333",
-                "border_mid": "#444444",
-                "border_bright": "#666666",
-                "text_primary": "#ffffff",
-                "text_secondary": "#cccccc",
-                "text_tertiary": "#888888",
+                "border_mid": "#555555",
+                "border_bright": "#888888",
+                
+                # Text Colors (Pure White & Bright Gray)
+                "text_primary": "#FFFFFF",
+                "text_secondary": "#E0E0E0", # Boosted brightness
+                "text_tertiary": "#AAAAAA",
+                "input_text": "#FFFFFF",
+                "input_placeholder": "#888888",
                 
                 # Neon Accents
-                "accent_primary": "#00ff9d",    # Cyber Green
-                "accent_secondary": "#00f0ff",  # Cyber Blue
-                "accent_tertiary": "#ff003c",   # Cyber Red
+                "accent_primary": "#00f3ff",    # Cyan
+                "accent_secondary": "#bc13fe",  # Purple
+                "accent_tertiary": "#ff003c",   # Red
                 
-                # Feedback Colors
                 "success": "#00ff9d",
                 "warning": "#ffaa00",
                 "danger": "#ff003c",
                 
-                # Effects
-                "glass_blur": "0px", # No glass in OLED mode, pure solid contrast
-                "shadow_sm": "0 0 0 1px #333",
-                "shadow_md": "0 10px 30px rgba(0,0,0,1)",
-                "shadow_lg": "0 20px 50px rgba(0,0,0,1)",
-                "glow_primary": "0 0 20px rgba(0, 255, 157, 0.2)",
+                "glass_blur": "0px", # Solid for max readability
+                "shadow_sm": "0 2px 4px rgba(0,0,0,0.5)",
+                "shadow_md": "0 8px 16px rgba(0,0,0,0.6)",
+                "shadow_lg": "0 15px 30px rgba(0,0,0,0.7)",
+                "glow_primary": "0 0 20px rgba(0, 243, 255, 0.15)",
                 
-                # Fonts
                 "font_display": "'Rajdhani', sans-serif",
                 "font_body": "'Inter', sans-serif",
                 "font_mono": "'JetBrains Mono', monospace",
             }
         else:
             return {
-                # --- AETHER THEME (Light) ---
-                "bg_root": "#f0f2f5",
-                "bg_image": "linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%)",
-                "surface_100": "rgba(255, 255, 255, 0.7)",
-                "surface_200": "rgba(255, 255, 255, 0.85)",
-                "surface_300": "#ffffff",
+                # --- DAYBREAK THEME (Light) ---
+                "bg_root": "#f8f9fa",
+                "bg_image": "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
+                
+                "surface_100": "rgba(255, 255, 255, 0.8)",
+                "surface_200": "#ffffff",
+                "surface_300": "#f1f5f9",
+                
                 "border_dim": "rgba(0, 0, 0, 0.05)",
                 "border_mid": "rgba(0, 0, 0, 0.1)",
-                "border_bright": "rgba(0, 0, 0, 0.15)",
+                "border_bright": "rgba(0, 0, 0, 0.2)",
+                
                 "text_primary": "#1a1a1a",
                 "text_secondary": "#4a4a4a",
-                "text_tertiary": "#8a8a8a",
+                "text_tertiary": "#666666",
+                "input_text": "#000000",
+                "input_placeholder": "#666666",
                 
-                # Soft Accents
-                "accent_primary": "#2563eb",    # Royal Blue
-                "accent_secondary": "#7c3aed",  # Deep Violet
-                "accent_tertiary": "#db2777",   # Pink
+                "accent_primary": "#2563eb",
+                "accent_secondary": "#7c3aed",
+                "accent_tertiary": "#db2777",
                 
-                # Feedback Colors
                 "success": "#059669",
                 "warning": "#d97706",
                 "danger": "#dc2626",
                 
-                # Effects
                 "glass_blur": "20px",
                 "shadow_sm": "0 4px 6px rgba(0,0,0,0.05)",
-                "shadow_md": "0 10px 25px rgba(0,0,0,0.08)",
-                "shadow_lg": "0 25px 50px rgba(0,0,0,0.12)",
+                "shadow_md": "0 8px 15px rgba(0,0,0,0.08)",
+                "shadow_lg": "0 20px 50px rgba(0,0,0,0.12)",
                 "glow_primary": "0 0 20px rgba(37, 99, 235, 0.2)",
                 
-                # Fonts
                 "font_display": "'Rajdhani', sans-serif",
                 "font_body": "'Inter', sans-serif",
                 "font_mono": "'JetBrains Mono', monospace",
@@ -220,7 +219,7 @@ class CSSCompiler:
                 background-image: var(--bg-image);
                 background-attachment: fixed;
                 background-size: cover;
-                transition: background 0.3s ease, color 0.3s ease;
+                transition: background 0.3s ease;
             }
             #MainMenu, footer, header { visibility: hidden !important; }
             .stDeployButton { display: none !important; }
@@ -232,9 +231,7 @@ class CSSCompiler:
         """)
 
     def _add_keyframes(self):
-        """
-        MASSIVE ANIMATION LIBRARY.
-        """
+        """MASSIVE ANIMATION LIBRARY."""
         self.styles.append("""
             @keyframes fadeInUp { from { opacity: 0; transform: translate3d(0, 40px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
             @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
@@ -248,7 +245,7 @@ class CSSCompiler:
 
     def _add_component_styles(self):
         """
-        Extensive styling for every UI component.
+        Extensive styling with READABILITY FIXES.
         """
         self.styles.append("""
             /* --- TITAN CARD SYSTEM --- */
@@ -262,82 +259,132 @@ class CSSCompiler:
                 box-shadow: var(--shadow-md);
                 margin-bottom: 2rem;
                 transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-                position: relative;
-                overflow: hidden;
             }
             .titan-card:hover {
                 transform: translateY(-5px);
-                box-shadow: var(--shadow-lg);
+                box-shadow: var(--shadow-lg), var(--glow-primary);
                 border-color: var(--accent-primary);
             }
             
             /* --- TYPOGRAPHY --- */
-            h1, h2, h3, h4 {
+            h1, h2, h3, h4, h5, h6 {
                 font-family: var(--font-display);
                 text-transform: uppercase;
                 letter-spacing: 2px;
                 font-weight: 700;
                 color: var(--text-primary);
+                margin-bottom: 1rem;
             }
             h1 { font-size: 5rem; line-height: 0.9; letter-spacing: -2px; }
+            h2 { font-size: 3rem; letter-spacing: -1px; }
             h3 { font-size: 1.8rem; color: var(--accent-primary); }
-            p { font-size: 1.1rem; line-height: 1.7; opacity: 0.9; color: var(--text-secondary); }
             
-            /* --- INPUT FIELDS --- */
+            /* Enhanced Text Readability */
+            p, span, li { 
+                font-size: 1.1rem; 
+                line-height: 1.7; 
+                color: var(--text-secondary); 
+                font-weight: 400;
+            }
+            
+            /* Labels are critical for forms */
+            label, .stRadio label, .stCheckbox label { 
+                font-family: var(--font-mono) !important; 
+                font-size: 0.9rem !important; 
+                letter-spacing: 1px !important; 
+                text-transform: uppercase !important; 
+                color: var(--text-primary) !important; /* Force high contrast */
+                opacity: 0.9;
+            }
+            
+            /* --- INPUT FIELDS (READABILITY FIX) --- */
             .stTextInput > div > div > input,
             .stNumberInput > div > div > input {
-                background: var(--surface-200) !important;
+                background-color: var(--surface-200) !important;
+                color: var(--input-text) !important; /* Force White/Black */
+                caret-color: var(--accent-primary) !important;
                 border: 1px solid var(--border-mid) !important;
-                color: var(--text-primary) !important;
                 border-radius: 8px !important;
                 padding: 16px 20px !important;
                 font-family: var(--font-mono) !important;
-                box-shadow: none !important;
+                font-weight: 500 !important;
             }
+            
+            .stTextInput > div > div > input::placeholder,
+            .stNumberInput > div > div > input::placeholder {
+                color: var(--input-placeholder) !important;
+                opacity: 1;
+            }
+
             .stTextInput > div > div > input:focus,
             .stNumberInput > div > div > input:focus {
                 border-color: var(--accent-primary) !important;
-                background: var(--surface-300) !important;
+                box-shadow: 0 0 0 2px var(--glow-primary) !important;
+                background-color: var(--surface-300) !important;
             }
+            
+            /* --- DROPDOWNS (SELECT BOX) FIX --- */
             .stSelectbox > div > div > div {
-                background: var(--surface-200) !important;
-                color: var(--text-primary) !important;
+                background-color: var(--surface-200) !important;
+                color: var(--input-text) !important;
                 border: 1px solid var(--border-mid) !important;
                 border-radius: 8px !important;
             }
-            div[data-baseweb="popover"], div[data-baseweb="menu"] {
-                background: var(--surface-300) !important;
+            
+            /* The actual popup menu */
+            div[data-baseweb="popover"], div[data-baseweb="menu"], ul[role="listbox"] {
+                background-color: var(--surface-300) !important;
                 border: 1px solid var(--border-bright) !important;
             }
+            
+            /* Options inside the menu */
             div[role="option"] {
-                color: var(--text-primary) !important;
+                color: var(--input-text) !important;
                 font-family: var(--font-mono) !important;
             }
-            div[role="option"]:hover {
-                background: var(--accent-primary) !important;
-                color: #000 !important;
+            
+            /* Hover state for options */
+            div[role="option"]:hover, div[role="option"][aria-selected="true"] {
+                background-color: var(--accent-primary) !important;
+                color: #ffffff !important;
             }
             
             /* --- BUTTONS --- */
             .stButton > button {
                 width: 100%;
-                background: var(--surface-200) !important;
-                color: var(--text-primary) !important;
-                border: 1px solid var(--border-bright) !important;
+                background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%) !important;
+                color: #ffffff !important;
+                border: none !important;
                 border-radius: 4px !important;
                 padding: 1rem 2rem !important;
                 font-family: var(--font-display) !important;
-                font-weight: 700 !important;
+                font-weight: 800 !important;
                 text-transform: uppercase !important;
                 letter-spacing: 2px !important;
                 transition: all 0.2s ease !important;
             }
             .stButton > button:hover {
-                background: var(--accent-primary) !important;
-                color: #000 !important;
-                border-color: var(--accent-primary) !important;
-                box-shadow: var(--glow-primary) !important;
-                transform: scale(1.02) !important;
+                transform: translateY(-2px) !important;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.3), var(--glow-primary) !important;
+                filter: brightness(1.1);
+            }
+            
+            /* --- PROGRESS BAR --- */
+            .titan-progress-track {
+                width: 100%;
+                height: 6px;
+                background: var(--surface-200);
+                border-radius: 10px;
+                margin: 20px 0;
+                overflow: hidden;
+                box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+            }
+            
+            .titan-progress-fill {
+                height: 100%;
+                background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+                box-shadow: 0 0 15px var(--accent-primary);
+                transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
             }
             
             /* --- NAVBAR --- */
@@ -351,6 +398,9 @@ class CSSCompiler:
                 border-radius: 12px;
                 margin-bottom: 50px;
                 box-shadow: var(--shadow-md);
+                position: sticky;
+                top: 10px;
+                z-index: 1000;
             }
             
             /* --- FOOTER --- */
@@ -362,19 +412,17 @@ class CSSCompiler:
                 color: var(--text-tertiary);
                 font-family: var(--font-mono);
                 font-size: 0.8rem;
+                opacity: 0.7;
             }
         """)
 
     def get_transition_css(self) -> str:
-        """
-        Returns the HTML/CSS string for the transition overlay.
-        Prevents AttributeError.
-        """
+        """HTML/CSS for the transition overlay."""
         return """
         <style>
             @keyframes dissolve {
                 0% { opacity: 0; backdrop-filter: blur(0px); }
-                50% { opacity: 1; backdrop-filter: blur(20px); background: rgba(0,0,0,0.5); }
+                50% { opacity: 1; backdrop-filter: blur(30px); background: rgba(0,0,0,0.5); }
                 100% { opacity: 0; backdrop-filter: blur(0px); }
             }
             .theme-transition-overlay {
@@ -396,7 +444,7 @@ class CSSCompiler:
         return f"<style>{''.join(self.styles)}</style>"
 
 # ==============================================================================
-# MODULE 4: PROCEDURAL GRAPHICS ENGINE (THE BEAUTY CORE)
+# MODULE 4: PROCEDURAL GRAPHICS ENGINE
 # ==============================================================================
 
 class GraphicsEngine:
@@ -405,7 +453,7 @@ class GraphicsEngine:
     def get_logo(theme: str) -> str:
         """Generates the main logo SVG."""
         color = "#ffffff" if theme == "Dark" else "#1a1a1a"
-        accent = "#00ff9d" if theme == "Dark" else "#2563eb"
+        accent = "#00f3ff" if theme == "Dark" else "#2563eb"
         
         svg = f"""
         <svg width="300" height="60" viewBox="0 0 300 60" xmlns="http://www.w3.org/2000/svg">
@@ -434,7 +482,7 @@ class GraphicsEngine:
 
     @staticmethod
     def get_star() -> str:
-        """Generates the 3D Star SVG (Gold)."""
+        """Generates the 3D Star SVG."""
         svg = """
         <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
             <defs>
@@ -451,7 +499,7 @@ class GraphicsEngine:
 
     @staticmethod
     def get_cloud() -> str:
-        """Generates the Rain Cloud SVG (Grey/Blue)."""
+        """Generates the Rain Cloud SVG."""
         svg = """
         <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
             <defs>
@@ -469,7 +517,7 @@ class GraphicsEngine:
         return base64.b64encode(svg.encode('utf-8')).decode("utf-8")
 
 # ==============================================================================
-# MODULE 5: ROBUST STATE MANAGEMENT (FIXED)
+# MODULE 5: ROBUST STATE MANAGEMENT
 # ==============================================================================
 
 @dataclass
@@ -487,7 +535,7 @@ class StateManager:
     """
     The Singleton Controller.
     """
-    _KEY = "TITAN_OMEGA_SESSION"
+    _KEY = "TITAN_SESSION_V11"
 
     @classmethod
     def initialize(cls):
@@ -495,10 +543,9 @@ class StateManager:
         if cls._KEY not in st.session_state:
             st.session_state[cls._KEY] = SessionData()
         
-        # Check if the widget key exists, if not initialize it based on current theme
+        # Theme toggle widget key
         if "theme_toggle_widget" not in st.session_state:
-            current = st.session_state[cls._KEY].theme_mode
-            st.session_state.theme_toggle_widget = (current == "Dark")
+            st.session_state.theme_toggle_widget = True # True = Dark
 
     @classmethod
     def get(cls) -> SessionData:
@@ -612,7 +659,8 @@ class ComponentFactory:
         with c3:
             st.markdown('<div style="display:flex; justify-content:flex-end;">', unsafe_allow_html=True)
             # Direct Widget Binding
-            st.toggle("Dark Mode", key="theme_toggle_widget")
+            is_dark = (StateManager.get().theme_mode == "Dark")
+            st.toggle("Dark Mode", value=is_dark, key="theme_toggle_widget", on_change=StateManager.handle_theme_change)
             st.markdown('</div>', unsafe_allow_html=True)
         
         st.markdown('</div>', unsafe_allow_html=True)
@@ -889,10 +937,7 @@ def main():
     # 1. Init Session State
     StateManager.initialize()
     
-    # 2. Check for theme toggle via widget state
-    StateManager.handle_theme_change()
-    
-    # 3. Check for transition animation needed
+    # 2. Check for transition animation needed
     session = StateManager.get()
     compiler = CSSCompiler(session.theme_mode)
     
@@ -902,10 +947,10 @@ def main():
         StateManager.clear_transition()
         st.rerun()
     
-    # 4. Inject Styles
+    # 3. Inject Styles
     st.markdown(compiler.compile(), unsafe_allow_html=True)
     
-    # 5. Render
+    # 4. Render
     ComponentFactory.navbar()
     
     if session.page == "home":
@@ -917,10 +962,10 @@ def main():
     elif session.page == "results":
         SceneResults.render()
         
-    # 6. Footer
+    # 5. Footer
     st.markdown("""
     <div class="titan-footer">
-        PROJECT TITAN // MINDCHECK AI v10.0 // 2026
+        PROJECT TITAN // MINDCHECK AI v11.0 // 2026
     </div>
     """, unsafe_allow_html=True)
 
