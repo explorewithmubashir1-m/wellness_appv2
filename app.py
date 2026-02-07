@@ -1,5 +1,5 @@
 # ==============================================================================
-# MINDCHECK AI - MATERIAL 3 EXPRESSIVE EDITION
+# MINDCHECK AI - ONEUI INFRASTRUCTURE EDITION
 # ==============================================================================
 import streamlit as st
 import pandas as pd
@@ -11,7 +11,6 @@ import os
 
 # 1. CONFIGURATION
 FAVICON_FILENAME = "Gemini_Generated_Image_g704tpg704tpg704.png"
-LOGO_FILENAME = "Gemini_Generated_Image_g704tpg704tpg704.png"
 MODEL_FILE = 'mental_health_model.joblib' 
 GEMINI_MODEL = 'gemini-2.5-flash'
 API_KEY = st.secrets.get("GEMINI_API_KEY", None)
@@ -58,105 +57,90 @@ def call_gemini(prompt, is_json=True):
 model = load_ml_model()
 MODEL_COLUMNS = ['Age', 'Gender', 'Academic_Level', 'Avg_Daily_Usage_Hours', 'Affects_Academic_Performance', 'Sleep_Hours_Per_Night', 'Conflicts_Over_Social_Media', 'Addicted_Score', 'Most_Used_Platform_Facebook', 'Most_Used_Platform_Instagram', 'Most_Used_Platform_KakaoTalk', 'Most_Used_Platform_LINE', 'Most_Used_Platform_LinkedIn', 'Most_Used_Platform_Snapchat', 'Most_Used_Platform_TikTok', 'Most_Used_Platform_Twitter', 'Most_Used_Platform_VKontakte', 'Most_Used_Platform_WeChat', 'Most_Used_Platform_WhatsApp', 'Most_Used_Platform_YouTube', 'Relationship_Status_Complicated', 'Relationship_Status_In Relationship', 'Relationship_Status_Single']
 
-# 4. MATERIAL 3 CSS ENGINE
+# 4. ONEUI CSS ENGINE
 themes = {
     "Dark": {
-        "bg": "#141218",
-        "surface": "#1D1B20",
-        "surface_container": "#2B2930",
-        "surface_bright": "#36343B",
-        "primary": "#D0BCFF",
-        "on_primary": "#381E72",
-        "primary_container": "#4F378B",
-        "text": "#E6E1E5",
-        "outline": "#938F99"
+        "bg": "#000000",
+        "card_bg": "#1C1C1E",
+        "text": "#FFFFFF",
+        "sub_text": "#999999",
+        "accent": "#3E91FF",
+        "divider": "#2C2C2E"
     },
     "Light": {
-        "bg": "#FEF7FF",
-        "surface": "#F7F2FA",
-        "surface_container": "#F3EDF7",
-        "surface_bright": "#EADDFF",
-        "primary": "#6750A4",
-        "on_primary": "#FFFFFF",
-        "primary_container": "#EADDFF",
-        "text": "#1D1B20",
-        "outline": "#79747E"
+        "bg": "#F2F2F7",
+        "card_bg": "#FFFFFF",
+        "text": "#000000",
+        "sub_text": "#8E8E93",
+        "accent": "#007AFF",
+        "divider": "#E5E5EA"
     }
 }
 c = themes[st.session_state.theme_mode]
 
 st.markdown(f"""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
     
-    .stApp {{ background-color: {c['bg']}; color: {c['text']}; font-family: 'Roboto', sans-serif; }}
+    .stApp {{ background-color: {c['bg']}; color: {c['text']}; font-family: 'Inter', sans-serif; }}
     
-    /* M3 Navigation Bar */
-    .m3-nav {{
-        display: flex; align-items: center; justify-content: space-between;
-        background-color: {c['surface_container']}; border-radius: 100px;
-        padding: 12px 24px; margin-bottom: 40px;
-    }}
+    /* Reachability Area - Push content down */
+    .reachability-spacer {{ height: 80px; }}
     
-    /* M3 Cards */
-    .m3-card {{
-        background-color: {c['surface_container']};
-        border-radius: 24px;
+    /* OneUI Typography */
+    h1 {{ font-weight: 700; font-size: 3rem; letter-spacing: -0.5px; margin-bottom: 0.5rem; color: {c['text']}; }}
+    h2 {{ font-weight: 600; font-size: 1.5rem; color: {c['text']}; }}
+    h3, h4 {{ font-weight: 600; color: {c['text']}; margin-bottom: 5px; }}
+    p {{ color: {c['sub_text']}; font-size: 1rem; }}
+    
+    /* OneUI Squircle Cards */
+    .oneui-card {{
+        background-color: {c['card_bg']};
+        border-radius: 22px; 
         padding: 24px;
         margin-bottom: 16px;
-        transition: background-color 0.2s ease;
-        height: 100%;
-        display: flex; flex-direction: column; justify-content: space-between;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.01);
     }}
-    .m3-card:hover {{ background-color: {c['surface_bright']}; }}
     
-    /* M3 Typography */
-    h1 {{ font-weight: 400; letter-spacing: -0.5px; color: {c['text']}; font-size: 3.5rem; }}
-    h2 {{ font-weight: 400; color: {c['text']}; }}
-    h3, h4 {{ font-weight: 500; color: {c['text']}; margin-bottom: 0.5rem; }}
-    p, li {{ color: {c['text']}; opacity: 0.8; line-height: 1.6; font-size: 1rem; }}
-    
-    /* M3 Buttons (Pills) */
+    /* OneUI Buttons */
     .stButton > button {{
-        border-radius: 100px !important;
-        height: 48px;
-        background-color: {c['primary']} !important;
-        color: {c['on_primary']} !important;
+        background-color: {c['accent']} !important;
+        color: #FFFFFF !important;
+        border-radius: 14px !important;
+        height: 50px;
+        font-weight: 600;
         border: none;
-        font-weight: 500;
-        letter-spacing: 0.1px;
-        transition: box-shadow 0.2s;
-        text-transform: none;
-        padding: 0 24px;
+        width: 100%;
+        font-size: 1.1rem;
     }}
-    .stButton > button:hover {{ box-shadow: 0 1px 3px 1px rgba(0,0,0,0.15); opacity: 0.9; }}
+    .stButton > button:hover {{ opacity: 0.9; }}
     
-    /* M3 Inputs */
-    .stTextInput > div > div > input, .stNumberInput > div > div > input {{
-        background-color: {c['surface']} !important;
-        border: 1px solid {c['outline']} !important;
-        border-radius: 4px 4px 0 0 !important;
-        border-bottom: 2px solid {c['outline']} !important;
+    /* Grouped List Input Style */
+    .stTextInput > div > div > input, .stNumberInput > div > div > input, .stSelectbox > div > div > div {{
+        background-color: {c['card_bg']} !important;
+        border: none !important;
+        border-bottom: 1px solid {c['divider']} !important;
         color: {c['text']} !important;
+        border-radius: 0 !important;
+        padding-left: 0 !important;
     }}
-    .stSelectbox > div > div > div {{ background-color: {c['surface']} !important; color: {c['text']} !important; border-radius: 8px !important; }}
-    div[data-baseweb="popover"] {{ background-color: {c['surface']} !important; }}
-    div[role="option"] {{ color: {c['text']} !important; }}
+    
+    /* Navigation */
+    .nav-bar {{ padding: 10px 0; border-bottom: 1px solid {c['divider']}; margin-bottom: 20px; }}
     
     /* Footer */
-    .footer {{ text-align: center; margin-top: 80px; padding-top: 20px; border-top: 1px solid {c['outline']}33; opacity: 0.6; font-size: 0.8rem; }}
+    .footer {{ text-align: center; margin-top: 60px; padding-top: 20px; color: {c['sub_text']}; font-size: 0.8rem; }}
 </style>
 """, unsafe_allow_html=True)
 
 # 5. UI COMPONENTS
 def render_navbar():
-    st.markdown('<div class="m3-nav">', unsafe_allow_html=True)
-    c1, c2, c3 = st.columns([2,6,2])
-    with c1: st.markdown(f"<span style='font-weight:700; font-size:1.2rem; color:{c['primary']}'>MindCheck AI</span>", unsafe_allow_html=True)
-    with c2: 
-        if st.button("Home", key="nav_home", use_container_width=True): go_to_page("home"); st.rerun()
-    with c3:
-        st.toggle("Dark Mode", value=(st.session_state.theme_mode=="Dark"), key="theme_toggle", on_change=toggle_theme)
+    st.markdown('<div class="nav-bar">', unsafe_allow_html=True)
+    c1, c2 = st.columns([8, 2])
+    with c1: 
+        if st.button(" < Back", key="back_btn"): go_to_page("home"); st.rerun()
+    with c2:
+        st.toggle("Dark", value=(st.session_state.theme_mode=="Dark"), key="theme_toggle", on_change=toggle_theme)
     st.markdown('</div>', unsafe_allow_html=True)
 
 def show_loader(duration=3):
@@ -166,60 +150,66 @@ def show_loader(duration=3):
 render_navbar()
 
 if st.session_state.page == "home":
-    # Title Logic
-    title_style = f"font-size: 5rem; text-align: center; margin-bottom: 1rem; color: {c['text']};"
-    if st.session_state.theme_mode == "Light":
-        title_style += f" background: linear-gradient(45deg, {c['primary']}, #9C27B0); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"
+    # Reachability Header
+    st.markdown("<div class='reachability-spacer'></div>", unsafe_allow_html=True)
     
-    st.markdown(f"<h1 style='{title_style}'>MindCheck AI</h1>", unsafe_allow_html=True)
-    st.markdown(f"<p style='text-align: center; max-width: 600px; margin: 0 auto 4rem auto;'>Material 3 Edition. Your digital wellbeing companion.</p>", unsafe_allow_html=True)
+    # Title Logic: Strict solid colors for OneUI Cleanliness (No gradients)
+    title_color = c['text'] 
     
-    col1, col2 = st.columns(2, gap="large")
-    with col1:
-        st.markdown('<div class="m3-card" style="text-align:center;"><h3>👨‍💻 Creator</h3><p>Meet Mubashir Mohsin and read his story.</p></div>', unsafe_allow_html=True)
-        if st.button("View Story", use_container_width=True): go_to_page("about"); st.rerun()
-    with col2:
-        st.markdown('<div class="m3-card" style="text-align:center;"><h3>🧠 Check-In</h3><p>Start your comprehensive assessment.</p></div>', unsafe_allow_html=True)
-        if st.button("Start Now", type="primary", use_container_width=True): go_to_page("interview"); st.rerun()
+    st.markdown(f"<h1 style='color: {title_color};'>MindCheck</h1>", unsafe_allow_html=True)
+    st.markdown(f"<h1 style='color: {c['accent']}; margin-top:-20px;'>AI</h1>", unsafe_allow_html=True)
+    st.markdown(f"<p style='margin-bottom: 40px;'>Your digital wellness companion.</p>", unsafe_allow_html=True)
+    
+    # OneUI Grid
+    c1, c2 = st.columns(2, gap="medium")
+    with c1:
+        st.markdown(f'<div class="oneui-card"><h2>Creator</h2><p style="margin-bottom:20px;">Mubashir Mohsin</p></div>', unsafe_allow_html=True)
+        if st.button("Read Story", use_container_width=True): go_to_page("about"); st.rerun()
+    with c2:
+        st.markdown(f'<div class="oneui-card"><h2 style="color:{c["accent"]}">Check-In</h2><p style="margin-bottom:20px;">Start Assessment</p></div>', unsafe_allow_html=True)
+        if st.button("Start", use_container_width=True): go_to_page("interview"); st.rerun()
 
 elif st.session_state.page == "about":
-    st.markdown(f"<h1 style='text-align:center;'>About the Creator</h1>", unsafe_allow_html=True)
-    col_centered = st.columns([1,2,1])[1]
-    with col_centered:
-        st.markdown(f"""
-        <div class="m3-card" style="line-height: 1.8; padding: 40px;">
-            <p style="font-size: 1.1rem;">"My name is <b>Mubashir Mohsin</b>, and I’m a 6th grader. I was inspired to create this web app after noticing a decline in my own grades. That spark led to a successful journey of building the Mental Health Calculator, which is powered by my very own <b>MindCheck AI</b>. I also want to give a quick shout-out to <b>Gemini AI</b> for helping me bring this project to life!"</p>
-            <p style="text-align: right; opacity: 0.6; font-size: 0.9rem; margin-top: 20px;">- February 6, 2026</p>
-        </div>
-        """, unsafe_allow_html=True)
+    st.markdown("<div class='reachability-spacer'></div>", unsafe_allow_html=True)
+    st.markdown(f"<h1>About the<br>Creator</h1>", unsafe_allow_html=True)
+    
+    st.markdown(f"""
+    <div class="oneui-card">
+        <p style="color: {c['text']}; font-size: 1.1rem; line-height: 1.6;">
+        "My name is <b>Mubashir Mohsin</b>, and I’m a 6th grader. I was inspired to create this web app after noticing a decline in my own grades. That spark led to a successful journey of building the Mental Health Calculator, which is powered by my very own <b>MindCheck AI</b>. I also want to give a quick shout-out to <b>Gemini AI</b> for helping me bring this project to life!"
+        </p>
+        <p style="margin-top: 20px; font-weight: 600; color: {c['sub_text']}">- February 6, 2026</p>
+    </div>
+    """, unsafe_allow_html=True)
 
 elif st.session_state.page == "interview":
-    st.markdown("<h1 style='text-align:center;'>Check-In</h1>", unsafe_allow_html=True)
+    st.markdown("<div class='reachability-spacer'></div>", unsafe_allow_html=True)
+    st.markdown("<h1>Check-In</h1>", unsafe_allow_html=True)
+    
     with st.form("interview_form"):
-        c1, c2 = st.columns(2, gap="medium")
-        with c1:
-            st.markdown('<div class="m3-card">', unsafe_allow_html=True)
-            st.markdown("### Profile")
-            age = st.number_input("Age", 10, 100, 15)
-            gender = st.selectbox("Gender", ["Male", "Female"])
-            ac_level = st.selectbox("Education", ["High School", "Undergraduate", "Graduate", "Middle School"])
-            sleep = st.number_input("Sleep (Hrs)", 0.0, 24.0, 8.0)
-            st.markdown('</div>', unsafe_allow_html=True)
-        with c2:
-            st.markdown('<div class="m3-card">', unsafe_allow_html=True)
-            st.markdown("### Habits")
-            usage = st.number_input("Screen Time (Hrs)", 0.0, 24.0, 4.0)
-            plat = st.selectbox("Platform", ["TikTok", "YouTube", "Instagram", "Snapchat", "Other"])
-            addiction = st.slider("Addiction (1-10)", 1, 10, 5)
-            conflicts = st.number_input("Weekly Conflicts", 0, 10, 0)
-            perf = st.radio("Affects Grades?", ["No", "Yes"])
-            st.markdown('</div>', unsafe_allow_html=True)
+        # Grouped Settings Look
+        st.markdown(f'<div class="oneui-card">', unsafe_allow_html=True)
+        st.markdown(f"<h4 style='color:{c['accent']}'>Personal Info</h4>", unsafe_allow_html=True)
+        age = st.number_input("Age", 10, 100, 15)
+        gender = st.selectbox("Gender", ["Male", "Female"])
+        ac_level = st.selectbox("Education Level", ["High School", "Undergraduate", "Graduate", "Middle School"])
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+        st.markdown(f'<div class="oneui-card">', unsafe_allow_html=True)
+        st.markdown(f"<h4 style='color:{c['accent']}'>Digital Habits</h4>", unsafe_allow_html=True)
+        usage = st.number_input("Daily Screen Time (Hrs)", 0.0, 24.0, 4.0)
+        plat = st.selectbox("Main Platform", ["TikTok", "YouTube", "Instagram", "Snapchat"])
+        sleep = st.number_input("Sleep (Hrs)", 0.0, 24.0, 8.0)
+        addiction = st.slider("Addiction Level", 1, 10, 5)
+        conflicts = st.number_input("Conflicts", 0, 10, 0)
+        perf = st.radio("Affects Grades?", ["No", "Yes"])
+        st.markdown('</div>', unsafe_allow_html=True)
         
         st.markdown("<br>", unsafe_allow_html=True)
-        if st.form_submit_button("Analyze Data", use_container_width=True):
+        if st.form_submit_button("Analyze"):
             show_loader()
             st.session_state.inputs = {"Age": age, "Gender": gender, "Platform": plat, "Sleep": sleep}
-            # Simplified Scoring for Demo
+            # Simplified Scoring
             base = 10 - (usage * 0.3) - (addiction * 0.2)
             st.session_state.score = max(1, min(10, base))
             go_to_page("results")
@@ -228,44 +218,45 @@ elif st.session_state.page == "interview":
 elif st.session_state.page == "results":
     score = st.session_state.score
     
+    st.markdown("<div class='reachability-spacer'></div>", unsafe_allow_html=True)
+    
+    # Big Clean Score Display
     st.markdown(f"""
-    <div class="m3-card" style="text-align: center; padding: 60px; background-color: {c['primary_container']}; margin-bottom: 40px;">
-        <h4 style="margin:0; opacity: 0.7; color: {c['on_primary']};">WELLNESS SCORE</h4>
-        <h1 style="font-size: 8rem; margin: 0; color: {c['primary']} !important;">{score:.1f}</h1>
+    <div style="text-align: center; margin-bottom: 40px;">
+        <h1 style="font-size: 8rem; color: {c['accent']}; margin: 0;">{score:.1f}</h1>
+        <p style="font-size: 1.5rem;">Wellness Score</p>
     </div>
     """, unsafe_allow_html=True)
     
-    st.markdown("<h3 style='margin-bottom: 20px;'>AI Insights</h3>", unsafe_allow_html=True)
-    c1, c2 = st.columns(2, gap="medium")
+    st.markdown(f"<h3 style='margin-left: 10px; margin-bottom: 15px;'>AI Features</h3>", unsafe_allow_html=True)
     
+    c1, c2 = st.columns(2, gap="medium")
     with c1:
-        st.markdown(f'<div class="m3-card" style="height:100%"><h4>👤 Profile Analysis</h4><p>Deep dive into patterns.</p></div>', unsafe_allow_html=True)
-        if st.button("Generate Persona", use_container_width=True):
+        st.markdown(f'<div class="oneui-card" style="height:100%"><h3>👤 Profile</h3><p>Analysis</p></div>', unsafe_allow_html=True)
+        if st.button("Generate", key="btn_gen", use_container_width=True):
              show_loader()
              prompt = f"Based on this user data: {json.dumps(st.session_state.inputs)}. Return JSON with keys: 'persona', 'analysis', 'tips'."
              res = call_gemini(prompt)
              if res: st.session_state.ai_results['analysis'] = json.loads(res); st.rerun()
-             
     with c2:
-        st.markdown(f'<div class="m3-card" style="height:100%"><h4>⏳ Time Travel</h4><p>Message from 2029.</p></div>', unsafe_allow_html=True)
-        if st.button("Connect to Future", use_container_width=True):
+        st.markdown(f'<div class="oneui-card" style="height:100%"><h3>⏳ Time</h3><p>Travel</p></div>', unsafe_allow_html=True)
+        if st.button("Connect", key="btn_con", use_container_width=True):
              show_loader()
              prompt = f"Write a note from future self in 2029 based on: {json.dumps(st.session_state.inputs)}. Max 50 words."
              res = call_gemini(prompt, is_json=False)
              if res: st.session_state.ai_results['future'] = res; st.rerun()
     
-    # Render Results
     results = st.session_state.ai_results
     if results:
-        st.markdown("<hr style='margin: 40px 0; opacity:0.2'>", unsafe_allow_html=True)
+        st.markdown("<div style='height:40px'></div>", unsafe_allow_html=True)
         if 'analysis' in results:
              r = results['analysis']
-             st.markdown(f"<div class='m3-card'><h3>{r.get('persona', 'User')}</h3><p>{r.get('analysis')}</p></div>", unsafe_allow_html=True)
+             st.markdown(f"<div class='oneui-card'><h3>{r.get('persona', 'User')}</h3><p>{r.get('analysis')}</p></div>", unsafe_allow_html=True)
         if 'future' in results:
-             st.markdown(f"<div class='m3-card' style='background:{c['surface_bright']}'><h3>Incoming Message</h3><p>{results['future']}</p></div>", unsafe_allow_html=True)
+             st.markdown(f"<div class='oneui-card'><h3>Incoming Message</h3><p>{results['future']}</p></div>", unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("Start Over", type="secondary", use_container_width=True): reset_interview(); st.rerun()
+    if st.button("Start Over", use_container_width=True): reset_interview(); st.rerun()
 
 # 7. FOOTER
 st.markdown(f"<div class='footer'><p>MindCheck AI v2.0 • Empowered by Gemini Models • 2026</p></div>", unsafe_allow_html=True)
