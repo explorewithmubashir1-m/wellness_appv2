@@ -1,17 +1,19 @@
 # ==============================================================================
-#   ___  __  __  _____  ___   _
-#  / _ \|  \/  ||  ___|/ _ \ / \
-# | | | | |\/| || |__ | | | / _ \
-# | |_| | |  | ||  __|| |_| / ___ \
-#  \___/|_|  |_||_|___ \___/_/   \_\
-#      PROJECT OMEGA: MINDCHECK AI
+#   __________  ____     _ _____ ____ _____   _____ _____ _   _  _____ 
+#  |__  / ____|/ __ \   | | ____/ __ \_   _| |__  /| ____| | | |/ ____|
+#     / /| |__ | |  | |   | |  __| |  | || |      / / | |__ | | | | (___  
+#    / / |  __|| |  | |   | | |_ | |  | || |     / /  |  __|| | | |\___ \ 
+#   / /__| |___| |__| |   | |__| | |__| || |_   / /___| |___| |_| |____) |
+#  /_____|______\____/    |_____\____/_____| /_____|______\___/|_____/ 
+# 
+#  PROJECT ZEUS: THE OMNI-BUILD (ENTERPRISE ARCHITECTURE)
 # ==============================================================================
-# SYSTEM:       MindCheck AI (Enterprise Singularity Edition)
-# VERSION:      6.0.0 (The Final Horizon)
-# ARCHITECT:    Mubashir Mohsin & Gemini (Neural Architect)
-# ENGINE:       Nebula CSS v10.0 + Streamlit Reactive Core
-# DATE:         February 6, 2026
-# COPYRIGHT:    (c) 2026 MindCheck Industries. All rights reserved.
+#  SYSTEM:       MindCheck AI (Zeus Edition)
+#  VERSION:      7.0.0 (The Monolith)
+#  ARCHITECT:    Mubashir Mohsin & Gemini (Neural Core)
+#  DATE:         February 6, 2026
+#  ENGINE:       Dual-Core CSS (Light/Dark Separation) + Transition API
+#  LOC TARGET:   Maximum Density / High Fidelity
 # ==============================================================================
 
 import streamlit as st
@@ -29,534 +31,629 @@ from typing import List, Dict, Any, Optional, Union, Tuple
 from enum import Enum
 
 # ==============================================================================
-# MODULE 1: CONSTANTS & ASSET CONFIGURATION
+# SECTION 1: GLOBAL SYSTEM CONFIGURATION
 # ==============================================================================
-# Defines the immutable constants used throughout the application runtime.
+# Defines the immutable constants, file paths, and environment settings.
 # ==============================================================================
 
-class Assets:
-    """Static asset manager for file paths and identifiers."""
+class SystemMetadata:
+    """
+    Metadata registry for the application.
+    Stores versioning, authorship, and branding assets.
+    """
     APP_NAME = "MindCheck AI"
-    VERSION = "6.0.0"
+    CODENAME = "ZEUS"
+    VERSION = "7.0.0"
+    BUILD_DATE = "2026-02-06"
     AUTHOR = "Mubashir Mohsin"
-    FAVICON = "Gemini_Generated_Image_g704tpg704tpg704.png" # User Defined
-    LOGO_MAIN = "Gemini_Generated_Image_g704tpg704tpg704.png" # User Defined
-    MODEL_FILE = 'mental_health_model.joblib'
-    GEMINI_MODEL = 'gemini-2.5-flash'
+    
+    # Asset Configuration
+    FAVICON_PATH = "Gemini_Generated_Image_g704tpg704tpg704.png"
+    LOGO_PATH = "Gemini_Generated_Image_g704tpg704tpg704.png"
+    MODEL_PATH = 'mental_health_model.joblib'
+    
+    # AI Configuration
+    GEMINI_MODEL_ID = 'gemini-2.5-flash'
+    API_TIMEOUT = 30 # seconds
 
-class UIConfig:
-    """Configuration for UI layout constraints."""
-    LAYOUT = "wide"
+class LayoutConfig:
+    """
+    Configuration regarding the Streamlit layout engine.
+    """
+    PAGE_LAYOUT = "wide"
     SIDEBAR_STATE = "collapsed"
-    ANIMATION_SPEED = 0.4 # seconds
-    LOADER_DURATION = 3.5 # seconds
+    MENU_ITEMS = {
+        'Get Help': 'https://www.mentalhealth.gov',
+        'Report a bug': "mailto:support@mindcheck.ai",
+        'About': "# MindCheck AI: Enterprise Edition"
+    }
 
-# Secure API Key Retrieval
-API_KEY = st.secrets.get("GEMINI_API_KEY", None)
-
-# Initialize Streamlit Page
+# ------------------------------------------------------------------------------
+# INITIALIZATION ROUTINE
+# ------------------------------------------------------------------------------
 st.set_page_config(
-    page_title=Assets.APP_NAME,
-    page_icon=Assets.FAVICON,
-    layout=UIConfig.LAYOUT,
-    initial_sidebar_state=UIConfig.SIDEBAR_STATE
+    page_title=SystemMetadata.APP_NAME,
+    page_icon=SystemMetadata.FAVICON_PATH,
+    layout=LayoutConfig.PAGE_LAYOUT,
+    initial_sidebar_state=LayoutConfig.SIDEBAR_STATE,
+    menu_items=LayoutConfig.MENU_ITEMS
 )
 
+# Secure API Key Access
+API_KEY = st.secrets.get("GEMINI_API_KEY", None)
+
 # ==============================================================================
-# MODULE 2: THE NEBULA CSS ENGINE (ADVANCED STYLING CORE)
+# SECTION 2: ASSET GENERATION & SVG LIBRARY
 # ==============================================================================
-# This class generates the massive CSS block that overrides Streamlit's default
-# styling. It implements the "Glassmorphism 3.0" design language.
+# Helper classes to generate visual assets dynamically if files are missing.
 # ==============================================================================
 
-class NebulaEngine:
+class IconLibrary:
     """
-    The rendering core for Project Omega.
-    Generates dynamic CSS based on the current theme state.
+    A repository of SVG icons and base64 encoded assets to be used
+    throughout the application for visual enrichment.
     """
-
-    def __init__(self, theme_mode: str):
-        self.theme = theme_mode
-        self._init_palettes()
-
-    def _init_palettes(self):
-        """Defines the color tokens for Dark (Cyber) and Light (Aero) modes."""
-        self.palettes = {
-            "Dark": {
-                "bg_root": "#050505",
-                "bg_gradient": "linear-gradient(180deg, #020024 0%, #090979 0%, #000000 100%)",
-                "text_primary": "#ffffff",
-                "text_secondary": "rgba(255, 255, 255, 0.6)",
-                "accent_primary": "#00f3ff", # Cyan
-                "accent_secondary": "#bc13fe", # Neon Purple
-                "accent_tertiary": "#00ff88", # Neon Green
-                "surface_glass": "rgba(20, 20, 30, 0.5)",
-                "surface_border": "rgba(255, 255, 255, 0.1)",
-                "surface_hover": "rgba(40, 40, 60, 0.6)",
-                "input_bg": "rgba(0, 0, 0, 0.4)",
-                "shadow_soft": "0 10px 30px rgba(0,0,0,0.5)",
-                "shadow_neon": "0 0 20px rgba(0, 243, 255, 0.3)"
-            },
-            "Light": {
-                "bg_root": "#f0f2f5",
-                "bg_gradient": "linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%)",
-                "text_primary": "#1a1a1a",
-                "text_secondary": "rgba(0, 0, 0, 0.6)",
-                "accent_primary": "#2563eb", # Royal Blue
-                "accent_secondary": "#7c3aed", # Deep Violet
-                "accent_tertiary": "#059669", # Emerald
-                "surface_glass": "rgba(255, 255, 255, 0.75)",
-                "surface_border": "rgba(255, 255, 255, 0.8)",
-                "surface_hover": "rgba(255, 255, 255, 0.9)",
-                "input_bg": "rgba(255, 255, 255, 0.6)",
-                "shadow_soft": "0 10px 30px rgba(31, 38, 135, 0.15)",
-                "shadow_neon": "0 0 20px rgba(37, 99, 235, 0.2)"
-            }
-        }
-        self.c = self.palettes[self.theme]
-
-    def _fonts(self) -> str:
-        """Imports Google Fonts."""
+    
+    @staticmethod
+    def get_star_svg() -> str:
+        """Returns the SVG code for the 'Good Score' Star."""
         return """
-        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Outfit:wght@200;300;400;500;700&family=Share+Tech+Mono&display=swap');
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="starGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#FFA500;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+            <path fill="url(#starGrad)" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+        </svg>
         """
 
-    def _keyframes(self) -> str:
-        """Defines complex CSS animations."""
+    @staticmethod
+    def get_cloud_svg() -> str:
+        """Returns the SVG code for the 'Bad Score' Sad Cloud."""
         return """
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
-        }
-        @keyframes pulse-glow {
-            0% { box-shadow: 0 0 0 0 rgba(0, 243, 255, 0.4); }
-            70% { box-shadow: 0 0 0 15px rgba(0, 243, 255, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(0, 243, 255, 0); }
-        }
-        @keyframes slideInUp {
-            from { transform: translateY(30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        @keyframes gradient-x {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        @keyframes shimmer {
-            0% { background-position: -1000px 0; }
-            100% { background-position: 1000px 0; }
-        }
-        @keyframes scanline {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(100%); }
-        }
-        @keyframes glitch-anim-1 {
-            0% { clip: rect(20px, 9999px, 10px, 0); }
-            100% { clip: rect(50px, 9999px, 80px, 0); }
-        }
-        @keyframes scaleIn {
-            from { transform: scale(0.9); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="rainGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#4a5568;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#2d3748;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+            <path fill="url(#rainGrad)" d="M4.5 11a4.5 4.5 0 013.9-6.8 7 7 0 0113.2 2.6A5 5 0 0117 17H5a5 5 0 01-.5-6zm4 8v3m4-3v3m4-3v3"/>
+        </svg>
         """
 
-    def _core_styles(self) -> str:
-        """Base CSS variables and resets."""
-        return f"""
-        :root {{
-            --primary: {self.c['accent_primary']};
-            --secondary: {self.c['accent_secondary']};
-            --tertiary: {self.c['accent_tertiary']};
-            --bg-glass: {self.c['surface_glass']};
-            --border-glass: {self.c['surface_border']};
-            --text-main: {self.c['text_primary']};
-            --text-sub: {self.c['text_secondary']};
-            --shadow-soft: {self.c['shadow_soft']};
-            --shadow-neon: {self.c['shadow_neon']};
-            --font-head: 'Rajdhani', sans-serif;
-            --font-body: 'Outfit', sans-serif;
-            --font-mono: 'Share Tech Mono', monospace;
-        }}
-
-        html, body, [class*="css"] {{
-            font-family: var(--font-body);
-            color: var(--text-main);
-            background: transparent;
-        }}
-
-        /* APP CONTAINER BACKGROUND */
-        .stApp {{
-            background: {self.c['bg_gradient']};
-            background-size: 200% 200%;
-            animation: gradient-x 15s ease infinite;
-        }}
-
-        /* HIDE STREAMLIT CHROME */
-        #MainMenu, footer, header {{ visibility: hidden; }}
-        .stDeployButton {{ display: none; }}
-
-        /* MAIN CONTENT AREA */
-        .block-container {{
-            padding-top: 2rem;
-            padding-bottom: 5rem;
-            max-width: 1200px;
-        }}
+    @staticmethod
+    def get_loader_svg() -> str:
+        """Returns a complex SVG for the loading animation."""
+        return """
+        <svg width="100" height="100" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="40" stroke="#3498db" stroke-width="4" fill="none">
+                <animate attributeName="stroke-dasharray" from="0 251" to="251 0" dur="2s" repeatCount="indefinite"/>
+                <animate attributeName="stroke-dashoffset" from="0" to="-251" dur="2s" repeatCount="indefinite"/>
+            </circle>
+        </svg>
         """
-
-    def _components(self) -> str:
-        """Component-specific styling (Cards, Buttons, Inputs)."""
-        return f"""
-        /* --- OMEGA CARD --- */
-        .omega-card {{
-            background: var(--bg-glass);
-            border: 1px solid var(--border-glass);
-            border-radius: 20px;
-            padding: 2.5rem;
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            box-shadow: var(--shadow-soft);
-            margin-bottom: 2rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }}
-        .omega-card:hover {{
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-neon);
-            border-color: var(--primary);
-        }}
-        
-        /* --- TYPOGRAPHY --- */
-        h1, h2, h3 {{ font-family: var(--font-head); text-transform: uppercase; font-weight: 700; }}
-        h1 {{ font-size: 4.5rem; letter-spacing: -2px; line-height: 1; }}
-        h2 {{ font-size: 2.5rem; letter-spacing: -1px; }}
-        h3 {{ font-size: 1.5rem; letter-spacing: 1px; color: var(--primary); }}
-        p {{ font-size: 1.1rem; line-height: 1.7; opacity: 0.9; }}
-        
-        /* --- INPUT FIELDS --- */
-        .stTextInput > div > div > input, 
-        .stNumberInput > div > div > input {{
-            background: {self.c['input_bg']} !important;
-            border: 1px solid var(--border-glass) !important;
-            color: var(--text-main) !important;
-            border-radius: 12px !important;
-            padding: 15px !important;
-            font-family: var(--font-mono) !important;
-            transition: 0.3s;
-        }}
-        .stTextInput > div > div > input:focus,
-        .stNumberInput > div > div > input:focus {{
-            border-color: var(--primary) !important;
-            box-shadow: 0 0 15px var(--primary) !important;
-        }}
-        
-        /* --- BUTTONS --- */
-        .stButton > button {{
-            background: linear-gradient(90deg, var(--primary), var(--secondary)) !important;
-            border: none !important;
-            color: white !important;
-            font-family: var(--font-head) !important;
-            font-weight: 700 !important;
-            text-transform: uppercase !important;
-            letter-spacing: 2px !important;
-            padding: 0.8rem 2rem !important;
-            border-radius: 50px !important;
-            transition: all 0.3s ease !important;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2) !important;
-            width: 100%;
-        }}
-        .stButton > button:hover {{
-            transform: scale(1.02) translateY(-2px) !important;
-            box-shadow: 0 0 30px var(--primary) !important;
-        }}
-        
-        /* --- PROGRESS BAR --- */
-        .omega-progress-track {{
-            width: 100%; height: 6px; background: rgba(128,128,128,0.2);
-            border-radius: 10px; margin: 20px 0; overflow: hidden;
-        }}
-        .omega-progress-fill {{
-            height: 100%; background: var(--primary);
-            box-shadow: 0 0 10px var(--primary);
-            transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-        }}
-        
-        /* --- ANIMATION UTILS --- */
-        .anim-enter {{ animation: slideInUp 0.6s ease-out forwards; }}
-        .anim-float {{ animation: float 6s ease-in-out infinite; }}
-        
-        /* --- NAV BAR --- */
-        .nav-glass {{
-            display: flex; align-items: center; justify-content: space-between;
-            background: var(--bg-glass); border: 1px solid var(--border-glass);
-            padding: 10px 25px; border-radius: 16px; margin-bottom: 40px;
-            backdrop-filter: blur(30px); box-shadow: var(--shadow-soft);
-        }}
-        
-        /* --- LOGO IMAGE STYLING --- */
-        .logo-img {{
-            max-height: 50px;
-            width: auto;
-            transition: 0.3s;
-        }}
-        .logo-img:hover {{ filter: drop-shadow(0 0 10px var(--primary)); }}
-        """
-
-    def inject(self):
-        """Compiles and injects the CSS payload."""
-        full_style = f"""
-        <style>
-            {self._fonts()}
-            {self._keyframes()}
-            {self._core_styles()}
-            {self._components()}
-        </style>
-        """
-        st.markdown(full_style, unsafe_allow_html=True)
 
 # ==============================================================================
-# MODULE 3: OBJECT-ORIENTED STATE MANAGEMENT
+# SECTION 3: SESSION STATE MANAGEMENT ARCHITECTURE
 # ==============================================================================
-# A robust state machine to handle the application flow, data persistence,
-# and wizard navigation logic.
+# Handles persistence, navigation flow, and temporary data storage.
 # ==============================================================================
 
 @dataclass
-class UserSession:
-    """Data Transfer Object for the active user session."""
+class SessionState:
+    """
+    Data Transfer Object representing the user's current session.
+    """
     page: str = "home"
-    theme_mode: str = "Dark" # Default to Dark for beauty
+    theme_mode: str = "Dark" # Defaulting to Dark for that 'Zeus' feel
+    is_transitioning: bool = False # For the animation
     wizard_step: int = 0
     inputs: Dict[str, Any] = field(default_factory=dict)
     score: Optional[float] = None
-    ai_insights: Dict[str, Any] = field(default_factory=dict)
-    
-class StateManager:
-    """Singleton controller for Streamlit Session State."""
-    
-    KEY = "omega_session"
+    ai_results: Dict[str, Any] = field(default_factory=dict)
+
+class StateController:
+    """
+    Controller class to manage Streamlit's session state dictionary.
+    """
+    KEY = "zeus_core_session"
 
     @staticmethod
-    def initialize():
-        """Bootstraps the session if not present."""
-        if StateManager.KEY not in st.session_state:
-            st.session_state[StateManager.KEY] = UserSession()
+    def init():
+        """Initializes the session state if it doesn't exist."""
+        if StateController.KEY not in st.session_state:
+            st.session_state[StateController.KEY] = SessionState()
         
-        # Sync widget key for theme toggle
-        if "theme_toggle_widget" not in st.session_state:
-            st.session_state.theme_toggle_widget = True # True = Dark
+        # Widget-specific state keys
+        if "theme_toggle_btn" not in st.session_state:
+            st.session_state.theme_toggle_btn = True # True = Dark Mode
 
     @staticmethod
-    def get() -> UserSession:
-        return st.session_state[StateManager.KEY]
+    def get() -> SessionState:
+        """Returns the current session object."""
+        return st.session_state[StateController.KEY]
 
     @staticmethod
-    def set_theme():
-        """Callback for theme toggle."""
-        session = StateManager.get()
-        if st.session_state.theme_toggle_widget:
+    def toggle_theme():
+        """
+        Handles the complex logic of switching themes with animation.
+        Sets a 'transitioning' flag to True, allowing the UI to render the overlay.
+        """
+        session = StateController.get()
+        
+        # Trigger Transition Animation
+        session.is_transitioning = True
+        
+        # Actual Toggle Logic
+        if st.session_state.theme_toggle_btn:
             session.theme_mode = "Dark"
         else:
             session.theme_mode = "Light"
 
     @staticmethod
-    def route_to(page: str):
-        """Navigates to a specific page and resets wizard if needed."""
-        session = StateManager.get()
-        session.page = page
-        if page != "interview":
+    def clear_transition():
+        """Resets the transition flag after the animation plays."""
+        SessionController.get().is_transitioning = False
+
+    @staticmethod
+    def navigate(page_name: str):
+        """Routes the user to a different page."""
+        session = StateController.get()
+        session.page = page_name
+        if page_name != "interview":
             session.wizard_step = 0
 
     @staticmethod
-    def wizard_next():
-        StateManager.get().wizard_step += 1
+    def next_step():
+        """Advances the wizard."""
+        StateController.get().wizard_step += 1
 
     @staticmethod
-    def wizard_prev():
-        s = StateManager.get()
+    def prev_step():
+        """Reverses the wizard."""
+        s = StateController.get()
         if s.wizard_step > 0:
             s.wizard_step -= 1
 
     @staticmethod
-    def reset_system():
-        """Hard reset of all assessment data."""
-        session = StateManager.get()
-        session.page = "interview"
-        session.wizard_step = 0
-        session.inputs = {}
-        session.score = None
-        session.ai_insights = {}
+    def reset_app():
+        """Hard reset of application data."""
+        s = StateController.get()
+        s.page = "interview"
+        s.wizard_step = 0
+        s.inputs = {}
+        s.score = None
+        s.ai_results = {}
 
 # ==============================================================================
-# MODULE 4: INTELLIGENCE LAYER (AI & MODEL)
+# SECTION 4: THE DUAL-CORE CSS ENGINE
 # ==============================================================================
-# Handles communication with Gemini and local ML inference.
+# Unlike previous versions, this engine generates COMPLETELY DIFFERENT CSS
+# for Light and Dark modes to ensure maximum readability and aesthetic direction.
+# ==============================================================================
+
+class DualCoreCSSEngine:
+    
+    @staticmethod
+    def get_transition_css() -> str:
+        """
+        Generates the Windows-like transition overlay CSS.
+        """
+        return """
+        <style>
+            @keyframes dissolve {
+                0% { opacity: 0; backdrop-filter: blur(0px); }
+                50% { opacity: 1; backdrop-filter: blur(20px); background: rgba(0,0,0,0.5); }
+                100% { opacity: 0; backdrop-filter: blur(0px); }
+            }
+            .theme-transition-overlay {
+                position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+                z-index: 999999; pointer-events: none;
+                animation: dissolve 1s ease-in-out forwards;
+            }
+        </style>
+        <div class="theme-transition-overlay"></div>
+        """
+
+    @staticmethod
+    def _common_css() -> str:
+        """CSS shared between both modes (Layouts, Resets)."""
+        return """
+        /* --- FONT IMPORTS --- */
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+        /* --- RESET --- */
+        .stApp { transition: background 0.5s ease; }
+        #MainMenu, footer, header { visibility: hidden; }
+        .block-container { padding-top: 2rem; padding-bottom: 6rem; max-width: 1200px; }
+        
+        /* --- ANIMATIONS --- */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .anim-fade { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .anim-scale { animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        """
+
+    @staticmethod
+    def _dark_mode_css() -> str:
+        """
+        THE DARK CORE: Cyberpunk/Neon Aesthetic.
+        Optimized for low-light environments with high contrast neons.
+        """
+        return """
+        /* --- DARK MODE VARIABLES --- */
+        :root {
+            --bg-color: #050505;
+            --bg-grad: radial-gradient(circle at 50% 0%, #1a1a2e 0%, #000000 80%);
+            --card-bg: rgba(20, 20, 25, 0.6);
+            --card-border: 1px solid rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent: #00f2ff;
+            --accent-glow: 0 0 15px rgba(0, 242, 255, 0.4);
+            --input-bg: rgba(255, 255, 255, 0.05);
+            --font-head: 'Space Grotesk', sans-serif;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .stApp {
+            background-color: var(--bg-color);
+            background-image: var(--bg-grad);
+            color: var(--text-primary);
+        }
+
+        h1, h2, h3, h4 {
+            font-family: var(--font-head);
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* --- DARK CARD --- */
+        .zeus-card {
+            background: var(--card-bg);
+            border: var(--card-border);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+        }
+        .zeus-card:hover {
+            border-color: var(--accent);
+            box-shadow: var(--accent-glow);
+            transform: translateY(-5px);
+        }
+
+        /* --- DARK INPUTS --- */
+        .stTextInput input, .stNumberInput input {
+            background: var(--input-bg) !important;
+            color: white !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+            border-radius: 10px !important;
+        }
+        .stSelectbox div[data-baseweb="select"] > div {
+            background: var(--input-bg) !important;
+            color: white !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+        }
+
+        /* --- DARK BUTTONS --- */
+        .stButton button {
+            background: linear-gradient(90deg, #00f2ff, #0078ff) !important;
+            color: black !important;
+            border: none !important;
+            font-weight: 800 !important;
+            text-transform: uppercase;
+            border-radius: 8px !important;
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.2) !important;
+        }
+        
+        /* --- DARK NAVBAR --- */
+        .nav-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+        }
+        """
+
+    @staticmethod
+    def _light_mode_css() -> str:
+        """
+        THE LIGHT CORE: Clean/Aero Aesthetic.
+        Optimized for high readability with soft shadows and gradients.
+        """
+        return """
+        /* --- LIGHT MODE VARIABLES --- */
+        :root {
+            --bg-color: #f8f9fa;
+            --bg-grad: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --card-border: 1px solid rgba(255, 255, 255, 1);
+            --text-primary: #1a1a1a;
+            --text-secondary: #5a5a5a;
+            --accent: #4a90e2;
+            --accent-glow: 0 10px 20px rgba(74, 144, 226, 0.3);
+            --input-bg: #ffffff;
+            --font-head: 'Plus Jakarta Sans', sans-serif;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .stApp {
+            background: var(--bg-grad);
+            color: var(--text-primary);
+        }
+
+        h1, h2, h3, h4 {
+            font-family: var(--font-head);
+            color: #2c3e50;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        /* --- LIGHT CARD --- */
+        .zeus-card {
+            background: var(--card-bg);
+            border: var(--card-border);
+            border-radius: 24px;
+            padding: 35px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .zeus-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        /* --- LIGHT INPUTS --- */
+        .stTextInput input, .stNumberInput input {
+            background: #ffffff !important;
+            color: #333 !important;
+            border: 2px solid #e0e0e0 !important;
+            border-radius: 12px !important;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02) !important;
+        }
+        .stTextInput input:focus, .stNumberInput input:focus {
+            border-color: var(--accent) !important;
+        }
+        
+        .stSelectbox div[data-baseweb="select"] > div {
+            background: #ffffff !important;
+            color: #333 !important;
+            border: 2px solid #e0e0e0 !important;
+            border-radius: 12px !important;
+        }
+
+        /* --- LIGHT BUTTONS --- */
+        .stButton button {
+            background: linear-gradient(135deg, #4a90e2, #007aff) !important;
+            color: white !important;
+            border: none !important;
+            font-weight: 600 !important;
+            border-radius: 50px !important;
+            box-shadow: 0 5px 15px rgba(74, 144, 226, 0.4) !important;
+        }
+        
+        /* --- LIGHT NAVBAR --- */
+        .nav-container {
+            background: rgba(255, 255, 255, 0.8);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(20px);
+        }
+        """
+
+    @classmethod
+    def inject(cls, mode: str):
+        """
+        Injects the appropriate CSS block based on the mode.
+        """
+        common = cls._common_css()
+        specific = cls._dark_mode_css() if mode == "Dark" else cls._light_mode_css()
+        
+        full_payload = f"<style>{common}\n{specific}</style>"
+        st.markdown(full_payload, unsafe_allow_html=True)
+
+# ==============================================================================
+# SECTION 5: INTELLIGENCE & LOGIC LAYER
+# ==============================================================================
+# Handles backend processing, scoring algorithms, and AI interactions.
 # ==============================================================================
 
 class IntelligenceCore:
+    """
+    The Brain of Project Zeus.
+    """
     
     @staticmethod
     @st.cache_resource
-    def load_local_model():
-        """Loads the .joblib model with error handling."""
+    def load_model():
         try:
-            return joblib.load(Assets.MODEL_FILE)
-        except:
-            return None # Fail silently, fall back to algorithmic scoring
+            return joblib.load(SystemMetadata.MODEL_PATH)
+        except Exception:
+            return None
+
+    @staticmethod
+    def calculate_fallback_score(data: Dict[str, Any]) -> float:
+        """
+        Advanced algorithmic scoring if ML model is unavailable.
+        Uses a weighted penalty system.
+        """
+        usage = data.get('Avg_Daily_Usage_Hours', 4.0)
+        addiction = data.get('Addiction', 5.0)
+        sleep = data.get('Sleep', 8.0)
+        conflicts = data.get('Conflicts', 0)
+        
+        score = 10.0
+        
+        # Penalties
+        score -= (usage * 0.3)      # Heavy usage penalty
+        score -= (addiction * 0.25) # Perception penalty
+        score -= (conflicts * 0.4)  # Social penalty
+        
+        # Bonuses
+        if sleep >= 7 and sleep <= 9:
+            score += 0.5
+        elif sleep < 5:
+            score -= 1.0
+            
+        # Bounds check
+        return max(1.0, min(10.0, score))
 
     @staticmethod
     def query_gemini(prompt: str, is_json: bool = True) -> Any:
         """
-        Executes a remote procedure call to Google Gemini.
-        Includes timeout protection and JSON parsing.
+        Robust connector to Google Gemini API.
         """
         if not API_KEY:
             return None
         
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{Assets.GEMINI_MODEL}:generateContent?key={API_KEY}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{SystemMetadata.GEMINI_MODEL_ID}:generateContent?key={API_KEY}"
         payload = {"contents": [{"parts": [{"text": prompt}]}]}
         
         if is_json:
             payload["generationConfig"] = {"responseMimeType": "application/json"}
             
         try:
-            response = requests.post(url, headers={'Content-Type': 'application/json'}, json=payload, timeout=20)
+            response = requests.post(url, headers={'Content-Type': 'application/json'}, json=payload, timeout=25)
             if response.status_code == 200:
-                result = response.json()
-                text_content = result.get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text')
-                return text_content
-        except Exception:
-            pass # Graceful degradation
+                text = response.json().get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text')
+                return text
+        except Exception as e:
+            pass # Fail gracefully in UI
         return None
 
 # ==============================================================================
-# MODULE 5: UI COMPONENT LIBRARY
+# SECTION 6: COMPONENT FACTORY
 # ==============================================================================
-# Reusable UI widgets and layout structures.
+# Reusable UI widgets that abstract away the HTML/CSS complexity.
 # ==============================================================================
 
-class OmegaUI:
+class ComponentFactory:
     
     @staticmethod
     def navbar():
-        """Renders the top navigation bar with Image Logo support."""
-        state = StateManager.get()
-        
-        st.markdown('<div class="nav-glass">', unsafe_allow_html=True)
+        """Renders the top navigation."""
+        st.markdown('<div class="nav-container" style="padding: 15px 30px; margin-bottom: 40px; border-radius: 15px;">', unsafe_allow_html=True)
         c1, c2, c3 = st.columns([2, 6, 2], gap="small")
         
-        # 1. LOGO SECTION (Left)
         with c1:
-            if os.path.exists(Assets.LOGO_MAIN):
-                st.image(Assets.LOGO_MAIN, width=120)
+            if os.path.exists(SystemMetadata.LOGO_PATH):
+                st.image(SystemMetadata.LOGO_PATH, width=100)
             else:
-                # Fallback text logo if image missing
-                st.markdown('<h3 style="margin:0; font-size:1.2rem;">MINDCHECK AI</h3>', unsafe_allow_html=True)
+                st.markdown('<h3 style="margin:0;">MINDCHECK</h3>', unsafe_allow_html=True)
         
-        # 2. HOME ACTION (Center)
         with c2:
             st.markdown('<div style="display:flex; justify-content:center; width:100%;">', unsafe_allow_html=True)
-            if st.button("🏠 COMMAND CENTER", key="nav_home_btn"):
-                StateManager.route_to("home")
+            if st.button("DASHBOARD", key="nav_home"):
+                StateController.navigate("home")
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
             
-        # 3. THEME TOGGLE (Right)
         with c3:
             st.markdown('<div style="display:flex; justify-content:flex-end;">', unsafe_allow_html=True)
-            st.toggle("Dark Mode", value=(state.theme_mode=="Dark"), key="theme_toggle_widget", on_change=StateManager.set_theme)
+            is_dark = (StateController.get().theme_mode == "Dark")
+            st.toggle("Dark Mode", value=is_dark, key="theme_toggle_btn", on_change=StateController.toggle_theme)
             st.markdown('</div>', unsafe_allow_html=True)
-            
+        
         st.markdown('</div>', unsafe_allow_html=True)
 
     @staticmethod
-    def loader_animation(text: str = "SYNCHRONIZING"):
-        """Displays the 'Singularity' loading animation."""
-        html = f"""
+    def info_card(title: str, content: str, icon: str, center: bool = False):
+        """Renders a standard Zeus Card."""
+        align = "center" if center else "left"
+        st.markdown(f"""
+        <div class="zeus-card anim-fade" style="text-align: {align};">
+            <div style="font-size: 3rem; margin-bottom: 15px;">{icon}</div>
+            <h3>{title}</h3>
+            <p style="opacity: 0.8;">{content}</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    @staticmethod
+    def loader_overlay(message: str = "PROCESSING"):
+        """Displays the transition overlay."""
+        # Simple CSS spinner for loader
+        spinner_html = f"""
         <style>
-            .overlay {{ position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(20px); }}
-            .orb {{ width: 100px; height: 100px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #00f3ff, #000); box-shadow: 0 0 50px #00f3ff; animation: pulse-glow 2s infinite; }}
-            .text {{ margin-top: 30px; font-family: 'Rajdhani'; color: white; letter-spacing: 5px; animation: blink 1s infinite; }}
-            @keyframes blink {{ 50% {{ opacity: 0.5; }} }}
+            .loader-box {{
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0,0,0,0.85); z-index: 10000;
+                display: flex; flex-direction: column; justify-content: center; align-items: center;
+                backdrop-filter: blur(10px);
+            }}
+            .spinner {{
+                width: 60px; height: 60px; border: 5px solid #f3f3f3;
+                border-top: 5px solid #3498db; border-radius: 50%;
+                animation: spin 1s linear infinite;
+            }}
+            @keyframes spin {{ 0% {{ transform: rotate(0deg); }} 100% {{ transform: rotate(360deg); }} }}
         </style>
-        <div class="overlay">
-            <div class="orb"></div>
-            <div class="text">{text}...</div>
+        <div class="loader-box">
+            <div class="spinner"></div>
+            <h2 style="color:white; margin-top:20px;">{message}...</h2>
         </div>
         """
         placeholder = st.empty()
-        placeholder.markdown(html, unsafe_allow_html=True)
-        time.sleep(3)
+        placeholder.markdown(spinner_html, unsafe_allow_html=True)
+        time.sleep(UIConfig.LOADER_DURATION)
         placeholder.empty()
 
 # ==============================================================================
-# MODULE 6: SCENE CONTROLLERS (PAGE LOGIC)
+# SECTION 7: SCENE CONTROLLERS
+# ==============================================================================
+# The logic for each specific page view.
 # ==============================================================================
 
 class SceneHome:
     @staticmethod
     def render():
-        state = StateManager.get()
-        title_color = "#fff" if state.theme_mode == "Dark" else "#1a1a1a"
+        st.markdown('<div style="height: 50px;"></div>', unsafe_allow_html=True)
         
-        st.markdown(f"""
-        <div class="anim-enter" style="text-align: center; padding: 5rem 0;">
-            <h1 style="color:{title_color}; text-shadow: 0 0 30px rgba(0,243,255,0.3);">
-                MINDCHECK<span style="color:#00f3ff">AI</span>
-            </h1>
-            <p style="font-size: 1.5rem; letter-spacing: 2px; text-transform: uppercase; margin-top: 1rem;">
-                Advanced Biometric & Behavioral Analytics
-            </p>
+        # Hero Section
+        st.markdown("""
+        <div class="anim-scale" style="text-align: center; margin-bottom: 60px;">
+            <h1 style="font-size: 5rem; margin-bottom: 10px;">MINDCHECK AI</h1>
+            <p style="font-size: 1.5rem; opacity: 0.7;">ENTERPRISE WELLNESS ANALYTICS</p>
         </div>
         """, unsafe_allow_html=True)
         
         c1, c2 = st.columns(2, gap="large")
         
         with c1:
-            st.markdown('<div class="anim-enter" style="animation-delay: 0.1s;">', unsafe_allow_html=True)
-            st.markdown("""
-            <div class="omega-card" style="text-align: center;">
-                <div style="font-size: 4rem; margin-bottom: 1rem;">👨‍💻</div>
-                <h3>CREATOR BIO</h3>
-                <p>Access the developer profile of Mubashir Mohsin.</p>
-            </div>
-            """, unsafe_allow_html=True)
-            if st.button("ACCESS PROFILE", use_container_width=True):
-                StateManager.route_to("about")
+            st.markdown('<div style="height: 100%;">', unsafe_allow_html=True)
+            ComponentFactory.info_card("About Creator", "Meet Mubashir Mohsin.", "👨‍💻", True)
+            if st.button("VIEW BIO", use_container_width=True):
+                StateController.navigate("about")
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
-
+            
         with c2:
-            st.markdown('<div class="anim-enter" style="animation-delay: 0.2s;">', unsafe_allow_html=True)
-            st.markdown("""
-            <div class="omega-card" style="text-align: center; border-color: #00f3ff;">
-                <div style="font-size: 4rem; margin-bottom: 1rem;">💠</div>
-                <h3 style="color: #00f3ff;">SYSTEM CHECK</h3>
-                <p>Initialize the step-by-step diagnostic wizard.</p>
-            </div>
-            """, unsafe_allow_html=True)
-            if st.button("INITIALIZE", type="primary", use_container_width=True):
-                StateManager.route_to("interview")
+            st.markdown('<div style="height: 100%;">', unsafe_allow_html=True)
+            ComponentFactory.info_card("Diagnostics", "Start system assessment.", "🧬", True)
+            if st.button("START WIZARD", type="primary", use_container_width=True):
+                StateController.navigate("interview")
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
 
 class SceneAbout:
     @staticmethod
     def render():
-        st.markdown('<div class="anim-enter">', unsafe_allow_html=True)
-        st.markdown('<h1 style="text-align:center; margin-bottom:3rem;">DEVELOPER LOG</h1>', unsafe_allow_html=True)
+        st.markdown('<div class="anim-fade">', unsafe_allow_html=True)
+        st.markdown('<h1 style="text-align:center; margin-bottom:40px;">CREATOR LOG</h1>', unsafe_allow_html=True)
         
-        c_fill_l, c_main, c_fill_r = st.columns([1, 4, 1])
-        with c_main:
+        c1, c2, c3 = st.columns([1, 4, 1])
+        with c2:
             st.markdown("""
-            <div class="omega-card" style="text-align: center; padding: 4rem;">
-                <div style="font-size: 5rem; margin-bottom: 2rem;">🚀</div>
-                <p style="font-size: 1.3rem; line-height: 2; margin-bottom: 2rem; font-weight: 300;">
+            <div class="zeus-card" style="text-align: center; padding: 50px;">
+                <div style="font-size: 6rem; margin-bottom: 20px;">🚀</div>
+                <p style="font-size: 1.3rem; line-height: 1.8; margin-bottom: 30px;">
                     "My name is <b>Mubashir Mohsin</b>, and I’m a 6th grader. I was inspired to create this web app after noticing a decline in my own grades. That spark led to a successful journey of building the Mental Health Calculator, which is powered by my very own <b>MindCheck AI</b>. I also want to give a quick shout-out to <b>Gemini AI</b> for helping me bring this project to life!"
                 </p>
-                <div style="width: 60px; height: 3px; background: #00f3ff; margin: 0 auto 1rem auto;"></div>
-                <p style="font-family: 'Share Tech Mono'; opacity: 0.6;">TIMESTAMP: FEB-06-2026</p>
+                <p style="opacity: 0.5; font-size: 0.9rem;">- February 6, 2026</p>
             </div>
             """, unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
@@ -564,256 +661,179 @@ class SceneAbout:
 class SceneInterview:
     @staticmethod
     def render():
-        state = StateManager.get()
-        
-        # Define Wizard Steps
-        STEPS = [
-            {"name": "BIOMETRICS", "desc": "Baseline Identification"},
-            {"name": "DIGITAL HABITS", "desc": "Usage Pattern Recognition"},
-            {"name": "WELLNESS", "desc": "Recovery Metrics"},
-            {"name": "IMPACT", "desc": "Social & Cognitive Load"}
-        ]
-        
+        state = StateController.get()
+        steps = ["Profile", "Digital Habits", "Health", "Final Review"]
         curr = state.wizard_step
-        total = len(STEPS)
-        step_info = STEPS[curr]
         
-        # Progress Bar
-        pct = ((curr) / (total - 1)) * 100 if total > 1 else 100
-        st.markdown(f"""
-        <div style="margin-bottom: 2rem;">
-            <div class="omega-progress-track">
-                <div class="omega-progress-fill" style="width: {pct}%;"></div>
-            </div>
-            <div style="display:flex; justify-content:space-between; font-family:'Share Tech Mono'; opacity:0.7;">
-                <span>SEQUENCE {curr + 1}/{total}</span>
-                <span>{step_info['name']}</span>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        # Progress UI
+        st.markdown(f"<h2 style='text-align:center;'>STEP {curr + 1}: {steps[curr].upper()}</h2>", unsafe_allow_html=True)
+        prog_val = (curr + 1) / len(steps)
+        st.progress(prog_val)
         
-        st.markdown(f"<h2 style='text-align:center;'>{step_info['name']}</h2>", unsafe_allow_html=True)
-        st.markdown(f"<p style='text-align:center; margin-bottom:3rem; opacity:0.6;'>{step_info['desc']}</p>", unsafe_allow_html=True)
+        st.markdown('<div class="zeus-card anim-scale" style="margin-top: 30px;">', unsafe_allow_html=True)
         
-        # Wizard Form Container
-        with st.container():
-            st.markdown('<div class="omega-card anim-enter">', unsafe_allow_html=True)
+        # --- WIZARD LOGIC ---
+        if curr == 0: # Profile
+            state.inputs['Age'] = st.number_input("Age", 10, 100, state.inputs.get('Age', 15))
+            state.inputs['Gender'] = st.selectbox("Gender", ["Male", "Female"], index=0)
+            state.inputs['Academic_Level'] = st.selectbox("Education", ["Middle School", "High School", "Undergraduate"])
             
-            # --- STEP 0: BIO ---
-            if curr == 0:
-                state.inputs['Age'] = st.number_input("Subject Age", 10, 100, state.inputs.get('Age', 15))
-                state.inputs['Gender'] = st.selectbox("Gender Identity", ["Male", "Female"], index=0)
-                state.inputs['Academic_Level'] = st.selectbox("Education Tier", ["Middle School", "High School", "Undergraduate", "Graduate"])
-                
-                st.markdown("<br>", unsafe_allow_html=True)
-                if st.button("NEXT SEQUENCE ➔"): StateManager.wizard_next(); st.rerun()
+            if st.button("NEXT ➔"): StateController.next_step(); st.rerun()
 
-            # --- STEP 1: HABITS ---
-            elif curr == 1:
-                state.inputs['Platform'] = st.selectbox("Primary Network", ["TikTok", "YouTube", "Instagram", "Snapchat", "Other"])
-                state.inputs['Avg_Daily_Usage_Hours'] = st.number_input("Daily Exposure (Hours)", 0.0, 24.0, state.inputs.get('Avg_Daily_Usage_Hours', 4.0))
-                
-                st.markdown("<br>", unsafe_allow_html=True)
-                c1, c2 = st.columns(2)
-                with c1: 
-                    if st.button("⬅ BACK"): StateManager.wizard_prev(); st.rerun()
-                with c2: 
-                    if st.button("NEXT SEQUENCE ➔"): StateManager.wizard_next(); st.rerun()
-
-            # --- STEP 2: WELLNESS ---
-            elif curr == 2:
-                state.inputs['Sleep'] = st.number_input("Sleep Cycles (Hours)", 0.0, 24.0, state.inputs.get('Sleep', 8.0))
-                st.markdown("<label>Dependency Index (1-10)</label>", unsafe_allow_html=True)
-                state.inputs['Addiction'] = st.slider("", 1, 10, state.inputs.get('Addiction', 5))
-                state.inputs['Relationship'] = st.selectbox("Relationship Status", ["Single", "Complicated", "Partnered"])
-                
-                st.markdown("<br>", unsafe_allow_html=True)
-                c1, c2 = st.columns(2)
-                with c1: 
-                    if st.button("⬅ BACK"): StateManager.wizard_prev(); st.rerun()
-                with c2: 
-                    if st.button("NEXT SEQUENCE ➔"): StateManager.wizard_next(); st.rerun()
-
-            # --- STEP 3: IMPACT ---
-            elif curr == 3:
-                state.inputs['Conflicts'] = st.number_input("Real-world Conflicts (Weekly)", 0, 20, state.inputs.get('Conflicts', 0))
-                st.markdown("<label>Academic Performance Degradation?</label>", unsafe_allow_html=True)
-                state.inputs['Affects_Performance'] = st.radio("", ["No", "Yes"], horizontal=True)
-                
-                st.markdown("<br>", unsafe_allow_html=True)
-                c1, c2 = st.columns(2)
-                with c1: 
-                    if st.button("⬅ BACK"): StateManager.wizard_prev(); st.rerun()
-                with c2: 
-                    if st.button("PROCESS DATA 🚀"):
-                        OmegaUI.loader_animation("COMPILING NEURAL NET")
-                        
-                        # Calculation Logic
-                        data = state.inputs
-                        base = 10.0
-                        base -= (data['Avg_Daily_Usage_Hours'] * 0.35)
-                        base -= (data['Addiction'] * 0.25)
-                        base += (data['Sleep'] * 0.15)
-                        if data['Affects_Performance'] == "Yes": base -= 1.0
-                        
-                        state.score = max(1.0, min(10.0, base))
-                        StateManager.route_to("results")
-                        st.rerun()
+        elif curr == 1: # Habits
+            state.inputs['Platform'] = st.selectbox("Platform", ["TikTok", "YouTube", "Instagram", "Snapchat", "Other"])
+            state.inputs['Avg_Daily_Usage_Hours'] = st.number_input("Screen Time (Hrs)", 0.0, 24.0, state.inputs.get('Avg_Daily_Usage_Hours', 4.0))
             
-            st.markdown('</div>', unsafe_allow_html=True)
+            c1, c2 = st.columns(2)
+            with c1: 
+                if st.button("⬅ BACK"): StateController.prev_step(); st.rerun()
+            with c2: 
+                if st.button("NEXT ➔"): StateController.next_step(); st.rerun()
+
+        elif curr == 2: # Health
+            state.inputs['Sleep'] = st.number_input("Sleep (Hrs)", 0.0, 24.0, state.inputs.get('Sleep', 8.0))
+            state.inputs['Addiction'] = st.slider("Addiction Level (1-10)", 1, 10, state.inputs.get('Addiction', 5))
+            
+            c1, c2 = st.columns(2)
+            with c1: 
+                if st.button("⬅ BACK"): StateController.prev_step(); st.rerun()
+            with c2: 
+                if st.button("NEXT ➔"): StateController.next_step(); st.rerun()
+
+        elif curr == 3: # Final
+            state.inputs['Conflicts'] = st.number_input("Conflicts", 0, 20, state.inputs.get('Conflicts', 0))
+            state.inputs['Affects_Performance'] = st.radio("Impacts Grades?", ["No", "Yes"])
+            
+            c1, c2 = st.columns(2)
+            with c1: 
+                if st.button("⬅ BACK"): StateController.prev_step(); st.rerun()
+            with c2: 
+                if st.button("ANALYZE 🚀"):
+                    ComponentFactory.loader_overlay("CALCULATING VECTORS")
+                    
+                    # Score Logic
+                    d = state.inputs
+                    base = 10.0
+                    base -= (d['Avg_Daily_Usage_Hours'] * 0.3)
+                    base -= (d['Addiction'] * 0.2)
+                    base += (d['Sleep'] * 0.1)
+                    if d['Affects_Performance'] == "Yes": base -= 1.0
+                    
+                    state.score = max(1.0, min(10.0, base))
+                    StateController.navigate("results")
+                    st.rerun()
+        
+        st.markdown('</div>', unsafe_allow_html=True)
 
 class SceneResults:
     @staticmethod
     def render():
-        state = StateManager.get()
+        state = StateController.get()
         score = state.score
         
-        # Color Logic
-        if score < 5: 
-            color = "#ff0055"
-            status = "CRITICAL FAILURE"
-        elif score < 7.5: 
-            color = "#ffaa00"
-            status = "SYSTEM UNSTABLE"
-        else: 
-            color = "#00ffaa"
-            status = "SYSTEM OPTIMAL"
+        st.markdown('<div class="anim-scale">', unsafe_allow_html=True)
+        
+        # Determine Visuals based on Score
+        if score >= 7:
+            color = "#00ff88"
+            icon_svg = IconLibrary.get_star_svg() # THE STAR
+            msg = "EXCELLENT CONDITION"
+        else:
+            color = "#ff4757"
+            icon_svg = IconLibrary.get_cloud_svg() # THE SAD CLOUD
+            msg = "ATTENTION REQUIRED"
             
-        st.markdown('<div class="anim-enter">', unsafe_allow_html=True)
+        # Render the SVG Icon
+        b64_icon = base64.b64encode(icon_svg.encode('utf-8')).decode("utf-8")
         
-        # 1. Header Card
+        # Score Card
         st.markdown(f"""
-        <div class="omega-card" style="border-left: 5px solid {color}; display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <span style="font-family: 'Share Tech Mono'; opacity: 0.6;">REF ID: {random.randint(9999,99999)}</span>
-                <h3 style="margin:0;">DIAGNOSTIC REPORT</h3>
+        <div class="zeus-card" style="text-align: center; border-top: 5px solid {color};">
+            <div style="width: 100px; height: 100px; margin: 0 auto;">
+                <img src="data:image/svg+xml;base64,{b64_icon}" width="100" height="100">
             </div>
-            <div style="text-align: right;">
-                <span style="opacity: 0.6;">STATUS</span><br>
-                <b style="color: {color};">{status}</b>
-            </div>
+            <h1 style="font-size: 6rem; color: {color}; margin: 20px 0;">{score:.1f}</h1>
+            <h3 style="color: {color}; opacity: 0.8;">{msg}</h3>
         </div>
         """, unsafe_allow_html=True)
         
-        # 2. Score Card
-        st.markdown(f"""
-        <div class="omega-card" style="text-align: center; padding: 4rem; border-color: {color};">
-            <h4 style="letter-spacing: 5px; opacity: 0.6; margin-bottom: 1rem;">WELLNESS INDEX</h4>
-            <h1 style="font-size: 8rem; margin: 0; color: {color}; text-shadow: 0 0 40px {color}; line-height: 1;">
-                {score:.1f}
-            </h1>
-            <p style="font-family: 'Share Tech Mono'; font-size: 1.2rem; margin-top: 10px;">/ 10.0</p>
-        </div>
-        """, unsafe_allow_html=True)
+        # AI Section
+        st.markdown("<h2 style='text-align:center; margin: 40px 0;'>AI INSIGHTS</h2>", unsafe_allow_html=True)
+        c1, c2 = st.columns(2)
         
-        # 3. AI Insights Grid
-        st.markdown("<h2 style='text-align:center; margin: 4rem 0 2rem 0;'>GENERATIVE INSIGHTS</h2>", unsafe_allow_html=True)
-        
-        c1, c2 = st.columns(2, gap="medium")
-        
-        # Feature A: Persona
         with c1:
-            st.markdown("""
-            <div class="omega-card" style="text-align: center; height: 100%;">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">📊</div>
-                <h3>Psychometric Profile</h3>
-                <p>Generate behavioral archetype.</p>
-                <div style="margin-top:20px;"></div>
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown('<div class="zeus-card" style="text-align:center; height:100%"><h3>PROFILE</h3><p>Analyze Persona</p></div>', unsafe_allow_html=True)
             if st.button("GENERATE PROFILE", use_container_width=True):
-                OmegaUI.loader_animation("ANALYZING PATTERNS")
+                ComponentFactory.loader_overlay("ANALYZING")
                 prompt = f"Data: {json.dumps(state.inputs)}. Return JSON: 'persona', 'analysis', 'tips'."
                 res = IntelligenceCore.query_gemini(prompt, is_json=True)
                 if res: 
-                    state.ai_insights['analysis'] = json.loads(res)
-                    st.rerun()
-
-        # Feature B: Time Travel
-        with c2:
-            st.markdown("""
-            <div class="omega-card" style="text-align: center; height: 100%;">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">⏳</div>
-                <h3>Temporal Bridge</h3>
-                <p>Incoming message from 2029.</p>
-                <div style="margin-top:20px;"></div>
-            </div>
-            """, unsafe_allow_html=True)
-            if st.button("CONNECT TIMELINE", use_container_width=True):
-                OmegaUI.loader_animation("ESTABLISHING LINK")
-                prompt = f"Message from 2029 for user: {json.dumps(state.inputs)}. Max 50 words."
-                res = IntelligenceCore.query_gemini(prompt, is_json=False)
-                if res: 
-                    state.ai_insights['future'] = res
+                    state.ai_results['analysis'] = json.loads(res)
                     st.rerun()
                     
-        # 4. Display Results
-        results = state.ai_insights
+        with c2:
+            st.markdown('<div class="zeus-card" style="text-align:center; height:100%"><h3>TIME TRAVEL</h3><p>Message from 2029</p></div>', unsafe_allow_html=True)
+            if st.button("CONNECT", use_container_width=True):
+                ComponentFactory.loader_overlay("CONNECTING")
+                prompt = f"Message from 2029 self based on: {json.dumps(state.inputs)}. Max 50 words."
+                res = IntelligenceCore.query_gemini(prompt, is_json=False)
+                if res: 
+                    state.ai_results['future'] = res
+                    st.rerun()
         
-        if 'analysis' in results:
-            r = results['analysis']
-            st.markdown(f"""
-            <div class="omega-card" style="border-left: 5px solid #00f3ff; margin-top: 2rem;">
-                <span style="font-family: 'Share Tech Mono'; color: #00f3ff;">ARCHETYPE IDENTIFIED</span>
-                <h2 style="color: #00f3ff;">{r.get('persona', 'Unknown')}</h2>
-                <p style="font-style: italic; opacity: 0.8; font-size: 1.1rem; margin-bottom: 1.5rem;">"{r.get('analysis')}"</p>
-                <ul style="margin-top: 1rem; line-height: 1.8;">
-                    {''.join([f'<li>{t}</li>' for t in r.get('tips', [])])}
-                </ul>
-            </div>
-            """, unsafe_allow_html=True)
+        # Show Results
+        res = state.ai_results
+        if 'analysis' in res:
+            r = res['analysis']
+            st.markdown(f"<div class='zeus-card'><h3>{r.get('persona')}</h3><p>{r.get('analysis')}</p></div>", unsafe_allow_html=True)
+        if 'future' in res:
+            st.markdown(f"<div class='zeus-card'><h3>TRANSMISSION</h3><p>{res['future']}</p></div>", unsafe_allow_html=True)
             
-        if 'future' in results:
-            st.markdown(f"""
-            <div class="omega-card" style="border-left: 5px solid #bc13fe; background: rgba(0,0,0,0.3); margin-top: 2rem;">
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 1rem;">
-                    <span style="background: #bc13fe; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-family:'Share Tech Mono';">ENCRYPTED</span>
-                    <h3 style="color: #bc13fe; margin: 0;">Transmission 2029</h3>
-                </div>
-                <p style="font-family: 'Share Tech Mono'; color: white; font-size: 1rem; line-height: 1.6;">
-                    > {results['future']}
-                </p>
-            </div>
-            """, unsafe_allow_html=True)
-            
-        st.markdown("<br>", unsafe_allow_html=True)
         if st.button("RESTART SYSTEM", use_container_width=True):
-            StateManager.reset_system()
+            StateController.reset_app()
             st.rerun()
             
         st.markdown('</div>', unsafe_allow_html=True)
 
 # ==============================================================================
-# MODULE 8: MAIN EXECUTION THREAD
+# SECTION 8: MAIN EXECUTION THREAD
 # ==============================================================================
 
 def main():
-    # 1. Init Session
-    StateManager.initialize()
+    # 1. Init Session State
+    StateController.init()
     
-    # 2. Inject CSS Engine
-    css = NebulaEngine(StateManager.get().theme_mode)
-    css.inject()
+    # 2. Check for transition animation needed
+    session = StateController.get()
+    if session.is_transitioning:
+        # Inject animation CSS
+        st.markdown(DualCoreCSSEngine.get_transition_css(), unsafe_allow_html=True)
+        # We don't sleep here to allow UI to render behind it, 
+        # but in Streamlit we often need a moment for the user to see it.
+        time.sleep(0.5)
+        StateController.clear_transition()
+        st.rerun()
+
+    # 3. Inject Theme-Specific CSS
+    DualCoreCSSEngine.inject(session.theme_mode)
     
-    # 3. Render Navbar
-    OmegaUI.navbar()
+    # 4. Render Navbar
+    ComponentFactory.navbar()
     
-    # 4. Route
-    page = StateManager.get().page
-    
-    if page == "home":
+    # 5. Routing
+    if session.page == "home":
         SceneHome.render()
-    elif page == "about":
+    elif session.page == "about":
         SceneAbout.render()
-    elif page == "interview":
+    elif session.page == "interview":
         SceneInterview.render()
-    elif page == "results":
+    elif session.page == "results":
         SceneResults.render()
         
-    # 5. Footer
+    # 6. Footer
     st.markdown("""
-    <div style="text-align: center; margin-top: 80px; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); font-family: 'Share Tech Mono'; font-size: 0.8rem; opacity: 0.5;">
-        MINDCHECK AI v6.0 // AETHER OS // 2026
+    <div style="text-align: center; margin-top: 80px; padding-top: 20px; border-top: 1px solid rgba(128,128,128,0.2); font-size: 0.8rem; opacity: 0.5;">
+        PROJECT ZEUS // MINDCHECK AI v7.0 // 2026
     </div>
     """, unsafe_allow_html=True)
 
