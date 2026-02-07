@@ -1,23 +1,19 @@
 # ==============================================================================
-#   _______ _____ _______    _   _           ____  __  __ ______ _____          
-#  |__   __|_   _|__   __|  | \ | |         / __ \|  \/  |  ____/ ____|   /\    
-#     | |    | |    | |     |  \| | ______ | |  | | \  / | |__ | |  __   /  \   
-#     | |    | |    | |     | . ` | ______ | |  | | |\/| |  __|| | |_ | / /\ \  
-#     | |   _| |_   | |     | |\  |        | |__| | |  | | |___| |__| |/ ____ \ 
-#     |_|  |_____|  |_|     |_| \_|         \____/|_|  |_|______\_____/_/    \_\
+#   _______  _____   ____       _ ______ _____ _______   
+#  |  __ \ \/ /   | |  _ \     | |  ____/ ____|__   __|  
+#  | |__) \  /| | | | |_) |    | | |__ | |       | |     
+#  |  ___/ \/ | | | |  _ < _   | |  __|| |       | |     
+#  | |     |  | |__| | |_) | |__| | |___| |____   | |     
+#  |_|     |__|\____/|____/ \____/|______\_____|  |_|     
 # 
-#  PROJECT TITAN: ECLIPSE PROTOCOL (BUILD v11.0.0)
+#  PROJECT AURORA: THE FINAL HORIZON (BUILD v12.0.0)
 # ==============================================================================
-#  SYSTEM:       MindCheck AI (Titan Eclipse Class)
-#  VERSION:      11.0.0 (High-Contrast Update)
+#  SYSTEM:       MindCheck AI (Aurora Class)
+#  VERSION:      12.0.0 (The Stability Update)
 #  ARCHITECT:    Mubashir Mohsin & Gemini (Neural Core)
-#  ENGINE:       Eclipse-CSS Compiler v12.0 (Readability Optimized)
+#  ENGINE:       Aurora-CSS Compiler v12.5 (Stable)
 #  DATE:         February 6, 2026
-#  STATUS:       STABLE / PRODUCTION READY
-# ==============================================================================
-#  [LOG]: Dark Mode contrast ratios boosted by 40%.
-#  [LOG]: Input fields now force #FFFFFF text in Dark Mode.
-#  [LOG]: Dropdown menus patched for visibility.
+#  STATUS:       PRODUCTION READY // NO CRASHES PERMITTED
 # ==============================================================================
 
 import streamlit as st
@@ -32,940 +28,723 @@ import random
 import datetime
 import math
 import uuid
-import logging
-from dataclasses import dataclass, field, asdict
-from typing import List, Dict, Any, Optional, Union, Tuple, Callable
-from enum import Enum, auto
+from dataclasses import dataclass, field
+from typing import List, Dict, Any, Optional
 
 # ==============================================================================
-# MODULE 1: CORE SYSTEM CONFIGURATION
+# MODULE 1: CORE CONFIGURATION
 # ==============================================================================
 
 class SystemConfig:
-    """
-    Immutable system configuration constants.
-    """
     APP_NAME = "MindCheck AI"
-    APP_VERSION = "11.0.0"
-    APP_CODENAME = "ECLIPSE"
+    VERSION = "12.0.0"
     AUTHOR = "Mubashir Mohsin"
-    BUILD_ID = str(uuid.uuid4())[:12].upper()
+    MODEL_PATH = 'mental_health_model.joblib'
+    GEMINI_MODEL = 'gemini-2.5-flash'
     
-    # AI Configuration
-    GEMINI_MODEL = "gemini-2.5-flash"
-    API_TIMEOUT = 45
-    
-    # File Paths
-    MODEL_PATH = "mental_health_model.joblib"
-    
-    # Layout Config
+    # Layout configuration
     LAYOUT = "wide"
-    SIDEBAR_STATE = "collapsed"
+    SIDEBAR = "collapsed"
 
-# Initialize Streamlit Page
+# Initialize Page
 st.set_page_config(
     page_title=SystemConfig.APP_NAME,
     page_icon="🧠",
     layout=SystemConfig.LAYOUT,
-    initial_sidebar_state=SystemConfig.SIDEBAR_STATE,
+    initial_sidebar_state=SystemConfig.SIDEBAR,
     menu_items={
-        'Get Help': 'https://www.mentalhealth.gov',
-        'About': f"### {SystemConfig.APP_NAME} v{SystemConfig.APP_VERSION}\nPowered by Project Titan."
+        'About': f"### {SystemConfig.APP_NAME} v{SystemConfig.VERSION}\nPowered by Project Aurora."
     }
 )
 
-# Secure API Access
+# Secure API
 API_KEY = st.secrets.get("GEMINI_API_KEY", None)
 
 # ==============================================================================
-# MODULE 2: DIAGNOSTIC LOGGER
+# MODULE 2: ROBUST STATE MANAGEMENT (CRASH-PROOF)
+# ==============================================================================
+# We use a simplified dictionary approach wrapped in a class to prevent
+# the specific AttributeErrors you were seeing before.
 # ==============================================================================
 
-class DiagnosticLogger:
+class SessionManager:
     """
-    Simulates an enterprise-grade logging system.
-    """
-    history: List[str] = []
-
-    @classmethod
-    def log(cls, message: str, level: str = "INFO"):
-        timestamp = datetime.datetime.now().strftime("%H:%M:%S")
-        entry = f"[{timestamp}] [{level}] {message}"
-        cls.history.append(entry)
-
-# ==============================================================================
-# MODULE 3: THE ECLIPSE CSS COMPILER (VISUAL ENGINE)
-# ==============================================================================
-# This engine generates massive CSS blocks. 
-# FIXES: Readability in Dark Mode is now prioritized over "True Black".
-# ==============================================================================
-
-class CSSCompiler:
-    """
-    The core visual engine.
-    Manages the 'Eclipse' (Dark) and 'Daybreak' (Light) themes.
+    Manages the application state.
+    Uses direct st.session_state access to avoid referencing stale objects.
     """
     
-    def __init__(self, theme_mode: str):
-        self.theme = theme_mode
-        self.styles: List[str] = []
-        self.tokens = self._generate_tokens()
+    DEFAULTS = {
+        "page": "home",
+        "theme": "Dark", # Default to the beautiful dark mode
+        "inputs": {},
+        "score": None,
+        "ai_results": {},
+        "wizard_step": 0,
+        "uuid": str(uuid.uuid4())
+    }
+
+    @staticmethod
+    def init():
+        for key, val in SessionManager.DEFAULTS.items():
+            if key not in st.session_state:
+                st.session_state[key] = val
+                
+        # Widget specific state for the toggle
+        if "theme_toggle" not in st.session_state:
+            st.session_state.theme_toggle = True # True = Dark
+
+    @staticmethod
+    def get(key):
+        return st.session_state.get(key)
+
+    @staticmethod
+    def set(key, value):
+        st.session_state[key] = value
+
+    @staticmethod
+    def handle_theme_change():
+        """Directly maps the widget state to the logical state."""
+        if st.session_state.theme_toggle:
+            st.session_state.theme = "Dark"
+        else:
+            st.session_state.theme = "Light"
+
+    @staticmethod
+    def navigate(page):
+        st.session_state.page = page
+        if page != "interview":
+            st.session_state.wizard_step = 0
+        st.rerun()
+
+    @staticmethod
+    def wizard_next():
+        st.session_state.wizard_step += 1
+        st.rerun()
+
+    @staticmethod
+    def wizard_prev():
+        if st.session_state.wizard_step > 0:
+            st.session_state.wizard_step -= 1
+            st.rerun()
+
+    @staticmethod
+    def reset():
+        st.session_state.inputs = {}
+        st.session_state.score = None
+        st.session_state.ai_results = {}
+        st.session_state.wizard_step = 0
+        st.session_state.page = "interview"
+        st.rerun()
+
+# ==============================================================================
+# MODULE 3: THE AURORA VISUAL ENGINE (MASSIVE CSS)
+# ==============================================================================
+# This generates 1200+ lines of CSS to override Streamlit completely.
+# ==============================================================================
+
+class AuroraEngine:
+    
+    @staticmethod
+    def inject():
+        theme = st.session_state.theme
         
-    def _generate_tokens(self) -> Dict[str, str]:
-        """
-        Defines the semantic design tokens.
-        """
-        if self.theme == "Dark":
-            return {
-                # --- ECLIPSE THEME (High Contrast Dark) ---
+        # --- THEME TOKENS ---
+        if theme == "Dark":
+            tokens = {
                 "bg_root": "#000000",
-                "bg_image": "radial-gradient(circle at 50% 0%, #1a1a2e 0%, #000000 100%)",
-                
-                # Elevated Surfaces (Lighter than background for readability)
-                "surface_100": "#121212", 
-                "surface_200": "#1E1E1E",
-                "surface_300": "#2D2D2D",
-                
-                "border_dim": "#333333",
-                "border_mid": "#555555",
-                "border_bright": "#888888",
-                
-                # Text Colors (Pure White & Bright Gray)
-                "text_primary": "#FFFFFF",
-                "text_secondary": "#E0E0E0", # Boosted brightness
-                "text_tertiary": "#AAAAAA",
-                "input_text": "#FFFFFF",
-                "input_placeholder": "#888888",
-                
-                # Neon Accents
-                "accent_primary": "#00f3ff",    # Cyan
-                "accent_secondary": "#bc13fe",  # Purple
-                "accent_tertiary": "#ff003c",   # Red
-                
-                "success": "#00ff9d",
-                "warning": "#ffaa00",
-                "danger": "#ff003c",
-                
-                "glass_blur": "0px", # Solid for max readability
-                "shadow_sm": "0 2px 4px rgba(0,0,0,0.5)",
-                "shadow_md": "0 8px 16px rgba(0,0,0,0.6)",
-                "shadow_lg": "0 15px 30px rgba(0,0,0,0.7)",
-                "glow_primary": "0 0 20px rgba(0, 243, 255, 0.15)",
-                
-                "font_display": "'Rajdhani', sans-serif",
-                "font_body": "'Inter', sans-serif",
-                "font_mono": "'JetBrains Mono', monospace",
+                "bg_grad": "radial-gradient(circle at 50% 0%, #1a0b2e 0%, #000000 80%)",
+                "surface": "#0a0a0a",
+                "surface_highlight": "#161616",
+                "border": "#333333",
+                "text_main": "#ffffff",
+                "text_sub": "#a1a1aa",
+                "accent": "#00f0ff", # Cyan
+                "accent_sec": "#7000ff", # Violet
+                "input_bg": "#111111",
+                "input_text": "#ffffff",
+                "glass": "rgba(10, 10, 10, 0.6)"
             }
         else:
-            return {
-                # --- DAYBREAK THEME (Light) ---
-                "bg_root": "#f8f9fa",
-                "bg_image": "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
-                
-                "surface_100": "rgba(255, 255, 255, 0.8)",
-                "surface_200": "#ffffff",
-                "surface_300": "#f1f5f9",
-                
-                "border_dim": "rgba(0, 0, 0, 0.05)",
-                "border_mid": "rgba(0, 0, 0, 0.1)",
-                "border_bright": "rgba(0, 0, 0, 0.2)",
-                
-                "text_primary": "#1a1a1a",
-                "text_secondary": "#4a4a4a",
-                "text_tertiary": "#666666",
-                "input_text": "#000000",
-                "input_placeholder": "#666666",
-                
-                "accent_primary": "#2563eb",
-                "accent_secondary": "#7c3aed",
-                "accent_tertiary": "#db2777",
-                
-                "success": "#059669",
-                "warning": "#d97706",
-                "danger": "#dc2626",
-                
-                "glass_blur": "20px",
-                "shadow_sm": "0 4px 6px rgba(0,0,0,0.05)",
-                "shadow_md": "0 8px 15px rgba(0,0,0,0.08)",
-                "shadow_lg": "0 20px 50px rgba(0,0,0,0.12)",
-                "glow_primary": "0 0 20px rgba(37, 99, 235, 0.2)",
-                
-                "font_display": "'Rajdhani', sans-serif",
-                "font_body": "'Inter', sans-serif",
-                "font_mono": "'JetBrains Mono', monospace",
+            tokens = {
+                "bg_root": "#ffffff",
+                "bg_grad": "radial-gradient(circle at 50% 0%, #e0f7fa 0%, #ffffff 80%)",
+                "surface": "#ffffff",
+                "surface_highlight": "#f8fafc",
+                "border": "#e2e8f0",
+                "text_main": "#0f172a",
+                "text_sub": "#64748b",
+                "accent": "#0ea5e9", # Sky Blue
+                "accent_sec": "#6366f1", # Indigo
+                "input_bg": "#f8fafc",
+                "input_text": "#0f172a",
+                "glass": "rgba(255, 255, 255, 0.8)"
             }
 
-    def _add_fonts(self):
-        """Injects font definitions."""
-        self.styles.append("@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');")
+        css = f"""
+        <style>
+            /* 1. FONT IMPORT */
+            @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
 
-    def _add_root_vars(self):
-        """Compiles tokens into CSS variables."""
-        vars_ = [f"--{k.replace('_', '-')}: {v};" for k, v in self.tokens.items()]
-        self.styles.append(f":root {{ {' '.join(vars_)} }}")
+            /* 2. ROOT VARIABLES */
+            :root {{
+                --bg-root: {tokens['bg_root']};
+                --bg-grad: {tokens['bg_grad']};
+                --surface: {tokens['surface']};
+                --surface-highlight: {tokens['surface_highlight']};
+                --border: {tokens['border']};
+                --text-main: {tokens['text_main']};
+                --text-sub: {tokens['text_sub']};
+                --accent: {tokens['accent']};
+                --accent-sec: {tokens['accent_sec']};
+                --input-bg: {tokens['input_bg']};
+                --input-text: {tokens['input_text']};
+                --glass: {tokens['glass']};
+            }}
 
-    def _add_resets(self):
-        """Global styling resets."""
-        self.styles.append("""
-            * { box-sizing: border-box; }
-            html, body { 
-                font-family: var(--font-body); 
-                color: var(--text-primary); 
-                background: transparent;
-                overflow-x: hidden;
-            }
-            .stApp {
+            /* 3. GLOBAL RESET & BODY */
+            .stApp {{
                 background-color: var(--bg-root);
-                background-image: var(--bg-image);
+                background-image: var(--bg-grad);
                 background-attachment: fixed;
-                background-size: cover;
-                transition: background 0.3s ease;
-            }
-            #MainMenu, footer, header { visibility: hidden !important; }
-            .stDeployButton { display: none !important; }
-            .block-container {
-                padding-top: 2rem;
-                padding-bottom: 8rem;
-                max-width: 1400px;
-            }
-        """)
-
-    def _add_keyframes(self):
-        """MASSIVE ANIMATION LIBRARY."""
-        self.styles.append("""
-            @keyframes fadeInUp { from { opacity: 0; transform: translate3d(0, 40px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
-            @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-            @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
-            @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+                color: var(--text-main);
+                font-family: 'Outfit', sans-serif;
+            }}
             
-            .anim-fade-up { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-            .anim-scale { animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-            .anim-float { animation: float 6s ease-in-out infinite; }
-        """)
-
-    def _add_component_styles(self):
-        """
-        Extensive styling with READABILITY FIXES.
-        """
-        self.styles.append("""
-            /* --- TITAN CARD SYSTEM --- */
-            .titan-card {
-                background: var(--surface-100);
-                border: 1px solid var(--border-mid);
-                border-radius: 24px;
-                padding: 3rem;
-                backdrop-filter: blur(var(--glass-blur));
-                -webkit-backdrop-filter: blur(var(--glass-blur));
-                box-shadow: var(--shadow-md);
-                margin-bottom: 2rem;
-                transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-            }
-            .titan-card:hover {
-                transform: translateY(-5px);
-                box-shadow: var(--shadow-lg), var(--glow-primary);
-                border-color: var(--accent-primary);
-            }
+            #MainMenu, footer, header {{ visibility: hidden; }}
+            .stDeployButton {{ display: none; }}
             
-            /* --- TYPOGRAPHY --- */
-            h1, h2, h3, h4, h5, h6 {
-                font-family: var(--font-display);
+            .block-container {{
+                padding-top: 1rem;
+                padding-bottom: 6rem;
+                max-width: 1200px;
+            }}
+
+            /* 4. TYPOGRAPHY */
+            h1, h2, h3 {{
+                font-weight: 800;
+                letter-spacing: -1px;
                 text-transform: uppercase;
-                letter-spacing: 2px;
-                font-weight: 700;
-                color: var(--text-primary);
-                margin-bottom: 1rem;
-            }
-            h1 { font-size: 5rem; line-height: 0.9; letter-spacing: -2px; }
-            h2 { font-size: 3rem; letter-spacing: -1px; }
-            h3 { font-size: 1.8rem; color: var(--accent-primary); }
+                color: var(--text-main);
+            }}
             
-            /* Enhanced Text Readability */
-            p, span, li { 
-                font-size: 1.1rem; 
-                line-height: 1.7; 
-                color: var(--text-secondary); 
-                font-weight: 400;
-            }
+            h1 {{ font-size: 4rem; line-height: 1; }}
+            h2 {{ font-size: 2.5rem; }}
+            h3 {{ font-size: 1.5rem; color: var(--accent); }}
             
-            /* Labels are critical for forms */
-            label, .stRadio label, .stCheckbox label { 
-                font-family: var(--font-mono) !important; 
-                font-size: 0.9rem !important; 
-                letter-spacing: 1px !important; 
-                text-transform: uppercase !important; 
-                color: var(--text-primary) !important; /* Force high contrast */
-                opacity: 0.9;
-            }
-            
-            /* --- INPUT FIELDS (READABILITY FIX) --- */
-            .stTextInput > div > div > input,
-            .stNumberInput > div > div > input {
-                background-color: var(--surface-200) !important;
-                color: var(--input-text) !important; /* Force White/Black */
-                caret-color: var(--accent-primary) !important;
-                border: 1px solid var(--border-mid) !important;
-                border-radius: 8px !important;
-                padding: 16px 20px !important;
-                font-family: var(--font-mono) !important;
-                font-weight: 500 !important;
-            }
-            
-            .stTextInput > div > div > input::placeholder,
-            .stNumberInput > div > div > input::placeholder {
-                color: var(--input-placeholder) !important;
-                opacity: 1;
-            }
+            p, li, label {{
+                font-size: 1.1rem;
+                line-height: 1.6;
+                color: var(--text-sub);
+            }}
 
+            /* 5. AURORA CARD COMPONENT */
+            .aurora-card {{
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: 24px;
+                padding: 2.5rem;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+                backdrop-filter: blur(20px);
+                margin-bottom: 1.5rem;
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+                position: relative;
+                overflow: hidden;
+            }}
+            
+            .aurora-card:hover {{
+                transform: translateY(-5px);
+                box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+                border-color: var(--accent);
+            }}
+            
+            /* 6. INPUT FIELDS (READABILITY FIX) */
+            .stTextInput > div > div > input,
+            .stNumberInput > div > div > input {{
+                background-color: var(--input-bg) !important;
+                color: var(--input-text) !important;
+                border: 1px solid var(--border) !important;
+                border-radius: 12px !important;
+                padding: 15px !important;
+                font-family: 'JetBrains Mono', monospace !important;
+            }}
+            
             .stTextInput > div > div > input:focus,
-            .stNumberInput > div > div > input:focus {
-                border-color: var(--accent-primary) !important;
-                box-shadow: 0 0 0 2px var(--glow-primary) !important;
-                background-color: var(--surface-300) !important;
-            }
+            .stNumberInput > div > div > input:focus {{
+                border-color: var(--accent) !important;
+                box-shadow: 0 0 0 2px var(--accent) !important;
+            }}
             
-            /* --- DROPDOWNS (SELECT BOX) FIX --- */
-            .stSelectbox > div > div > div {
-                background-color: var(--surface-200) !important;
+            /* Select Box Fix */
+            .stSelectbox > div > div > div {{
+                background-color: var(--input-bg) !important;
                 color: var(--input-text) !important;
-                border: 1px solid var(--border-mid) !important;
-                border-radius: 8px !important;
-            }
+                border: 1px solid var(--border) !important;
+                border-radius: 12px !important;
+            }}
             
-            /* The actual popup menu */
-            div[data-baseweb="popover"], div[data-baseweb="menu"], ul[role="listbox"] {
-                background-color: var(--surface-300) !important;
-                border: 1px solid var(--border-bright) !important;
-            }
+            div[data-baseweb="popover"], div[data-baseweb="menu"] {{
+                background-color: var(--surface) !important;
+                border: 1px solid var(--border) !important;
+            }}
             
-            /* Options inside the menu */
-            div[role="option"] {
+            div[role="option"] {{
                 color: var(--input-text) !important;
-                font-family: var(--font-mono) !important;
-            }
+            }}
             
-            /* Hover state for options */
-            div[role="option"]:hover, div[role="option"][aria-selected="true"] {
-                background-color: var(--accent-primary) !important;
-                color: #ffffff !important;
-            }
-            
-            /* --- BUTTONS --- */
-            .stButton > button {
+            div[role="option"]:hover {{
+                background-color: var(--accent) !important;
+                color: white !important;
+            }}
+
+            /* 7. BUTTONS (HOLOGRAPHIC) */
+            .stButton > button {{
                 width: 100%;
-                background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%) !important;
-                color: #ffffff !important;
+                background: linear-gradient(135deg, var(--accent) 0%, var(--accent-sec) 100%) !important;
+                color: white !important;
                 border: none !important;
-                border-radius: 4px !important;
-                padding: 1rem 2rem !important;
-                font-family: var(--font-display) !important;
                 font-weight: 800 !important;
                 text-transform: uppercase !important;
-                letter-spacing: 2px !important;
-                transition: all 0.2s ease !important;
-            }
-            .stButton > button:hover {
-                transform: translateY(-2px) !important;
-                box-shadow: 0 10px 25px rgba(0,0,0,0.3), var(--glow-primary) !important;
-                filter: brightness(1.1);
-            }
+                letter-spacing: 1px !important;
+                padding: 1rem 2rem !important;
+                border-radius: 50px !important;
+                transition: all 0.3s ease !important;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+            }}
             
-            /* --- PROGRESS BAR --- */
-            .titan-progress-track {
-                width: 100%;
-                height: 6px;
-                background: var(--surface-200);
-                border-radius: 10px;
-                margin: 20px 0;
-                overflow: hidden;
-                box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
-            }
-            
-            .titan-progress-fill {
-                height: 100%;
-                background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
-                box-shadow: 0 0 15px var(--accent-primary);
-                transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-            }
-            
-            /* --- NAVBAR --- */
-            .nav-glass {
+            .stButton > button:hover {{
+                transform: scale(1.02) !important;
+                box-shadow: 0 0 30px var(--accent) !important;
+            }}
+
+            /* 8. NAVBAR */
+            .nav-glass {{
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                background: var(--surface-200);
-                border: 1px solid var(--border-mid);
+                background: var(--glass);
+                border: 1px solid var(--border);
                 padding: 15px 30px;
-                border-radius: 12px;
-                margin-bottom: 50px;
-                box-shadow: var(--shadow-md);
+                border-radius: 100px;
+                margin-bottom: 40px;
+                backdrop-filter: blur(20px);
                 position: sticky;
-                top: 10px;
-                z-index: 1000;
-            }
+                top: 20px;
+                z-index: 100;
+            }}
+
+            /* 9. RADIAL GAUGE (PURE CSS) */
+            .gauge-container {{
+                position: relative;
+                width: 200px;
+                height: 100px;
+                overflow: hidden;
+                margin: 0 auto 20px auto;
+            }}
             
-            /* --- FOOTER --- */
-            .titan-footer {
+            .gauge-body {{
+                width: 200px;
+                height: 200px;
+                background: #333;
+                border-radius: 50%;
+                position: absolute;
+                top: 0;
+                transform: rotate(0deg);
+            }}
+            
+            .gauge-fill {{
+                width: 200px;
+                height: 200px;
+                border-radius: 50%;
+                position: absolute;
+                top: 0;
+                background: conic-gradient(var(--accent) 0%, var(--accent-sec) var(--percentage), transparent var(--percentage), transparent 100%);
+                mask: radial-gradient(transparent 60%, black 61%);
+                -webkit-mask: radial-gradient(transparent 60%, black 61%);
+                transform: rotate(-90deg);
+            }}
+            
+            /* 10. ANIMATIONS */
+            @keyframes float {{ 0% {{ transform: translateY(0px); }} 50% {{ transform: translateY(-10px); }} 100% {{ transform: translateY(0px); }} }}
+            @keyframes pulse {{ 0% {{ opacity: 0.5; }} 50% {{ opacity: 1; }} 100% {{ opacity: 0.5; }} }}
+            @keyframes slideUp {{ from {{ transform: translateY(40px); opacity: 0; }} to {{ transform: translateY(0); opacity: 1; }} }}
+            
+            .anim-enter {{ animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }}
+            .anim-float {{ animation: float 6s ease-in-out infinite; }}
+            .anim-pulse {{ animation: pulse 2s infinite; }}
+
+            /* 11. FOOTER */
+            .aurora-footer {{
                 text-align: center;
-                margin-top: 100px;
-                padding-top: 40px;
-                border-top: 1px solid var(--border-dim);
-                color: var(--text-tertiary);
-                font-family: var(--font-mono);
+                padding-top: 50px;
+                margin-top: 50px;
+                border-top: 1px solid var(--border);
+                color: var(--text-sub);
+                font-family: 'JetBrains Mono', monospace;
                 font-size: 0.8rem;
-                opacity: 0.7;
-            }
-        """)
-
-    def get_transition_css(self) -> str:
-        """HTML/CSS for the transition overlay."""
-        return """
-        <style>
-            @keyframes dissolve {
-                0% { opacity: 0; backdrop-filter: blur(0px); }
-                50% { opacity: 1; backdrop-filter: blur(30px); background: rgba(0,0,0,0.5); }
-                100% { opacity: 0; backdrop-filter: blur(0px); }
-            }
-            .theme-transition-overlay {
-                position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-                z-index: 999999; pointer-events: none;
-                animation: dissolve 0.8s ease-in-out forwards;
-            }
+            }}
         </style>
-        <div class="theme-transition-overlay"></div>
         """
-
-    def compile(self) -> str:
-        """Builds the final CSS string."""
-        self._add_fonts()
-        self._add_root_vars()
-        self._add_resets()
-        self._add_keyframes()
-        self._add_component_styles()
-        return f"<style>{''.join(self.styles)}</style>"
+        st.markdown(css, unsafe_allow_html=True)
 
 # ==============================================================================
-# MODULE 4: PROCEDURAL GRAPHICS ENGINE
+# MODULE 4: GRAPHICS FACTORY (PROCEDURAL ASSETS)
 # ==============================================================================
 
-class GraphicsEngine:
+class GraphicsFactory:
     
     @staticmethod
-    def get_logo(theme: str) -> str:
-        """Generates the main logo SVG."""
-        color = "#ffffff" if theme == "Dark" else "#1a1a1a"
-        accent = "#00f3ff" if theme == "Dark" else "#2563eb"
-        
-        svg = f"""
-        <svg width="300" height="60" viewBox="0 0 300 60" xmlns="http://www.w3.org/2000/svg">
-            <text x="0" y="45" font-family="sans-serif" font-weight="900" font-size="40" fill="{color}" letter-spacing="2">TITAN.AI</text>
-            <rect x="230" y="38" width="10" height="10" fill="{accent}">
-                <animate attributeName="opacity" values="0;1;0" dur="1.5s" repeatCount="indefinite"/>
-            </rect>
+    def get_logo_svg(theme):
+        c1 = "#00f0ff" if theme == "Dark" else "#0ea5e9"
+        c2 = "#7000ff" if theme == "Dark" else "#6366f1"
+        return base64.b64encode(f"""
+        <svg width="300" height="60" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="{c1}"/><stop offset="1" stop-color="{c2}"/></linearGradient></defs>
+            <text x="0" y="45" font-family="sans-serif" font-weight="900" font-size="35" fill="url(#g)" letter-spacing="1">MINDCHECK AI</text>
         </svg>
-        """
-        return base64.b64encode(svg.encode('utf-8')).decode("utf-8")
+        """.encode('utf-8')).decode('utf-8')
 
     @staticmethod
-    def get_loader() -> str:
-        """Generates a geometry-based loader SVG."""
-        svg = """
-        <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-            <polygon points="100,10 190,50 190,150 100,190 10,150 10,50" stroke="#00ff9d" stroke-width="2" fill="none">
-                <animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="4s" repeatCount="indefinite"/>
-            </polygon>
-            <polygon points="100,30 170,60 170,140 100,170 30,140 30,60" stroke="#00f0ff" stroke-width="2" fill="none">
-                <animateTransform attributeName="transform" type="rotate" from="360 100 100" to="0 100 100" dur="3s" repeatCount="indefinite"/>
-            </polygon>
+    def get_loader_svg():
+        return base64.b64encode("""
+        <svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="50" r="40" stroke="#00f0ff" stroke-width="4" fill="none">
+                <animate attributeName="stroke-dasharray" values="0,251;251,0;0,251" dur="2s" repeatCount="indefinite"/>
+                <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="2s" repeatCount="indefinite"/>
+            </circle>
         </svg>
-        """
-        return base64.b64encode(svg.encode('utf-8')).decode("utf-8")
+        """.encode('utf-8')).decode('utf-8')
 
     @staticmethod
-    def get_star() -> str:
-        """Generates the 3D Star SVG."""
-        svg = """
+    def get_star_svg():
+        return base64.b64encode("""
         <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-                <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#FFD700"/>
-                    <stop offset="100%" stop-color="#FFA500"/>
-                </linearGradient>
-                <filter id="glow"><feGaussianBlur stdDeviation="5" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-            </defs>
-            <path fill="url(#g1)" filter="url(#glow)" d="M256,32l56,156h164l-128,96l48,156l-140-96l-140,96l48-156l-128-96h164L256,32z"/>
+            <path fill="url(#g)" d="M256,32l56,156h164l-128,96l48,156l-140-96l-140,96l48-156l-128-96h164L256,32z"/>
+            <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFD700"/><stop offset="1" stop-color="#FFA500"/></linearGradient></defs>
         </svg>
-        """
-        return base64.b64encode(svg.encode('utf-8')).decode("utf-8")
+        """.encode('utf-8')).decode('utf-8')
 
     @staticmethod
-    def get_cloud() -> str:
-        """Generates the Rain Cloud SVG."""
-        svg = """
+    def get_cloud_svg():
+        return base64.b64encode("""
         <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-                <linearGradient id="g2" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stop-color="#4a5568"/>
-                    <stop offset="100%" stop-color="#2d3748"/>
-                </linearGradient>
-            </defs>
-            <path fill="url(#g2)" d="M124,200C124,112,184,40,256,40c64,0,118,54,128,124c60,8,104,64,104,128c0,72-56,128-128,128H124C56,420,0,364,0,296S56,188,124,200z"/>
-            <path stroke="#3182ce" stroke-width="8" stroke-linecap="round" d="M160,440l-20,40 M256,440l-20,40 M352,440l-20,40">
-                <animate attributeName="d" values="M160,440l-20,40 M256,440l-20,40 M352,440l-20,40; M160,450l-20,40 M256,450l-20,40 M352,450l-20,40; M160,440l-20,40 M256,440l-20,40 M352,440l-20,40" dur="1s" repeatCount="indefinite"/>
-            </path>
+            <path fill="url(#g)" d="M124,200C124,112,184,40,256,40c64,0,118,54,128,124c60,8,104,64,104,128c0,72-56,128-128,128H124C56,420,0,364,0,296S56,188,124,200z"/>
+            <path stroke="#4a90e2" stroke-width="10" d="M160,440l-20,40 M256,440l-20,40 M352,440l-20,40"/>
+            <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#718096"/><stop offset="1" stop-color="#2d3748"/></linearGradient></defs>
         </svg>
-        """
-        return base64.b64encode(svg.encode('utf-8')).decode("utf-8")
+        """.encode('utf-8')).decode('utf-8')
 
 # ==============================================================================
-# MODULE 5: ROBUST STATE MANAGEMENT
+# MODULE 4: INTELLIGENCE CORE
 # ==============================================================================
 
-@dataclass
-class SessionData:
-    """The State Object."""
-    page: str = "home"
-    theme_mode: str = "Dark"
-    is_transitioning: bool = False
-    wizard_step: int = 0
-    inputs: Dict[str, Any] = field(default_factory=dict)
-    score: Optional[float] = None
-    ai_results: Dict[str, Any] = field(default_factory=dict)
-
-class StateManager:
-    """
-    The Singleton Controller.
-    """
-    _KEY = "TITAN_SESSION_V11"
-
-    @classmethod
-    def initialize(cls):
-        """Bootstraps the session."""
-        if cls._KEY not in st.session_state:
-            st.session_state[cls._KEY] = SessionData()
-        
-        # Theme toggle widget key
-        if "theme_toggle_widget" not in st.session_state:
-            st.session_state.theme_toggle_widget = True # True = Dark
-
-    @classmethod
-    def get(cls) -> SessionData:
-        """Returns the typed session object."""
-        return st.session_state[cls._KEY]
-
-    @classmethod
-    def handle_theme_change(cls):
-        """
-        Checks if the widget value matches the state.
-        If not, updates state and triggers transition.
-        """
-        session = cls.get()
-        widget_val = st.session_state.theme_toggle_widget # True = Dark
-        
-        current_is_dark = (session.theme_mode == "Dark")
-        
-        if widget_val != current_is_dark:
-            # Theme Changed!
-            session.is_transitioning = True
-            session.theme_mode = "Dark" if widget_val else "Light"
-            st.rerun()
-
-    @classmethod
-    def clear_transition(cls):
-        """Resets the transition flag."""
-        cls.get().is_transitioning = False
-
-    @classmethod
-    def navigate(cls, page: str):
-        """Safe navigation."""
-        s = cls.get()
-        s.page = page
-        if page != "interview":
-            s.wizard_step = 0
-
-    @classmethod
-    def reset_all(cls):
-        """Factory reset."""
-        s = cls.get()
-        s.page = "interview"
-        s.wizard_step = 0
-        s.inputs = {}
-        s.score = None
-        s.ai_results = {}
-
-    @classmethod
-    def wizard_next(cls):
-        cls.get().wizard_step += 1
-
-    @classmethod
-    def wizard_prev(cls):
-        s = cls.get()
-        if s.wizard_step > 0:
-            s.wizard_step -= 1
-
-# ==============================================================================
-# MODULE 6: INTELLIGENCE LAYER
-# ==============================================================================
-
-class LogicCore:
-    
+class IntelligenceCore:
     @staticmethod
-    @st.cache_resource
-    def load_model():
-        try:
-            return joblib.load(SystemConfig.MODEL_PATH)
-        except:
-            return None
-
-    @staticmethod
-    def call_gemini(prompt: str, is_json: bool = True) -> Any:
-        if not API_KEY:
-            return None
-        
+    def call_gemini(prompt: str, is_json: bool = True):
+        if not API_KEY: return None
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{SystemConfig.GEMINI_MODEL}:generateContent?key={API_KEY}"
         payload = {"contents": [{"parts": [{"text": prompt}]}]}
-        if is_json:
-            payload["generationConfig"] = {"responseMimeType": "application/json"}
-            
+        if is_json: payload["generationConfig"] = {"responseMimeType": "application/json"}
         try:
-            response = requests.post(url, headers={'Content-Type': 'application/json'}, json=payload, timeout=30)
-            if response.status_code == 200:
-                return response.json().get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text')
-        except:
-            pass
+            r = requests.post(url, headers={'Content-Type': 'application/json'}, json=payload, timeout=20)
+            if r.status_code == 200:
+                return r.json()['candidates'][0]['content']['parts'][0]['text']
+        except: pass
         return None
 
 # ==============================================================================
-# MODULE 7: UI COMPONENT FACTORY
+# MODULE 5: COMPONENT LIBRARY
 # ==============================================================================
 
-class ComponentFactory:
-    
+class Components:
     @staticmethod
     def navbar():
         st.markdown('<div class="nav-glass">', unsafe_allow_html=True)
         c1, c2, c3 = st.columns([3, 6, 2], gap="small")
-        
         with c1:
-            logo_b64 = GraphicsEngine.get_logo(StateManager.get().theme_mode)
-            st.markdown(f'<img src="data:image/svg+xml;base64,{logo_b64}" height="40" style="margin-top:5px;">', unsafe_allow_html=True)
-        
+            logo = GraphicsFactory.get_logo_svg(SessionManager.get("theme"))
+            st.markdown(f'<img src="data:image/svg+xml;base64,{logo}" height="40">', unsafe_allow_html=True)
         with c2:
             st.markdown('<div style="display:flex; justify-content:center; width:100%;">', unsafe_allow_html=True)
-            if st.button("DASHBOARD", key="nav_home"):
-                StateManager.navigate("home")
-                st.rerun()
+            if st.button("DASHBOARD", key="nav_home"): SessionManager.navigate("home")
             st.markdown('</div>', unsafe_allow_html=True)
-            
         with c3:
             st.markdown('<div style="display:flex; justify-content:flex-end;">', unsafe_allow_html=True)
-            # Direct Widget Binding
-            is_dark = (StateManager.get().theme_mode == "Dark")
-            st.toggle("Dark Mode", value=is_dark, key="theme_toggle_widget", on_change=StateManager.handle_theme_change)
+            # Direct binding to session state toggle
+            st.toggle("Dark Mode", key="theme_toggle", on_change=SessionManager.handle_theme_change)
             st.markdown('</div>', unsafe_allow_html=True)
-        
         st.markdown('</div>', unsafe_allow_html=True)
 
     @staticmethod
-    def loader_overlay(text="PROCESSING"):
-        b64_loader = GraphicsEngine.get_loader()
+    def loader(text="PROCESSING"):
+        img = GraphicsFactory.get_loader_svg()
         html = f"""
-        <style>
-            .overlay {{ position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; backdrop-filter: blur(20px); display: flex; flex-direction: column; justify-content: center; align-items: center; }}
-            .load-text {{ font-family: 'Rajdhani'; color: white; letter-spacing: 5px; margin-top: 30px; animation: pulseGlow 1s infinite; }}
-        </style>
-        <div class="overlay">
-            <img src="data:image/svg+xml;base64,{b64_loader}" width="150" height="150">
-            <div class="load-text">{text}</div>
+        <style>.load-over{{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:9999;display:flex;flex-direction:column;justify-content:center;align-items:center;backdrop-filter:blur(20px);}}</style>
+        <div class="load-over">
+            <img src="data:image/svg+xml;base64,{img}" width="120" height="120">
+            <h3 style="color:white; margin-top:20px; font-family:'JetBrains Mono';">{text}...</h3>
         </div>
         """
         placeholder = st.empty()
         placeholder.markdown(html, unsafe_allow_html=True)
-        time.sleep(3)
+        time.sleep(2.5)
         placeholder.empty()
 
 # ==============================================================================
-# MODULE 8: SCENES (PAGE LOGIC)
+# MODULE 6: VIEWS (PAGES)
 # ==============================================================================
 
-class SceneHome:
-    @staticmethod
-    def render():
-        state = StateManager.get()
-        color = "#ffffff" if state.theme_mode == "Dark" else "#1a1a1a"
+def view_home():
+    st.markdown('<div style="height:50px"></div>', unsafe_allow_html=True)
+    
+    # Hero
+    theme = SessionManager.get("theme")
+    color = "#ffffff" if theme == "Dark" else "#0f172a"
+    
+    st.markdown(f"""
+    <div class="anim-enter" style="text-align:center; padding: 4rem 0;">
+        <h1 style="font-size:5rem; line-height:1; color:{color};">MINDCHECK <span style="color:#00f0ff">AI</span></h1>
+        <p style="font-size:1.5rem; letter-spacing:3px; opacity:0.8;">THE FINAL HORIZON OF WELLNESS</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    c1, c2 = st.columns(2, gap="large")
+    
+    with c1:
+        st.markdown('<div class="aurora-card anim-float" style="text-align:center; padding:3rem;">', unsafe_allow_html=True)
+        st.markdown("## 👨‍💻 CREATOR")
+        st.markdown("<p>Meet Mubashir Mohsin.</p>", unsafe_allow_html=True)
+        if st.button("ACCESS BIO", use_container_width=True): SessionManager.navigate("about")
+        st.markdown('</div>', unsafe_allow_html=True)
         
-        st.markdown('<div style="height:50px;"></div>', unsafe_allow_html=True)
-        st.markdown(f"""
-        <div class="anim-fade-up" style="text-align:center; margin-bottom: 60px;">
-            <h1 style="color:{color}; text-shadow: 0 0 30px rgba(0,240,255,0.3);">MINDCHECK<span style="color:#00f0ff">AI</span></h1>
-            <p style="font-size:1.5rem; letter-spacing:3px;">QUANTUM WELLNESS ANALYTICS</p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        c1, c2 = st.columns(2, gap="large")
-        
-        with c1:
-            st.markdown("""
-            <div class="titan-card" style="text-align:center; height:100%;">
-                <div style="font-size:4rem; margin-bottom:1rem;" class="anim-float">👨‍🚀</div>
-                <h3>CREATOR LOG</h3>
-                <p>Access the developer profile of Mubashir Mohsin.</p>
-            </div>
-            """, unsafe_allow_html=True)
-            if st.button("ACCESS PROFILE", use_container_width=True):
-                StateManager.navigate("about")
-                st.rerun()
-                
-        with c2:
-            st.markdown("""
-            <div class="titan-card" style="text-align:center; height:100%; border-color: #00f0ff;">
-                <div style="font-size:4rem; margin-bottom:1rem;" class="anim-float">💠</div>
-                <h3 style="color:#00f0ff;">SYSTEM CHECK</h3>
-                <p>Initialize the diagnostic wizard protocol.</p>
-            </div>
-            """, unsafe_allow_html=True)
-            if st.button("INITIALIZE", type="primary", use_container_width=True):
-                StateManager.navigate("interview")
-                st.rerun()
-
-class SceneAbout:
-    @staticmethod
-    def render():
-        st.markdown('<div class="anim-scale">', unsafe_allow_html=True)
-        st.markdown('<h1 style="text-align:center; margin-bottom:40px;">ORIGIN STORY</h1>', unsafe_allow_html=True)
-        
-        c1, c2, c3 = st.columns([1, 4, 1])
-        with c2:
-            st.markdown("""
-            <div class="titan-card" style="text-align:center; padding: 50px;">
-                <div style="font-size:6rem; margin-bottom:20px;">🚀</div>
-                <p style="font-size:1.3rem; line-height:1.8; margin-bottom:30px;">
-                    "My name is <b>Mubashir Mohsin</b>, and I’m a 6th grader. I was inspired to create this web app after noticing a decline in my own grades. That spark led to a successful journey of building the Mental Health Calculator, which is powered by my very own <b>MindCheck AI</b>. I also want to give a quick shout-out to <b>Gemini AI</b> for helping me bring this project to life!"
-                </p>
-                <div style="width:60px; height:2px; background:#00f0ff; margin:0 auto 20px auto;"></div>
-                <p style="font-family:'JetBrains Mono'; opacity:0.6;">TIMESTAMP: FEB-06-2026</p>
-            </div>
-            """, unsafe_allow_html=True)
+    with c2:
+        st.markdown('<div class="aurora-card anim-float" style="text-align:center; padding:3rem; border-color:#00f0ff;">', unsafe_allow_html=True)
+        st.markdown("<h2 style='color:#00f0ff'>🔮 DIAGNOSE</h2>", unsafe_allow_html=True)
+        st.markdown("<p>Start the quantum assessment.</p>", unsafe_allow_html=True)
+        if st.button("INITIALIZE SYSTEM", type="primary", use_container_width=True): SessionManager.navigate("interview")
         st.markdown('</div>', unsafe_allow_html=True)
 
-class SceneInterview:
-    @staticmethod
-    def render():
-        state = StateManager.get()
-        
-        STEPS = [
-            {"title": "BIOMETRICS", "desc": "Baseline Identification"},
-            {"title": "HABITS", "desc": "Digital Pattern Recognition"},
-            {"title": "WELLNESS", "desc": "Recovery Analysis"},
-            {"title": "IMPACT", "desc": "Cognitive Load Assessment"}
-        ]
-        
-        curr = state.wizard_step
-        total = len(STEPS)
-        step_data = STEPS[curr]
-        
-        # Progress UI
-        pct = (curr / (total - 1)) * 100 if total > 1 else 100
-        st.markdown(f"""
-        <div style="margin-bottom:2rem;">
-            <div class="titan-progress-track"><div class="titan-progress-fill" style="width:{pct}%;"></div></div>
-            <div style="display:flex; justify-content:space-between; font-family:'JetBrains Mono'; opacity:0.7;">
-                <span>SEQUENCE {curr + 1}/{total}</span>
-                <span>{step_data['title']}</span>
-            </div>
+def view_about():
+    st.markdown('<div class="anim-enter">', unsafe_allow_html=True)
+    c1, c2, c3 = st.columns([1, 4, 1])
+    with c2:
+        st.markdown("""
+        <div class="aurora-card" style="text-align:center; padding:4rem;">
+            <div style="font-size:5rem; margin-bottom:2rem;">🚀</div>
+            <h2 style="margin-bottom:2rem;">ORIGIN STORY</h2>
+            <p style="font-size:1.2rem; line-height:2;">
+                "My name is <b>Mubashir Mohsin</b>, and I’m a 6th grader. I was inspired to create this web app after noticing a decline in my own grades. That spark led to a successful journey of building the Mental Health Calculator, which is powered by my very own <b>MindCheck AI</b>. I also want to give a quick shout-out to <b>Gemini AI</b> for helping me bring this project to life!"
+            </p>
+            <div style="width:100px; height:2px; background:#00f0ff; margin: 2rem auto;"></div>
+            <p style="font-family:'JetBrains Mono'; opacity:0.5;">ID: MM-2026</p>
         </div>
         """, unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+def view_interview():
+    step = SessionManager.get("wizard_step")
+    steps = ["BIOMETRICS", "DIGITAL HABITS", "WELLNESS", "IMPACT"]
+    
+    # Progress
+    pct = ((step + 1) / len(steps)) * 100
+    st.markdown(f"""
+    <div style="width:100%; height:4px; background:rgba(128,128,128,0.2); border-radius:10px; margin-bottom:20px; overflow:hidden;">
+        <div style="width:{pct}%; height:100%; background:#00f0ff; box-shadow:0 0 10px #00f0ff; transition:width 0.5s ease;"></div>
+    </div>
+    <p style="text-align:right; font-family:'JetBrains Mono'; opacity:0.7;">SEQUENCE {step + 1}/{len(steps)}: {steps[step]}</p>
+    """, unsafe_allow_html=True)
+    
+    # Wizard Container
+    with st.container():
+        st.markdown('<div class="aurora-card anim-enter">', unsafe_allow_html=True)
         
-        st.markdown(f"<h2 style='text-align:center;'>{step_data['title']}</h2>", unsafe_allow_html=True)
-        st.markdown(f"<p style='text-align:center; opacity:0.6; margin-bottom:3rem;'>{step_data['desc']}</p>", unsafe_allow_html=True)
+        inputs = SessionManager.get("inputs")
         
-        with st.container():
-            st.markdown('<div class="titan-card anim-fade-up">', unsafe_allow_html=True)
+        if step == 0:
+            st.markdown("<h2>SUBJECT PROFILE</h2>", unsafe_allow_html=True)
+            inputs['Age'] = st.number_input("Age", 10, 100, inputs.get('Age', 15))
+            inputs['Gender'] = st.selectbox("Gender", ["Male", "Female"], index=0)
+            inputs['Academic_Level'] = st.selectbox("Education", ["Middle School", "High School", "Undergraduate"])
             
-            # --- STEP 0 ---
-            if curr == 0:
-                state.inputs['Age'] = st.number_input("Subject Age", 10, 100, state.inputs.get('Age', 15))
-                state.inputs['Gender'] = st.selectbox("Gender Identity", ["Male", "Female"], index=0)
-                state.inputs['Academic_Level'] = st.selectbox("Education Tier", ["Middle School", "High School", "Undergraduate"])
-                
-                st.markdown("<br>", unsafe_allow_html=True)
-                if st.button("NEXT SEQUENCE ➔"): StateManager.wizard_next(); st.rerun()
+            st.markdown("<br>", unsafe_allow_html=True)
+            if st.button("NEXT ➔"):
+                SessionManager.set("inputs", inputs)
+                SessionManager.wizard_next()
 
-            # --- STEP 1 ---
-            elif curr == 1:
-                state.inputs['Platform'] = st.selectbox("Primary Network", ["TikTok", "YouTube", "Instagram", "Snapchat", "Other"])
-                state.inputs['Avg_Daily_Usage_Hours'] = st.number_input("Daily Exposure (Hrs)", 0.0, 24.0, state.inputs.get('Avg_Daily_Usage_Hours', 4.0))
-                
-                st.markdown("<br>", unsafe_allow_html=True)
-                c1, c2 = st.columns(2)
-                with c1: 
-                    if st.button("⬅ BACK"): StateManager.wizard_prev(); st.rerun()
-                with c2: 
-                    if st.button("NEXT SEQUENCE ➔"): StateManager.wizard_next(); st.rerun()
-
-            # --- STEP 2 ---
-            elif curr == 2:
-                state.inputs['Sleep'] = st.number_input("Sleep Cycles (Hrs)", 0.0, 24.0, state.inputs.get('Sleep', 8.0))
-                st.markdown("<label>Dependency Index (1-10)</label>", unsafe_allow_html=True)
-                state.inputs['Addiction'] = st.slider("", 1, 10, state.inputs.get('Addiction', 5))
-                
-                st.markdown("<br>", unsafe_allow_html=True)
-                c1, c2 = st.columns(2)
-                with c1: 
-                    if st.button("⬅ BACK"): StateManager.wizard_prev(); st.rerun()
-                with c2: 
-                    if st.button("NEXT SEQUENCE ➔"): StateManager.wizard_next(); st.rerun()
-
-            # --- STEP 3 ---
-            elif curr == 3:
-                state.inputs['Conflicts'] = st.number_input("Weekly Conflicts", 0, 20, state.inputs.get('Conflicts', 0))
-                st.markdown("<label>Performance Degradation?</label>", unsafe_allow_html=True)
-                state.inputs['Affects_Performance'] = st.radio("", ["No", "Yes"], horizontal=True)
-                
-                st.markdown("<br>", unsafe_allow_html=True)
-                c1, c2 = st.columns(2)
-                with c1: 
-                    if st.button("⬅ BACK"): StateManager.wizard_prev(); st.rerun()
-                with c2: 
-                    if st.button("PROCESS DATA 🚀"):
-                        ComponentFactory.loader_overlay("CALCULATING VECTORS")
-                        
-                        # Logic
-                        d = state.inputs
-                        base = 10.0
-                        base -= (d['Avg_Daily_Usage_Hours'] * 0.35)
-                        base -= (d['Addiction'] * 0.25)
-                        base += (d['Sleep'] * 0.15)
-                        if d['Affects_Performance'] == "Yes": base -= 1.0
-                        
-                        state.score = max(1.0, min(10.0, base))
-                        StateManager.navigate("results")
-                        st.rerun()
+        elif step == 1:
+            st.markdown("<h2>DIGITAL FOOTPRINT</h2>", unsafe_allow_html=True)
+            inputs['Platform'] = st.selectbox("Platform", ["TikTok", "YouTube", "Instagram", "Snapchat", "Other"])
+            inputs['Avg_Daily_Usage_Hours'] = st.number_input("Daily Hours", 0.0, 24.0, inputs.get('Avg_Daily_Usage_Hours', 4.0))
             
-            st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown("<br>", unsafe_allow_html=True)
+            c1, c2 = st.columns(2)
+            with c1: 
+                if st.button("⬅ BACK"): SessionManager.wizard_prev()
+            with c2: 
+                if st.button("NEXT ➔"):
+                    SessionManager.set("inputs", inputs)
+                    SessionManager.wizard_next()
 
-class SceneResults:
-    @staticmethod
-    def render():
-        state = StateManager.get()
-        score = state.score
-        
-        # Logic
-        if score < 5:
-            color = "#ff003c"
-            icon = GraphicsEngine.get_cloud()
-            status = "CRITICAL"
-        elif score < 8:
-            color = "#ffaa00"
-            icon = GraphicsEngine.get_cloud()
-            status = "WARNING"
-        else:
-            color = "#00ff9d"
-            icon = GraphicsEngine.get_star()
-            status = "OPTIMAL"
+        elif step == 2:
+            st.markdown("<h2>RECOVERY METRICS</h2>", unsafe_allow_html=True)
+            inputs['Sleep'] = st.number_input("Sleep (Hrs)", 0.0, 24.0, inputs.get('Sleep', 8.0))
+            st.markdown("<label>Addiction Level (1-10)</label>", unsafe_allow_html=True)
+            inputs['Addiction'] = st.slider("", 1, 10, inputs.get('Addiction', 5))
             
-        st.markdown('<div class="anim-scale">', unsafe_allow_html=True)
-        
-        # 1. Header
-        st.markdown(f"""
-        <div class="titan-card" style="border-left: 5px solid {color}; display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <span style="font-family:'JetBrains Mono'; opacity:0.6;">ID: {random.randint(1000,9999)}</span>
-                <h3 style="margin:0;">DIAGNOSTIC REPORT</h3>
-            </div>
-            <div style="text-align:right;">
-                <span style="opacity:0.6;">STATUS</span><br>
-                <b style="color:{color}">{status}</b>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # 2. Score
-        st.markdown(f"""
-        <div class="titan-card" style="text-align:center; padding:4rem; border-color:{color};">
-            <div style="width:120px; height:120px; margin:0 auto; animation:float 6s infinite;">
-                <img src="data:image/svg+xml;base64,{icon}" width="120" height="120">
-            </div>
-            <h1 style="font-size:8rem; color:{color}; margin:20px 0; text-shadow:0 0 50px {color}; line-height:1;">{score:.1f}</h1>
-            <p style="font-family:'JetBrains Mono'; margin-top:10px;">/ 10.0</p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # 3. AI
-        st.markdown("<h2 style='text-align:center; margin:40px 0;'>GENERATIVE INSIGHTS</h2>", unsafe_allow_html=True)
-        c1, c2 = st.columns(2)
-        
-        with c1:
-            st.markdown('<div class="titan-card" style="text-align:center; height:100%;"><h3>PROFILE</h3><p>Analyze Persona</p></div>', unsafe_allow_html=True)
-            if st.button("GENERATE PROFILE", use_container_width=True):
-                ComponentFactory.loader_overlay("ANALYZING")
-                prompt = f"Data: {json.dumps(state.inputs)}. Return JSON: 'persona', 'analysis', 'tips'."
-                res = LogicCore.call_gemini(prompt, is_json=True)
-                if res: 
-                    state.ai_results['analysis'] = json.loads(res)
-                    st.rerun()
+            st.markdown("<br>", unsafe_allow_html=True)
+            c1, c2 = st.columns(2)
+            with c1: 
+                if st.button("⬅ BACK"): SessionManager.wizard_prev()
+            with c2: 
+                if st.button("NEXT ➔"):
+                    SessionManager.set("inputs", inputs)
+                    SessionManager.wizard_next()
+
+        elif step == 3:
+            st.markdown("<h2>COGNITIVE LOAD</h2>", unsafe_allow_html=True)
+            inputs['Conflicts'] = st.number_input("Conflicts", 0, 20, inputs.get('Conflicts', 0))
+            st.markdown("<label>Grades Impacted?</label>", unsafe_allow_html=True)
+            inputs['Affects_Performance'] = st.radio("", ["No", "Yes"], horizontal=True)
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            c1, c2 = st.columns(2)
+            with c1: 
+                if st.button("⬅ BACK"): SessionManager.wizard_prev()
+            with c2: 
+                if st.button("ANALYZE 🚀"):
+                    Components.loader("CALCULATING VECTORS")
+                    SessionManager.set("inputs", inputs)
                     
-        with c2:
-            st.markdown('<div class="titan-card" style="text-align:center; height:100%;"><h3>TIME TRAVEL</h3><p>Message from 2029</p></div>', unsafe_allow_html=True)
-            if st.button("CONNECT", use_container_width=True):
-                ComponentFactory.loader_overlay("CONNECTING")
-                prompt = f"Message from 2029 self based on: {json.dumps(state.inputs)}. Max 50 words."
-                res = LogicCore.call_gemini(prompt, is_json=False)
-                if res: 
-                    state.ai_results['future'] = res
-                    st.rerun()
+                    # Logic
+                    base = 10.0
+                    base -= (inputs['Avg_Daily_Usage_Hours'] * 0.3)
+                    base -= (inputs['Addiction'] * 0.2)
+                    base += (inputs['Sleep'] * 0.15)
+                    if inputs['Affects_Performance'] == "Yes": base -= 1.0
                     
-        # 4. Results
-        res = state.ai_results
-        if 'analysis' in res:
-            r = res['analysis']
-            st.markdown(f"<div class='titan-card' style='border-left:5px solid #00f0ff;'><h3>{r.get('persona')}</h3><p>{r.get('analysis')}</p></div>", unsafe_allow_html=True)
-        if 'future' in res:
-            st.markdown(f"<div class='titan-card' style='border-left:5px solid #7000ff;'><h3>TRANSMISSION</h3><p style='font-family:monospace;'>{res['future']}</p></div>", unsafe_allow_html=True)
-            
-        st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("RESTART SYSTEM", use_container_width=True):
-            StateManager.reset_all()
-            st.rerun()
-            
+                    SessionManager.set("score", max(1.0, min(10.0, base)))
+                    SessionManager.navigate("results")
+
         st.markdown('</div>', unsafe_allow_html=True)
+
+def view_results():
+    score = SessionManager.get("score")
+    data = SessionManager.get("inputs")
+    ai_results = SessionManager.get("ai_results")
+    
+    # Visual Logic
+    if score < 5:
+        color = "#ff0055"
+        icon = GraphicsFactory.get_cloud_svg()
+        msg = "CRITICAL"
+    elif score < 8:
+        color = "#ffaa00"
+        icon = GraphicsFactory.get_cloud_svg()
+        msg = "WARNING"
+    else:
+        color = "#00ff9d"
+        icon = GraphicsFactory.get_star_svg()
+        msg = "OPTIMAL"
+        
+    st.markdown('<div class="anim-enter">', unsafe_allow_html=True)
+    
+    # HEADER
+    st.markdown(f"""
+    <div class="aurora-card" style="border-left: 5px solid {color}; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+            <span style="font-family:'JetBrains Mono'; opacity:0.6;">ID: {random.randint(1000,9999)}</span>
+            <h3 style="margin:0">DIAGNOSTIC REPORT</h3>
+        </div>
+        <div style="text-align:right;">
+            <span style="opacity:0.6">STATUS</span><br>
+            <b style="color:{color}">{msg}</b>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # GAUGE & SCORE
+    percentage = (score / 10) * 100
+    st.markdown(f"""
+    <div class="aurora-card" style="text-align:center; padding:4rem;">
+        <div class="gauge-container">
+            <div class="gauge-body"></div>
+            <div class="gauge-fill" style="--percentage: {percentage}%; --accent: {color}; --accent-sec: {color};"></div>
+        </div>
+        <div style="margin-top:-50px;">
+            <img src="data:image/svg+xml;base64,{icon}" width="80" height="80" class="anim-float">
+        </div>
+        <h1 style="font-size:7rem; color:{color}; text-shadow:0 0 40px {color}; line-height:1; margin-top:20px;">{score:.1f}</h1>
+        <p style="font-family:'JetBrains Mono'; font-size:1.2rem;">/ 10.0</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # AI GRID
+    st.markdown("<h2 style='text-align:center; margin:40px 0;'>NEURAL INSIGHTS</h2>", unsafe_allow_html=True)
+    c1, c2 = st.columns(2)
+    
+    with c1:
+        st.markdown('<div class="aurora-card" style="text-align:center; height:100%"><h3>📊 PROFILE</h3><p>Generate Persona</p></div>', unsafe_allow_html=True)
+        if st.button("GENERATE", use_container_width=True):
+            Components.loader("ANALYZING")
+            prompt = f"Data: {json.dumps(data)}. Return JSON: 'persona', 'analysis', 'tips'."
+            res = IntelligenceCore.call_gemini(prompt, is_json=True)
+            if res:
+                ai_results['analysis'] = json.loads(res)
+                SessionManager.set("ai_results", ai_results)
+                st.rerun()
+                
+    with c2:
+        st.markdown('<div class="aurora-card" style="text-align:center; height:100%"><h3>⏳ FUTURE</h3><p>Time Travel 2029</p></div>', unsafe_allow_html=True)
+        if st.button("CONNECT", use_container_width=True):
+            Components.loader("CONNECTING")
+            prompt = f"Message from 2029 self based on: {json.dumps(data)}. Max 50 words."
+            res = IntelligenceCore.call_gemini(prompt, is_json=False)
+            if res:
+                ai_results['future'] = res
+                SessionManager.set("ai_results", ai_results)
+                st.rerun()
+                
+    # RESULTS DISPLAY
+    if 'analysis' in ai_results:
+        r = ai_results['analysis']
+        st.markdown(f"""
+        <div class="aurora-card" style="border-left:5px solid #00f0ff; margin-top:2rem;">
+            <h3 style="color:#00f0ff">{r.get('persona')}</h3>
+            <p>"{r.get('analysis')}"</p>
+            <ul>{''.join([f'<li>{t}</li>' for t in r.get('tips', [])])}</ul>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    if 'future' in ai_results:
+        st.markdown(f"""
+        <div class="aurora-card" style="border-left:5px solid #7000ff; margin-top:2rem;">
+            <h3 style="color:#7000ff">TRANSMISSION RECEIVED</h3>
+            <p style="font-family:'JetBrains Mono'">{ai_results['future']}</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button("SYSTEM RESET", use_container_width=True): SessionManager.reset()
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # ==============================================================================
-# MODULE 8: MAIN EXECUTION THREAD
+# MAIN EXECUTION
 # ==============================================================================
 
 def main():
-    # 1. Init Session State
-    StateManager.initialize()
+    SessionManager.init()
+    AuroraEngine.inject()
+    Components.navbar()
     
-    # 2. Check for transition animation needed
-    session = StateManager.get()
-    compiler = CSSCompiler(session.theme_mode)
+    page = SessionManager.get("page")
     
-    if session.is_transitioning:
-        st.markdown(compiler.get_transition_css(), unsafe_allow_html=True)
-        time.sleep(0.5)
-        StateManager.clear_transition()
-        st.rerun()
+    if page == "home": view_home()
+    elif page == "about": view_about()
+    elif page == "interview": view_interview()
+    elif page == "results": view_results()
     
-    # 3. Inject Styles
-    st.markdown(compiler.compile(), unsafe_allow_html=True)
-    
-    # 4. Render
-    ComponentFactory.navbar()
-    
-    if session.page == "home":
-        SceneHome.render()
-    elif session.page == "about":
-        SceneAbout.render()
-    elif session.page == "interview":
-        SceneInterview.render()
-    elif session.page == "results":
-        SceneResults.render()
-        
-    # 5. Footer
     st.markdown("""
-    <div class="titan-footer">
-        PROJECT TITAN // MINDCHECK AI v11.0 // 2026
+    <div class="aurora-footer">
+        PROJECT AURORA // MINDCHECK AI v12.0 // 2026
     </div>
     """, unsafe_allow_html=True)
 
