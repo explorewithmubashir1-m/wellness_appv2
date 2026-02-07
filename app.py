@@ -6,14 +6,14 @@
 # | |    | | \ \| |__| | |__| | |___| |____   | |     / /__ | |____| |\  |_| |_   | |  | |  | |
 # |_|    |_|  \_\\____/ \____/|______\_____|  |_|    /_____||______|_| \_|_____|  |_|  |_|  |_|
 # 
-#  PROJECT ZENITH: THE CRYSTAL EDITION (BUILD v13.0.0)
+#  PROJECT ZENITH: ADAPTIVE CORE (BUILD v14.0.0)
 # ==============================================================================
-#  SYSTEM:       MindCheck AI (Zenith Class)
-#  VERSION:      13.0.0 (High-Fidelity Update)
+#  SYSTEM:       MindCheck AI (Zenith Adaptive Class)
+#  VERSION:      14.0.0 (Device Optimization Update)
 #  ARCHITECT:    Mubashir Mohsin & Gemini (Neural Core)
-#  ENGINE:       Crystal-CSS Compiler v13.5 (Optimized for Readability)
+#  ENGINE:       Crystal-CSS Compiler v14.2 + Device Matrix
 #  DATE:         February 6, 2026
-#  STATUS:       STABLE // PRODUCTION READY
+#  STATUS:       PRODUCTION READY
 # ==============================================================================
 
 import streamlit as st
@@ -34,12 +34,10 @@ from typing import List, Dict, Any, Optional
 # ==============================================================================
 # MODULE 1: SYSTEM CONFIGURATION
 # ==============================================================================
-# Immutable settings defining the application environment.
-# ==============================================================================
 
 class SystemConfig:
     APP_NAME = "MindCheck AI"
-    VERSION = "13.0.0"
+    VERSION = "14.0.0"
     AUTHOR = "Mubashir Mohsin"
     MODEL_PATH = 'mental_health_model.joblib'
     GEMINI_MODEL = 'gemini-2.5-flash'
@@ -47,7 +45,6 @@ class SystemConfig:
     # UI Constants
     LAYOUT = "wide"
     SIDEBAR = "collapsed"
-    ANIMATION_SPEED = 0.3
 
 # Initialize Streamlit Page
 st.set_page_config(
@@ -66,18 +63,17 @@ API_KEY = st.secrets.get("GEMINI_API_KEY", None)
 # ==============================================================================
 # MODULE 2: ROBUST STATE MANAGEMENT
 # ==============================================================================
-# Handles session persistence with a focus on stability.
-# ==============================================================================
 
 class SessionManager:
     """
     Centralized controller for st.session_state.
-    Ensures type safety and prevents key errors.
+    Includes Device Profile Management.
     """
     
     DEFAULTS = {
         "page": "home",
-        "theme": "Dark", # Default preference
+        "theme": "Dark", 
+        "device_type": None, # None means selection screen is active
         "inputs": {},
         "score": None,
         "ai_results": {},
@@ -87,37 +83,36 @@ class SessionManager:
 
     @staticmethod
     def init():
-        """Bootstraps session state variables."""
         for key, val in SessionManager.DEFAULTS.items():
             if key not in st.session_state:
                 st.session_state[key] = val
                 
-        # Widget specific state for the toggle
         if "theme_toggle" not in st.session_state:
-            # Sync widget with logical state
             st.session_state.theme_toggle = True if st.session_state.theme == "Dark" else False
 
     @staticmethod
     def get(key):
-        """Safe getter."""
         return st.session_state.get(key)
 
     @staticmethod
     def set(key, value):
-        """Safe setter."""
         st.session_state[key] = value
 
     @staticmethod
     def handle_theme_change():
-        """Callback: Maps widget state to logical theme state."""
         if st.session_state.theme_toggle:
             st.session_state.theme = "Dark"
         else:
             st.session_state.theme = "Light"
 
     @staticmethod
+    def set_device(device: str):
+        """Sets the optimization profile and reloads."""
+        st.session_state.device_type = device
+        st.rerun()
+
+    @staticmethod
     def navigate(page):
-        """Router logic."""
         st.session_state.page = page
         if page != "interview":
             st.session_state.wizard_step = 0
@@ -125,20 +120,17 @@ class SessionManager:
 
     @staticmethod
     def wizard_next():
-        """Advances assessment flow."""
         st.session_state.wizard_step += 1
         st.rerun()
 
     @staticmethod
     def wizard_prev():
-        """Reverses assessment flow."""
         if st.session_state.wizard_step > 0:
             st.session_state.wizard_step -= 1
             st.rerun()
 
     @staticmethod
     def reset():
-        """Factory reset for a new user session."""
         st.session_state.inputs = {}
         st.session_state.score = None
         st.session_state.ai_results = {}
@@ -147,28 +139,24 @@ class SessionManager:
         st.rerun()
 
 # ==============================================================================
-# MODULE 3: THE CRYSTAL VISUAL ENGINE (CSS)
-# ==============================================================================
-# A massive, modular CSS generator designed for maximum readability and beauty.
+# MODULE 3: THE CRYSTAL VISUAL ENGINE (ADAPTIVE CSS)
 # ==============================================================================
 
 class CrystalEngine:
     
     @classmethod
     def _get_tokens(cls, theme: str) -> Dict[str, str]:
-        """Returns semantic color tokens based on the active theme."""
         if theme == "Dark":
             return {
-                # --- ZENITH DARK (High Contrast) ---
-                "bg_root": "#020617", # Deep Slate
+                "bg_root": "#020617",
                 "bg_grad": "radial-gradient(circle at 50% 0%, #1e1b4b 0%, #020617 80%)",
-                "surface": "rgba(15, 23, 42, 0.85)", # High Opacity for Readability
+                "surface": "rgba(15, 23, 42, 0.85)",
                 "surface_highlight": "rgba(30, 41, 59, 0.9)",
                 "border": "rgba(99, 102, 241, 0.2)",
                 "text_main": "#f8fafc",
                 "text_sub": "#cbd5e1",
-                "accent": "#22d3ee", # Cyan
-                "accent_sec": "#818cf8", # Indigo
+                "accent": "#22d3ee",
+                "accent_sec": "#818cf8",
                 "input_bg": "#0f172a",
                 "input_text": "#ffffff",
                 "glass_blur": "20px",
@@ -176,16 +164,15 @@ class CrystalEngine:
             }
         else:
             return {
-                # --- ZENITH LIGHT (Clean Aero) ---
                 "bg_root": "#f8fafc",
                 "bg_grad": "linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)",
-                "surface": "rgba(255, 255, 255, 0.9)", # Almost Opaque
+                "surface": "rgba(255, 255, 255, 0.9)",
                 "surface_highlight": "#ffffff",
                 "border": "rgba(203, 213, 225, 0.8)",
                 "text_main": "#0f172a",
                 "text_sub": "#475569",
-                "accent": "#0ea5e9", # Sky Blue
-                "accent_sec": "#6366f1", # Violet
+                "accent": "#0ea5e9",
+                "accent_sec": "#6366f1",
                 "input_bg": "#ffffff",
                 "input_text": "#0f172a",
                 "glass_blur": "25px",
@@ -193,178 +180,74 @@ class CrystalEngine:
             }
 
     @classmethod
+    def _device_overrides(cls, device: str) -> str:
+        """
+        Injects CSS optimization based on the selected device.
+        """
+        if device == "Phone":
+            return """
+            /* --- PHONE OPTIMIZATIONS --- */
+            .block-container { max-width: 100% !important; padding: 1rem !important; }
+            h1 { font-size: 3rem !important; margin-bottom: 0.5rem !important; }
+            h2 { font-size: 2rem !important; }
+            .zenith-card { padding: 1.5rem !important; border-radius: 16px !important; margin-bottom: 1rem !important; }
+            .stButton > button { padding: 1.2rem 1rem !important; font-size: 1rem !important; border-radius: 12px !important; }
+            .zenith-nav { flex-direction: column; gap: 10px; padding: 15px !important; border-radius: 20px !important; }
+            """
+        elif device == "Tablet":
+            return """
+            /* --- TABLET OPTIMIZATIONS --- */
+            .block-container { max-width: 900px !important; padding: 2rem !important; }
+            h1 { font-size: 4rem !important; }
+            .zenith-card { padding: 2rem !important; }
+            """
+        else: # Laptop/PC
+            return """
+            /* --- DESKTOP OPTIMIZATIONS --- */
+            .block-container { max-width: 1200px !important; }
+            """
+
+    @classmethod
     def _typography(cls, t: Dict[str, str]) -> str:
         return f"""
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
-        
-        h1, h2, h3, h4, h5, h6 {{
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            color: {t['text_main']};
-            font-weight: 800;
-            letter-spacing: -0.02em;
-        }}
-        
-        h1 {{ font-size: 4.5rem; line-height: 1.1; margin-bottom: 1rem; }}
-        h2 {{ font-size: 2.5rem; margin-bottom: 1.5rem; }}
+        h1, h2, h3, h4, h5, h6 {{ font-family: 'Plus Jakarta Sans', sans-serif; color: {t['text_main']}; weight: 800; letter-spacing: -0.02em; }}
+        h1 {{ line-height: 1.1; margin-bottom: 1rem; }}
         h3 {{ font-size: 1.5rem; color: {t['accent']}; text-transform: uppercase; letter-spacing: 2px; }}
-        
-        p, li, span, label {{
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            color: {t['text_sub']};
-            font-size: 1.05rem;
-            line-height: 1.6;
-        }}
-        
+        p, li, span, label {{ font-family: 'Plus Jakarta Sans', sans-serif; color: {t['text_sub']}; font-size: 1.05rem; line-height: 1.6; }}
         .code-font {{ font-family: 'JetBrains Mono', monospace; }}
         """
 
     @classmethod
     def _containers(cls, t: Dict[str, str]) -> str:
         return f"""
-        .stApp {{
-            background-color: {t['bg_root']};
-            background-image: {t['bg_grad']};
-            background-attachment: fixed;
-            background-size: cover;
-        }}
-        
-        .block-container {{
-            padding-top: 2rem;
-            padding-bottom: 6rem;
-            max-width: 1200px;
-        }}
-        
-        /* --- CRYSTAL CARD --- */
-        .zenith-card {{
-            background: {t['surface']};
-            border: 1px solid {t['border']};
-            border-radius: 24px;
-            padding: 3rem;
-            backdrop-filter: blur({t['glass_blur']});
-            -webkit-backdrop-filter: blur({t['glass_blur']});
-            box-shadow: {t['shadow']};
-            margin-bottom: 2rem;
-            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
-        }}
-        
-        .zenith-card:hover {{
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-            border-color: {t['accent']};
-        }}
+        .stApp {{ background-color: {t['bg_root']}; background-image: {t['bg_grad']}; background-attachment: fixed; background-size: cover; }}
+        .zenith-card {{ background: {t['surface']}; border: 1px solid {t['border']}; border-radius: 24px; padding: 3rem; backdrop-filter: blur({t['glass_blur']}); -webkit-backdrop-filter: blur({t['glass_blur']}); box-shadow: {t['shadow']}; margin-bottom: 2rem; transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease; }}
+        .zenith-card:hover {{ transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.2); border-color: {t['accent']}; }}
         """
 
     @classmethod
     def _inputs(cls, t: Dict[str, str]) -> str:
         return f"""
-        /* --- HIGH CONTRAST INPUTS --- */
-        .stTextInput > div > div > input,
-        .stNumberInput > div > div > input {{
-            background-color: {t['input_bg']} !important;
-            color: {t['input_text']} !important;
-            border: 1px solid {t['border']} !important;
-            border-radius: 12px !important;
-            padding: 16px !important;
-            font-weight: 500 !important;
-            font-family: 'JetBrains Mono', monospace !important;
-        }}
-        
-        .stTextInput > div > div > input:focus,
-        .stNumberInput > div > div > input:focus {{
-            border-color: {t['accent']} !important;
-            box-shadow: 0 0 0 3px {t['accent']}33 !important;
-        }}
-        
-        /* Select Boxes */
-        .stSelectbox > div > div > div {{
-            background-color: {t['input_bg']} !important;
-            color: {t['input_text']} !important;
-            border: 1px solid {t['border']} !important;
-            border-radius: 12px !important;
-        }}
-        
-        /* Dropdown Options */
-        div[data-baseweb="popover"], div[data-baseweb="menu"] {{
-            background-color: {t['surface_highlight']} !important;
-            border: 1px solid {t['border']} !important;
-        }}
-        
-        div[role="option"] {{
-            color: {t['input_text']} !important;
-        }}
-        
-        div[role="option"]:hover {{
-            background-color: {t['accent']} !important;
-            color: #ffffff !important;
-        }}
+        .stTextInput > div > div > input, .stNumberInput > div > div > input {{ background-color: {t['input_bg']} !important; color: {t['input_text']} !important; border: 1px solid {t['border']} !important; border-radius: 12px !important; padding: 16px !important; font-weight: 500 !important; font-family: 'JetBrains Mono', monospace !important; }}
+        .stTextInput > div > div > input:focus, .stNumberInput > div > div > input:focus {{ border-color: {t['accent']} !important; box-shadow: 0 0 0 3px {t['accent']}33 !important; }}
+        .stSelectbox > div > div > div {{ background-color: {t['input_bg']} !important; color: {t['input_text']} !important; border: 1px solid {t['border']} !important; border-radius: 12px !important; }}
+        div[data-baseweb="popover"], div[data-baseweb="menu"] {{ background-color: {t['surface_highlight']} !important; border: 1px solid {t['border']} !important; }}
+        div[role="option"] {{ color: {t['input_text']} !important; }}
+        div[role="option"]:hover {{ background-color: {t['accent']} !important; color: #ffffff !important; }}
         """
 
     @classmethod
     def _components(cls, t: Dict[str, str]) -> str:
         return f"""
-        /* --- BUTTONS --- */
-        .stButton > button {{
-            width: 100%;
-            background: linear-gradient(135deg, {t['accent']} 0%, {t['accent_sec']} 100%) !important;
-            color: #ffffff !important;
-            border: none !important;
-            border-radius: 16px !important;
-            padding: 1rem 2rem !important;
-            font-weight: 700 !important;
-            letter-spacing: 1px !important;
-            text-transform: uppercase !important;
-            transition: all 0.2s ease !important;
-            box-shadow: 0 4px 12px {t['accent']}44 !important;
-        }}
-        
-        .stButton > button:hover {{
-            transform: translateY(-2px) !important;
-            box-shadow: 0 8px 20px {t['accent']}66 !important;
-        }}
-        
-        /* --- NAVBAR --- */
-        .zenith-nav {{
-            background: {t['surface']};
-            border: 1px solid {t['border']};
-            backdrop-filter: blur({t['glass_blur']});
-            padding: 15px 30px;
-            border-radius: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 4rem;
-            position: sticky;
-            top: 20px;
-            z-index: 999;
-            box-shadow: {t['shadow']};
-        }}
-        
-        /* --- PROGRESS BAR --- */
-        .zenith-progress-track {{
-            width: 100%; height: 8px; background: {t['border']};
-            border-radius: 10px; margin: 2rem 0; overflow: hidden;
-        }}
-        .zenith-progress-fill {{
-            height: 100%; background: {t['accent']};
-            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 10px {t['accent']};
-        }}
-        
-        /* --- GAUGE (CSS ONLY) --- */
-        .gauge-wrapper {{
-            position: relative; width: 220px; height: 110px; margin: 0 auto; overflow: hidden;
-        }}
-        .gauge-bg {{
-            width: 220px; height: 220px; border-radius: 50%; background: {t['border']};
-        }}
-        .gauge-value {{
-            width: 220px; height: 220px; border-radius: 50%;
-            background: conic-gradient({t['accent']} 0%, {t['accent_sec']} var(--p), transparent var(--p));
-            mask: radial-gradient(transparent 65%, black 66%);
-            -webkit-mask: radial-gradient(transparent 65%, black 66%);
-            transform: rotate(-90deg);
-            position: absolute; top: 0; left: 0;
-        }}
+        .stButton > button {{ width: 100%; background: linear-gradient(135deg, {t['accent']} 0%, {t['accent_sec']} 100%) !important; color: #ffffff !important; border: none !important; border-radius: 16px !important; padding: 1rem 2rem !important; font-weight: 700 !important; letter-spacing: 1px !important; text-transform: uppercase !important; transition: all 0.2s ease !important; box-shadow: 0 4px 12px {t['accent']}44 !important; }}
+        .stButton > button:hover {{ transform: translateY(-2px) !important; box-shadow: 0 8px 20px {t['accent']}66 !important; }}
+        .zenith-nav {{ background: {t['surface']}; border: 1px solid {t['border']}; backdrop-filter: blur({t['glass_blur']}); padding: 15px 30px; border-radius: 100px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 4rem; position: sticky; top: 20px; z-index: 999; box-shadow: {t['shadow']}; }}
+        .zenith-progress-track {{ width: 100%; height: 8px; background: {t['border']}; border-radius: 10px; margin: 2rem 0; overflow: hidden; }}
+        .zenith-progress-fill {{ height: 100%; background: {t['accent']}; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 10px {t['accent']}; }}
+        .gauge-wrapper {{ position: relative; width: 220px; height: 110px; margin: 0 auto; overflow: hidden; }}
+        .gauge-bg {{ width: 220px; height: 220px; border-radius: 50%; background: {t['border']}; }}
+        .gauge-value {{ width: 220px; height: 220px; border-radius: 50%; background: conic-gradient({t['accent']} 0%, {t['accent_sec']} var(--p), transparent var(--p)); mask: radial-gradient(transparent 65%, black 66%); -webkit-mask: radial-gradient(transparent 65%, black 66%); transform: rotate(-90deg); position: absolute; top: 0; left: 0; }}
         """
 
     @classmethod
@@ -373,7 +256,6 @@ class CrystalEngine:
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
-        
         .anim-enter { animation: slideUp 0.6s ease-out forwards; }
         .anim-float { animation: float 6s ease-in-out infinite; }
         .anim-pulse { animation: pulse 2s infinite; }
@@ -382,26 +264,17 @@ class CrystalEngine:
     @classmethod
     def inject(cls):
         theme = st.session_state.theme
+        device = st.session_state.device_type
         tokens = cls._get_tokens(theme)
         
         css_block = f"""
         <style>
-            /* --- 1. TYPOGRAPHY --- */
             {cls._typography(tokens)}
-            
-            /* --- 2. CONTAINERS & LAYOUT --- */
             {cls._containers(tokens)}
-            
-            /* --- 3. INPUTS --- */
             {cls._inputs(tokens)}
-            
-            /* --- 4. COMPONENTS --- */
             {cls._components(tokens)}
-            
-            /* --- 5. ANIMATIONS --- */
             {cls._animations()}
-            
-            /* --- 6. UTILS --- */
+            {cls._device_overrides(device) if device else ""}
             #MainMenu, footer, header {{ visibility: hidden; }}
             .stDeployButton {{ display: none; }}
         </style>
@@ -409,7 +282,7 @@ class CrystalEngine:
         st.markdown(css_block, unsafe_allow_html=True)
 
 # ==============================================================================
-# MODULE 4: PROCEDURAL GRAPHICS (ASSET GENERATOR)
+# MODULE 4: PROCEDURAL GRAPHICS
 # ==============================================================================
 
 class AssetFactory:
@@ -480,7 +353,6 @@ class Components:
             st.markdown('</div>', unsafe_allow_html=True)
         with c3:
             st.markdown('<div style="display:flex; justify-content:flex-end;">', unsafe_allow_html=True)
-            # Direct binding
             st.toggle("Dark Mode", key="theme_toggle", on_change=SessionManager.handle_theme_change)
             st.markdown('</div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
@@ -501,6 +373,38 @@ class Components:
 # ==============================================================================
 # MODULE 7: SCENES (PAGES)
 # ==============================================================================
+
+def view_device_selection():
+    """Initial landing page for device optimization."""
+    # Force full screen aesthetics via basic inject
+    st.markdown("""
+    <style>
+    .stApp { background-color: #020617; color: white; font-family: 'Plus Jakarta Sans', sans-serif; }
+    .device-card {
+        background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(99, 102, 241, 0.3);
+        border-radius: 20px; padding: 2rem; text-align: center; cursor: pointer;
+        transition: transform 0.2s, background 0.2s;
+    }
+    .device-card:hover { transform: scale(1.05); background: rgba(99, 102, 241, 0.2); }
+    h1 { text-align: center; margin-bottom: 3rem; font-size: 3rem; }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("<h1>SELECT INTERFACE</h1>", unsafe_allow_html=True)
+    
+    c1, c2, c3 = st.columns(3, gap="medium")
+    
+    with c1:
+        st.markdown('<div class="device-card"><h1>📱</h1><h3>PHONE</h3><p>Optimized for Touch</p></div>', unsafe_allow_html=True)
+        if st.button("SELECT PHONE", use_container_width=True): SessionManager.set_device("Phone")
+    
+    with c2:
+        st.markdown('<div class="device-card"><h1>💻</h1><h3>LAPTOP</h3><p>Full Fidelity</p></div>', unsafe_allow_html=True)
+        if st.button("SELECT LAPTOP", use_container_width=True): SessionManager.set_device("Laptop")
+        
+    with c3:
+        st.markdown('<div class="device-card"><h1>📟</h1><h3>TABLET</h3><p>Balanced Layout</p></div>', unsafe_allow_html=True)
+        if st.button("SELECT TABLET", use_container_width=True): SessionManager.set_device("Tablet")
 
 def view_home():
     st.markdown('<div style="height:50px"></div>', unsafe_allow_html=True)
@@ -747,21 +651,28 @@ def view_results():
 
 def main():
     SessionManager.init()
-    CrystalEngine.inject()
-    Components.navbar()
     
-    page = SessionManager.get("page")
+    # Logic Flow: Device Selection -> Navbar+App
+    device = SessionManager.get("device_type")
     
-    if page == "home": view_home()
-    elif page == "about": view_about()
-    elif page == "interview": view_interview()
-    elif page == "results": view_results()
-    
-    st.markdown("""
-    <div class="aurora-footer" style="text-align:center; opacity:0.5; margin-top:50px;">
-        PROJECT ZENITH // MINDCHECK AI v13.0 // 2026
-    </div>
-    """, unsafe_allow_html=True)
+    if device is None:
+        view_device_selection()
+    else:
+        CrystalEngine.inject()
+        Components.navbar()
+        
+        page = SessionManager.get("page")
+        
+        if page == "home": view_home()
+        elif page == "about": view_about()
+        elif page == "interview": view_interview()
+        elif page == "results": view_results()
+        
+        st.markdown("""
+        <div class="aurora-footer" style="text-align:center; opacity:0.5; margin-top:50px;">
+            PROJECT ZENITH // MINDCHECK AI v14.0 // 2026
+        </div>
+        """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
