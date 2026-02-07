@@ -2,13 +2,12 @@
 # PROJECT: MINDCHECK AI - AETHER OS EDITION (ULTIMATE BUILD)
 # ==============================================================================
 # AUTHOR: Mubashir Mohsin & Gemini (AI Architect)
-# VERSION: 5.0.0 (The Singularity Update)
+# VERSION: 5.0.1 (Stable Release)
 # DATE: 2026-02-06
 # ENGINE: Hyper-CSS v9.0 + Streamlit Custom Components
 # DESCRIPTION: A quantum-leap in UI/UX design for mental health analytics.
 #              Features a dedicated CSS engine, object-oriented state management,
 #              and a step-by-step wizard interface.
-#Lines of Code Goal: High Volume / High Complexity / High Beauty
 # ==============================================================================
 
 import streamlit as st
@@ -441,10 +440,6 @@ class SessionManager:
 # Handles ML Model loading and Gemini API communication.
 # ==============================================================================
 
-# ==============================================================================
-# PART 4: BACKEND LOGIC & AI INTEGRATION (CORRECTED)
-# ==============================================================================
-
 class LogicEngine:
     
     @staticmethod
@@ -474,51 +469,14 @@ class LogicEngine:
         return max(1.0, min(10.0, score))
 
     @staticmethod
-    def call_gemini(prompt: str, is_json: bool = True) -> Any:  # <--- FIXED NAME HERE
+    def call_gemini(prompt: str, is_json: bool = True) -> Any:
         if not API_KEY:
             return None
         
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{SYSTEM_CONFIG['GEMINI_MODEL']}:generateContent?key={API_KEY}"
         payload = {"contents": [{"parts": [{"text": prompt}]}]}
         
-        if is_json: # <--- Updated reference
-            payload["generationConfig"] = {"responseMimeType": "application/json"}
-            
-        try:
-            response = requests.post(url, headers={'Content-Type': 'application/json'}, json=payload, timeout=25)
-            if response.status_code == 200:
-                text = response.json().get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text')
-                return text
-        except Exception as e:
-            # Silent failure in prod, or st.error(e) in dev
-            pass
-        return None
-    def calculate_fallback_score(data: Dict[str, Any]) -> float:
-        """
-        Calculates score if ML model fails.
-        Algorithm: Base 10 - Penalties + Sleep Bonus
-        """
-        usage = data.get('Avg_Daily_Usage_Hours', 4.0)
-        addiction = data.get('Addiction', 5.0)
-        sleep = data.get('Sleep', 8.0)
-        
-        score = 10.0
-        score -= (usage * 0.35)
-        score -= (addiction * 0.25)
-        score += (sleep * 0.1) # Small bonus for good sleep
-        
-        # Clamp between 1.0 and 10.0
-        return max(1.0, min(10.0, score))
-
-    @staticmethod
-    def call_gemini(prompt: str, expect_json: bool = True) -> Any:
-        if not API_KEY:
-            return None
-        
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{SYSTEM_CONFIG['GEMINI_MODEL']}:generateContent?key={API_KEY}"
-        payload = {"contents": [{"parts": [{"text": prompt}]}]}
-        
-        if expect_json:
+        if is_json:
             payload["generationConfig"] = {"responseMimeType": "application/json"}
             
         try:
