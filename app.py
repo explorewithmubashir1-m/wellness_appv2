@@ -643,7 +643,7 @@ class SceneController:
                 <p style="margin-bottom: 2rem;">Meet Mubashir Mohsin and the origin story.</p>
             </div>
             """, unsafe_allow_html=True)
-            if st.button("ACCESS BIO", use_container_width=True):
+            if st.button("READ STORY", use_container_width=True):
                 SessionManager.navigate("about")
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
