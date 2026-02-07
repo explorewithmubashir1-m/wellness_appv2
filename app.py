@@ -1,19 +1,19 @@
 # ==============================================================================
-#  _____  _____   ____       _ ______ _____ _______   ______ ______ _   _ _____ _______ _    _ 
-# |  __ \|  __ \ / __ \     | |  ____/ ____|__   __| |___  /|  ____| \ | |_   _|__   __| |  | |
-# | |__) | |__) | |  | |    | | |__ | |       | |       / / | |__  |  \| | | |    | |  | |__| |
-# |  ___/|  _  /| |  | |_   | |  __|| |       | |      / /  |  __| | . ` | | |    | |  |  __  |
-# | |    | | \ \| |__| | |__| | |___| |____   | |     / /__ | |____| |\  |_| |_   | |  | |  | |
-# |_|    |_|  \_\\____/ \____/|______\_____|  |_|    /_____||______|_| \_|_____|  |_|  |_|  |_|
+#           _____ _______ _    _ ______ _____  _____ _    _  _____ 
+#     /\   |  ___|__   __| |  | |  ____|  __ \|_   _| |  | |/ ____|
+#    /  \  | |__    | |  | |__| | |__  | |__) | | | | |  | | (___  
+#   / /\ \ |  __|   | |  |  __  |  __| |  _  /  | | | |  | |\___ \ 
+#  / ____ \| |____  | |  | |  | | |____| | \ \ _| |_| |__| |____) |
+# /_/    \_\______| |_|  |_|  |_|______|_|  \_\_____|\____/|_____/ 
 # 
-#  PROJECT ZENITH: ADAPTIVE CORE (BUILD v14.0.0)
+#  PROJECT AETHERIUS: THE DIAMOND CUT (BUILD v15.0.0)
 # ==============================================================================
-#  SYSTEM:       MindCheck AI (Zenith Adaptive Class)
-#  VERSION:      14.0.0 (Device Optimization Update)
+#  SYSTEM:       MindCheck AI (Aetherius Class)
+#  VERSION:      15.0.0 (Final Polish)
 #  ARCHITECT:    Mubashir Mohsin & Gemini (Neural Core)
-#  ENGINE:       Crystal-CSS Compiler v14.2 + Device Matrix
+#  ENGINE:       Diamond-CSS Compiler v15.5
 #  DATE:         February 6, 2026
-#  STATUS:       PRODUCTION READY
+#  STATUS:       GOLD MASTER
 # ==============================================================================
 
 import streamlit as st
@@ -37,7 +37,7 @@ from typing import List, Dict, Any, Optional
 
 class SystemConfig:
     APP_NAME = "MindCheck AI"
-    VERSION = "14.0.0"
+    VERSION = "15.0.0"
     AUTHOR = "Mubashir Mohsin"
     MODEL_PATH = 'mental_health_model.joblib'
     GEMINI_MODEL = 'gemini-2.5-flash'
@@ -46,14 +46,14 @@ class SystemConfig:
     LAYOUT = "wide"
     SIDEBAR = "collapsed"
 
-# Initialize Streamlit Page
+# Initialize Streamlit Page (MUST BE FIRST)
 st.set_page_config(
     page_title=SystemConfig.APP_NAME,
-    page_icon="🧠",
+    page_icon="💎",
     layout=SystemConfig.LAYOUT,
     initial_sidebar_state=SystemConfig.SIDEBAR,
     menu_items={
-        'About': f"### {SystemConfig.APP_NAME} v{SystemConfig.VERSION}\nPowered by Project Zenith."
+        'About': f"### {SystemConfig.APP_NAME} v{SystemConfig.VERSION}\nPowered by Project Aetherius."
     }
 )
 
@@ -107,7 +107,9 @@ class SessionManager:
 
     @staticmethod
     def set_device(device: str):
-        """Sets the optimization profile and reloads."""
+        """Sets the optimization profile with a fake loading delay for polish."""
+        with st.spinner(f"OPTIMIZING NEURAL INTERFACE FOR {device.upper()}..."):
+            time.sleep(1.2)
         st.session_state.device_type = device
         st.rerun()
 
@@ -139,44 +141,52 @@ class SessionManager:
         st.rerun()
 
 # ==============================================================================
-# MODULE 3: THE CRYSTAL VISUAL ENGINE (ADAPTIVE CSS)
+# MODULE 3: THE DIAMOND VISUAL ENGINE (CSS)
 # ==============================================================================
 
-class CrystalEngine:
+class DiamondEngine:
     
     @classmethod
     def _get_tokens(cls, theme: str) -> Dict[str, str]:
         if theme == "Dark":
             return {
-                "bg_root": "#020617",
-                "bg_grad": "radial-gradient(circle at 50% 0%, #1e1b4b 0%, #020617 80%)",
-                "surface": "rgba(15, 23, 42, 0.85)",
-                "surface_highlight": "rgba(30, 41, 59, 0.9)",
-                "border": "rgba(99, 102, 241, 0.2)",
-                "text_main": "#f8fafc",
-                "text_sub": "#cbd5e1",
-                "accent": "#22d3ee",
-                "accent_sec": "#818cf8",
-                "input_bg": "#0f172a",
+                # --- AETHERIUS DARK (Deep Space) ---
+                "bg_root": "#000000",
+                "bg_grad": "radial-gradient(circle at 50% -20%, #2e1065 0%, #000000 100%)",
+                "surface": "rgba(20, 20, 25, 0.7)", 
+                "surface_highlight": "rgba(40, 40, 50, 0.8)",
+                "border": "rgba(255, 255, 255, 0.1)",
+                "border_hover": "rgba(255, 255, 255, 0.3)",
+                "text_main": "#ffffff",
+                "text_sub": "#94a3b8",
+                "accent": "#00f0ff", # Cyan
+                "accent_sec": "#7000ff", # Neon Violet
+                "input_bg": "#0a0a0a",
                 "input_text": "#ffffff",
-                "glass_blur": "20px",
-                "shadow": "0 8px 32px rgba(0,0,0,0.4)"
+                "glass_blur": "30px",
+                "shadow": "0 20px 50px rgba(0,0,0,0.5)",
+                "scroll_thumb": "#333333",
+                "scroll_track": "#000000"
             }
         else:
             return {
-                "bg_root": "#f8fafc",
-                "bg_grad": "linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)",
-                "surface": "rgba(255, 255, 255, 0.9)",
+                # --- AETHERIUS LIGHT (Diamond) ---
+                "bg_root": "#ffffff",
+                "bg_grad": "radial-gradient(circle at 50% -20%, #e0f2fe 0%, #f8fafc 100%)",
+                "surface": "rgba(255, 255, 255, 0.75)", 
                 "surface_highlight": "#ffffff",
-                "border": "rgba(203, 213, 225, 0.8)",
+                "border": "rgba(255, 255, 255, 1)",
+                "border_hover": "#bae6fd",
                 "text_main": "#0f172a",
-                "text_sub": "#475569",
-                "accent": "#0ea5e9",
-                "accent_sec": "#6366f1",
+                "text_sub": "#64748b",
+                "accent": "#0ea5e9", # Sky Blue
+                "accent_sec": "#6366f1", # Indigo
                 "input_bg": "#ffffff",
                 "input_text": "#0f172a",
                 "glass_blur": "25px",
-                "shadow": "0 8px 32px rgba(148, 163, 184, 0.15)"
+                "shadow": "0 20px 50px rgba(14, 165, 233, 0.15)",
+                "scroll_thumb": "#cbd5e1",
+                "scroll_track": "#f1f5f9"
             }
 
     @classmethod
@@ -187,76 +197,254 @@ class CrystalEngine:
         if device == "Phone":
             return """
             /* --- PHONE OPTIMIZATIONS --- */
-            .block-container { max-width: 100% !important; padding: 1rem !important; }
-            h1 { font-size: 3rem !important; margin-bottom: 0.5rem !important; }
+            .block-container { max-width: 100% !important; padding: 1rem 0.5rem !important; }
+            h1 { font-size: 3.5rem !important; margin-bottom: 0.5rem !important; line-height: 1 !important; }
             h2 { font-size: 2rem !important; }
-            .zenith-card { padding: 1.5rem !important; border-radius: 16px !important; margin-bottom: 1rem !important; }
-            .stButton > button { padding: 1.2rem 1rem !important; font-size: 1rem !important; border-radius: 12px !important; }
-            .zenith-nav { flex-direction: column; gap: 10px; padding: 15px !important; border-radius: 20px !important; }
+            .aether-card { padding: 1.5rem !important; border-radius: 20px !important; margin-bottom: 1rem !important; }
+            .stButton > button { padding: 1.2rem 1rem !important; font-size: 1.1rem !important; border-radius: 16px !important; }
+            .aether-nav { flex-direction: column; gap: 15px; padding: 20px !important; border-radius: 24px !important; }
             """
         elif device == "Tablet":
             return """
             /* --- TABLET OPTIMIZATIONS --- */
             .block-container { max-width: 900px !important; padding: 2rem !important; }
-            h1 { font-size: 4rem !important; }
-            .zenith-card { padding: 2rem !important; }
+            h1 { font-size: 5rem !important; }
+            .aether-card { padding: 2.5rem !important; }
             """
         else: # Laptop/PC
             return """
             /* --- DESKTOP OPTIMIZATIONS --- */
-            .block-container { max-width: 1200px !important; }
+            .block-container { max-width: 1400px !important; }
             """
 
     @classmethod
     def _typography(cls, t: Dict[str, str]) -> str:
         return f"""
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
-        h1, h2, h3, h4, h5, h6 {{ font-family: 'Plus Jakarta Sans', sans-serif; color: {t['text_main']}; weight: 800; letter-spacing: -0.02em; }}
-        h1 {{ line-height: 1.1; margin-bottom: 1rem; }}
-        h3 {{ font-size: 1.5rem; color: {t['accent']}; text-transform: uppercase; letter-spacing: 2px; }}
-        p, li, span, label {{ font-family: 'Plus Jakarta Sans', sans-serif; color: {t['text_sub']}; font-size: 1.05rem; line-height: 1.6; }}
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@200;400;600;800&family=Space+Grotesk:wght@300;500;700&family=JetBrains+Mono:wght@400;700&display=swap');
+        
+        h1, h2, h3, h4, h5, h6 {{
+            font-family: 'Outfit', sans-serif;
+            color: {t['text_main']};
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            text-transform: uppercase;
+        }}
+        
+        h1 {{ font-size: 6rem; line-height: 0.9; margin-bottom: 1.5rem; text-shadow: 0 4px 30px rgba(0,0,0,0.1); }}
+        h2 {{ font-size: 3rem; margin-bottom: 2rem; }}
+        h3 {{ font-size: 1.5rem; color: {t['accent']}; letter-spacing: 2px; }}
+        
+        p, li, span, label {{
+            font-family: 'Space Grotesk', sans-serif;
+            color: {t['text_sub']};
+            font-size: 1.1rem;
+            line-height: 1.7;
+            font-weight: 400;
+        }}
+        
         .code-font {{ font-family: 'JetBrains Mono', monospace; }}
+        
+        /* Selection Highlight */
+        ::selection {{
+            background: {t['accent']};
+            color: #ffffff;
+        }}
         """
 
     @classmethod
     def _containers(cls, t: Dict[str, str]) -> str:
         return f"""
-        .stApp {{ background-color: {t['bg_root']}; background-image: {t['bg_grad']}; background-attachment: fixed; background-size: cover; }}
-        .zenith-card {{ background: {t['surface']}; border: 1px solid {t['border']}; border-radius: 24px; padding: 3rem; backdrop-filter: blur({t['glass_blur']}); -webkit-backdrop-filter: blur({t['glass_blur']}); box-shadow: {t['shadow']}; margin-bottom: 2rem; transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease; }}
-        .zenith-card:hover {{ transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.2); border-color: {t['accent']}; }}
+        .stApp {{
+            background-color: {t['bg_root']};
+            background-image: {t['bg_grad']};
+            background-attachment: fixed;
+            background-size: cover;
+        }}
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {{ width: 8px; height: 8px; }}
+        ::-webkit-scrollbar-track {{ background: {t['scroll_track']}; }}
+        ::-webkit-scrollbar-thumb {{ background: {t['scroll_thumb']}; border-radius: 4px; }}
+        ::-webkit-scrollbar-thumb:hover {{ background: {t['accent']}; }}
+        
+        /* --- AETHER CARD --- */
+        .aether-card {{
+            background: {t['surface']};
+            border: 1px solid {t['border']};
+            border-radius: 32px;
+            padding: 3.5rem;
+            backdrop-filter: blur({t['glass_blur']});
+            -webkit-backdrop-filter: blur({t['glass_blur']});
+            box-shadow: {t['shadow']};
+            margin-bottom: 2rem;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }}
+        
+        /* Glass Shine Effect */
+        .aether-card::before {{
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent);
+            transform: skewX(-25deg);
+            transition: 0.5s;
+        }}
+        
+        .aether-card:hover::before {{ left: 150%; transition: 0.7s ease-in-out; }}
+        
+        .aether-card:hover {{
+            transform: translateY(-8px);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            border-color: {t['accent']};
+        }}
         """
 
     @classmethod
     def _inputs(cls, t: Dict[str, str]) -> str:
         return f"""
-        .stTextInput > div > div > input, .stNumberInput > div > div > input {{ background-color: {t['input_bg']} !important; color: {t['input_text']} !important; border: 1px solid {t['border']} !important; border-radius: 12px !important; padding: 16px !important; font-weight: 500 !important; font-family: 'JetBrains Mono', monospace !important; }}
-        .stTextInput > div > div > input:focus, .stNumberInput > div > div > input:focus {{ border-color: {t['accent']} !important; box-shadow: 0 0 0 3px {t['accent']}33 !important; }}
-        .stSelectbox > div > div > div {{ background-color: {t['input_bg']} !important; color: {t['input_text']} !important; border: 1px solid {t['border']} !important; border-radius: 12px !important; }}
-        div[data-baseweb="popover"], div[data-baseweb="menu"] {{ background-color: {t['surface_highlight']} !important; border: 1px solid {t['border']} !important; }}
-        div[role="option"] {{ color: {t['input_text']} !important; }}
-        div[role="option"]:hover {{ background-color: {t['accent']} !important; color: #ffffff !important; }}
+        /* --- SOLID STATE INPUTS --- */
+        .stTextInput > div > div > input,
+        .stNumberInput > div > div > input {{
+            background-color: {t['input_bg']} !important;
+            color: {t['input_text']} !important;
+            border: 1px solid {t['border']} !important;
+            border-radius: 16px !important;
+            padding: 18px 24px !important;
+            font-weight: 500 !important;
+            font-family: 'JetBrains Mono', monospace !important;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }}
+        
+        .stTextInput > div > div > input:focus,
+        .stNumberInput > div > div > input:focus {{
+            border-color: {t['accent']} !important;
+            box-shadow: 0 0 0 4px {t['accent']}33 !important;
+            transform: scale(1.01);
+        }}
+        
+        /* Select Boxes */
+        .stSelectbox > div > div > div {{
+            background-color: {t['input_bg']} !important;
+            color: {t['input_text']} !important;
+            border: 1px solid {t['border']} !important;
+            border-radius: 16px !important;
+            padding: 5px !important;
+        }}
+        
+        /* Dropdown Options */
+        div[data-baseweb="popover"], div[data-baseweb="menu"] {{
+            background-color: {t['surface_highlight']} !important;
+            border: 1px solid {t['border']} !important;
+            border-radius: 16px !important;
+            overflow: hidden !important;
+        }}
+        
+        div[role="option"] {{
+            color: {t['input_text']} !important;
+            padding: 12px 20px !important;
+            font-family: 'Space Grotesk', sans-serif !important;
+        }}
+        
+        div[role="option"]:hover {{
+            background-color: {t['accent']} !important;
+            color: #ffffff !important;
+        }}
         """
 
     @classmethod
     def _components(cls, t: Dict[str, str]) -> str:
         return f"""
-        .stButton > button {{ width: 100%; background: linear-gradient(135deg, {t['accent']} 0%, {t['accent_sec']} 100%) !important; color: #ffffff !important; border: none !important; border-radius: 16px !important; padding: 1rem 2rem !important; font-weight: 700 !important; letter-spacing: 1px !important; text-transform: uppercase !important; transition: all 0.2s ease !important; box-shadow: 0 4px 12px {t['accent']}44 !important; }}
-        .stButton > button:hover {{ transform: translateY(-2px) !important; box-shadow: 0 8px 20px {t['accent']}66 !important; }}
-        .zenith-nav {{ background: {t['surface']}; border: 1px solid {t['border']}; backdrop-filter: blur({t['glass_blur']}); padding: 15px 30px; border-radius: 100px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 4rem; position: sticky; top: 20px; z-index: 999; box-shadow: {t['shadow']}; }}
-        .zenith-progress-track {{ width: 100%; height: 8px; background: {t['border']}; border-radius: 10px; margin: 2rem 0; overflow: hidden; }}
-        .zenith-progress-fill {{ height: 100%; background: {t['accent']}; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 10px {t['accent']}; }}
-        .gauge-wrapper {{ position: relative; width: 220px; height: 110px; margin: 0 auto; overflow: hidden; }}
-        .gauge-bg {{ width: 220px; height: 220px; border-radius: 50%; background: {t['border']}; }}
-        .gauge-value {{ width: 220px; height: 220px; border-radius: 50%; background: conic-gradient({t['accent']} 0%, {t['accent_sec']} var(--p), transparent var(--p)); mask: radial-gradient(transparent 65%, black 66%); -webkit-mask: radial-gradient(transparent 65%, black 66%); transform: rotate(-90deg); position: absolute; top: 0; left: 0; }}
+        /* --- DIAMOND BUTTONS --- */
+        .stButton > button {{
+            width: 100%;
+            background: linear-gradient(135deg, {t['accent']} 0%, {t['accent_sec']} 100%) !important;
+            color: #ffffff !important;
+            border: none !important;
+            border-radius: 50px !important;
+            padding: 1.2rem 3rem !important;
+            font-family: 'Outfit', sans-serif !important;
+            font-weight: 800 !important;
+            letter-spacing: 2px !important;
+            text-transform: uppercase !important;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+            box-shadow: 0 10px 20px {t['accent']}44 !important;
+            position: relative;
+            overflow: hidden;
+        }}
+        
+        .stButton > button::after {{
+            content: '';
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 60%);
+            transform: scale(0);
+            transition: transform 0.5s;
+        }}
+        
+        .stButton > button:active::after {{ transform: scale(2); opacity: 0; }}
+        
+        .stButton > button:hover {{
+            transform: translateY(-4px) !important;
+            box-shadow: 0 20px 40px {t['accent']}66 !important;
+            filter: brightness(1.1);
+        }}
+        
+        /* --- NAVBAR --- */
+        .aether-nav {{
+            background: {t['surface']};
+            border: 1px solid {t['border']};
+            backdrop-filter: blur({t['glass_blur']});
+            padding: 20px 40px;
+            border-radius: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 5rem;
+            position: sticky;
+            top: 25px;
+            z-index: 999;
+            box-shadow: {t['shadow']};
+        }}
+        
+        /* --- PROGRESS BAR --- */
+        .aether-progress-track {{
+            width: 100%; height: 6px; background: {t['border']};
+            border-radius: 10px; margin: 2rem 0; overflow: hidden;
+        }}
+        .aether-progress-fill {{
+            height: 100%; background: {t['accent']};
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 20px {t['accent']};
+        }}
+        
+        /* --- GAUGE (CSS ONLY) --- */
+        .gauge-wrapper {{
+            position: relative; width: 220px; height: 110px; margin: 0 auto; overflow: hidden;
+        }}
+        .gauge-bg {{
+            width: 220px; height: 220px; border-radius: 50%; background: {t['border']};
+        }}
+        .gauge-value {{
+            width: 220px; height: 220px; border-radius: 50%;
+            background: conic-gradient({t['accent']} 0%, {t['accent_sec']} var(--p), transparent var(--p));
+            mask: radial-gradient(transparent 65%, black 66%);
+            -webkit-mask: radial-gradient(transparent 65%, black 66%);
+            transform: rotate(-90deg);
+            position: absolute; top: 0; left: 0;
+        }}
         """
 
     @classmethod
     def _animations(cls) -> str:
         return """
-        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
-        .anim-enter { animation: slideUp 0.6s ease-out forwards; }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+        
+        .anim-enter { animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .anim-float { animation: float 6s ease-in-out infinite; }
         .anim-pulse { animation: pulse 2s infinite; }
         """
@@ -267,30 +455,44 @@ class CrystalEngine:
         device = st.session_state.device_type
         tokens = cls._get_tokens(theme)
         
+        # Base CSS generation
         css_block = f"""
         <style>
+            /* --- 1. TYPOGRAPHY --- */
             {cls._typography(tokens)}
+            
+            /* --- 2. CONTAINERS & LAYOUT --- */
             {cls._containers(tokens)}
+            
+            /* --- 3. INPUTS --- */
             {cls._inputs(tokens)}
+            
+            /* --- 4. COMPONENTS --- */
             {cls._components(tokens)}
+            
+            /* --- 5. ANIMATIONS --- */
             {cls._animations()}
-            {cls._device_overrides(device) if device else ""}
+            
+            /* --- 6. UTILS --- */
             #MainMenu, footer, header {{ visibility: hidden; }}
             .stDeployButton {{ display: none; }}
+            
+            /* --- 7. DEVICE OVERRIDES (The Adaptive Layer) --- */
+            {cls._device_overrides(device) if device else ""}
         </style>
         """
         st.markdown(css_block, unsafe_allow_html=True)
 
 # ==============================================================================
-# MODULE 4: PROCEDURAL GRAPHICS
+# MODULE 4: PROCEDURAL GRAPHICS (ASSET GENERATOR)
 # ==============================================================================
 
 class AssetFactory:
     
     @staticmethod
     def get_logo_svg(theme):
-        c1 = "#22d3ee" if theme == "Dark" else "#0ea5e9"
-        c2 = "#818cf8" if theme == "Dark" else "#6366f1"
+        c1 = "#00f0ff" if theme == "Dark" else "#0ea5e9"
+        c2 = "#7000ff" if theme == "Dark" else "#6366f1"
         return base64.b64encode(f"""
         <svg width="300" height="60" xmlns="http://www.w3.org/2000/svg">
             <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="{c1}"/><stop offset="1" stop-color="{c2}"/></linearGradient></defs>
@@ -342,7 +544,7 @@ class IntelligenceCore:
 class Components:
     @staticmethod
     def navbar():
-        st.markdown('<div class="zenith-nav">', unsafe_allow_html=True)
+        st.markdown('<div class="aether-nav">', unsafe_allow_html=True)
         c1, c2, c3 = st.columns([3, 6, 2], gap="small")
         with c1:
             logo = AssetFactory.get_logo_svg(SessionManager.get("theme"))
@@ -360,14 +562,14 @@ class Components:
     @staticmethod
     def loader(text="PROCESSING"):
         html = f"""
-        <style>.load-over{{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:9999;display:flex;flex-direction:column;justify-content:center;align-items:center;backdrop-filter:blur(20px);}}</style>
+        <style>.load-over{{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:9999;display:flex;flex-direction:column;justify-content:center;align-items:center;backdrop-filter:blur(30px);}}</style>
         <div class="load-over">
-            <h2 style="color:#22d3ee; margin-top:20px; font-family:'JetBrains Mono'; letter-spacing:3px;">{text}...</h2>
+            <h2 style="color:#00f0ff; margin-top:20px; font-family:'JetBrains Mono'; letter-spacing:3px;">{text}...</h2>
         </div>
         """
         placeholder = st.empty()
         placeholder.markdown(html, unsafe_allow_html=True)
-        time.sleep(2)
+        time.sleep(1.5)
         placeholder.empty()
 
 # ==============================================================================
@@ -376,34 +578,35 @@ class Components:
 
 def view_device_selection():
     """Initial landing page for device optimization."""
-    # Force full screen aesthetics via basic inject
+    # Special CSS just for this screen to make it pop
     st.markdown("""
     <style>
-    .stApp { background-color: #020617; color: white; font-family: 'Plus Jakarta Sans', sans-serif; }
+    .stApp { background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #000000 100%); }
     .device-card {
-        background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(99, 102, 241, 0.3);
-        border-radius: 20px; padding: 2rem; text-align: center; cursor: pointer;
-        transition: transform 0.2s, background 0.2s;
+        background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 32px; padding: 4rem 2rem; text-align: center; cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    .device-card:hover { transform: scale(1.05); background: rgba(99, 102, 241, 0.2); }
-    h1 { text-align: center; margin-bottom: 3rem; font-size: 3rem; }
+    .device-card:hover { transform: translateY(-10px) scale(1.02); background: rgba(0, 240, 255, 0.1); border-color: #00f0ff; box-shadow: 0 0 30px rgba(0, 240, 255, 0.2); }
+    .device-icon { font-size: 5rem; margin-bottom: 20px; }
+    h1 { font-family: 'Outfit', sans-serif; text-align: center; margin-bottom: 4rem; font-size: 4rem; color: white; }
     </style>
     """, unsafe_allow_html=True)
     
     st.markdown("<h1>SELECT INTERFACE</h1>", unsafe_allow_html=True)
     
-    c1, c2, c3 = st.columns(3, gap="medium")
+    c1, c2, c3 = st.columns(3, gap="large")
     
     with c1:
-        st.markdown('<div class="device-card"><h1>📱</h1><h3>PHONE</h3><p>Optimized for Touch</p></div>', unsafe_allow_html=True)
+        st.markdown('<div class="device-card"><div class="device-icon">📱</div><h3>PHONE</h3><p style="color:#aaa">Touch Optimized</p></div>', unsafe_allow_html=True)
         if st.button("SELECT PHONE", use_container_width=True): SessionManager.set_device("Phone")
     
     with c2:
-        st.markdown('<div class="device-card"><h1>💻</h1><h3>LAPTOP</h3><p>Full Fidelity</p></div>', unsafe_allow_html=True)
+        st.markdown('<div class="device-card"><div class="device-icon">💻</div><h3>LAPTOP</h3><p style="color:#aaa">High Fidelity</p></div>', unsafe_allow_html=True)
         if st.button("SELECT LAPTOP", use_container_width=True): SessionManager.set_device("Laptop")
         
     with c3:
-        st.markdown('<div class="device-card"><h1>📟</h1><h3>TABLET</h3><p>Balanced Layout</p></div>', unsafe_allow_html=True)
+        st.markdown('<div class="device-card"><div class="device-icon">📟</div><h3>TABLET</h3><p style="color:#aaa">Balanced Layout</p></div>', unsafe_allow_html=True)
         if st.button("SELECT TABLET", use_container_width=True): SessionManager.set_device("Tablet")
 
 def view_home():
@@ -411,18 +614,19 @@ def view_home():
     
     theme = SessionManager.get("theme")
     color = "#f8fafc" if theme == "Dark" else "#0f172a"
+    accent = "#00f0ff" if theme == "Dark" else "#0ea5e9"
     
     st.markdown(f"""
     <div class="anim-enter" style="text-align:center; padding: 4rem 0;">
-        <h1 style="font-size:5.5rem; line-height:1; color:{color};">MINDCHECK <span style="color:#22d3ee">AI</span></h1>
-        <p style="font-size:1.5rem; letter-spacing:3px; opacity:0.8;">THE CRYSTAL STANDARD IN WELLNESS</p>
+        <h1 style="font-size:6rem; line-height:1; color:{color};">MINDCHECK <span style="color:{accent}">AI</span></h1>
+        <p style="font-size:1.5rem; letter-spacing:3px; opacity:0.8;">THE DIAMOND STANDARD IN WELLNESS</p>
     </div>
     """, unsafe_allow_html=True)
     
     c1, c2 = st.columns(2, gap="large")
     
     with c1:
-        st.markdown('<div class="zenith-card anim-float" style="text-align:center; height:100%;">', unsafe_allow_html=True)
+        st.markdown('<div class="aether-card anim-float" style="text-align:center; height:100%;">', unsafe_allow_html=True)
         st.markdown("## 👨‍💻 CREATOR")
         st.markdown("<p>Meet the architect: Mubashir Mohsin.</p>", unsafe_allow_html=True)
         st.markdown("<div style='height:20px'></div>", unsafe_allow_html=True)
@@ -430,8 +634,8 @@ def view_home():
         st.markdown('</div>', unsafe_allow_html=True)
         
     with c2:
-        st.markdown('<div class="zenith-card anim-float" style="text-align:center; height:100%; border-color:#22d3ee;">', unsafe_allow_html=True)
-        st.markdown("<h2 style='color:#22d3ee'>🔮 DIAGNOSE</h2>", unsafe_allow_html=True)
+        st.markdown(f'<div class="aether-card anim-float" style="text-align:center; height:100%; border-color:{accent};">', unsafe_allow_html=True)
+        st.markdown(f"<h2 style='color:{accent}'>🔮 DIAGNOSE</h2>", unsafe_allow_html=True)
         st.markdown("<p>Initialize the assessment wizard.</p>", unsafe_allow_html=True)
         st.markdown("<div style='height:20px'></div>", unsafe_allow_html=True)
         if st.button("START WIZARD", type="primary", use_container_width=True): SessionManager.navigate("interview")
@@ -444,13 +648,13 @@ def view_about():
     c1, c2, c3 = st.columns([1, 4, 1])
     with c2:
         st.markdown("""
-        <div class="zenith-card" style="text-align:center; padding:4rem;">
+        <div class="aether-card" style="text-align:center; padding:4rem;">
             <div style="font-size:5rem; margin-bottom:2rem;">🚀</div>
             <h2 style="margin-bottom:2rem;">ORIGIN STORY</h2>
             <p style="font-size:1.2rem; line-height:2;">
                 "My name is <b>Mubashir Mohsin</b>, and I’m a 6th grader. I was inspired to create this web app after noticing a decline in my own grades. That spark led to a successful journey of building the Mental Health Calculator, which is powered by my very own <b>MindCheck AI</b>. I also want to give a quick shout-out to <b>Gemini AI</b> for helping me bring this project to life!"
             </p>
-            <div style="width:100px; height:2px; background:#22d3ee; margin: 2rem auto;"></div>
+            <div style="width:100px; height:2px; background:currentColor; margin: 2rem auto; opacity:0.3;"></div>
             <p style="font-family:'JetBrains Mono'; opacity:0.5;">ID: MM-2026</p>
         </div>
         """, unsafe_allow_html=True)
@@ -464,7 +668,7 @@ def view_interview():
     pct = ((step + 1) / len(steps)) * 100
     st.markdown(f"""
     <div style="margin-bottom:2rem;">
-        <div class="zenith-progress-track"><div class="zenith-progress-fill" style="width:{pct}%;"></div></div>
+        <div class="aether-progress-track"><div class="aether-progress-fill" style="width:{pct}%;"></div></div>
         <div style="display:flex; justify-content:space-between; font-family:'JetBrains Mono'; opacity:0.7;">
             <span>SEQUENCE {step + 1}/{len(steps)}</span>
             <span>{steps[step]}</span>
@@ -474,7 +678,7 @@ def view_interview():
     
     # Wizard Container
     with st.container():
-        st.markdown('<div class="zenith-card anim-enter">', unsafe_allow_html=True)
+        st.markdown('<div class="aether-card anim-enter">', unsafe_allow_html=True)
         
         inputs = SessionManager.get("inputs")
         
@@ -568,7 +772,7 @@ def view_results():
     
     # HEADER
     st.markdown(f"""
-    <div class="zenith-card" style="border-left: 5px solid {color}; display:flex; justify-content:space-between; align-items:center;">
+    <div class="aether-card" style="border-left: 5px solid {color}; display:flex; justify-content:space-between; align-items:center;">
         <div>
             <span style="font-family:'JetBrains Mono'; opacity:0.6;">ID: {random.randint(1000,9999)}</span>
             <h3 style="margin:0; color:{color}">DIAGNOSTIC REPORT</h3>
@@ -583,7 +787,7 @@ def view_results():
     # GAUGE & SCORE
     percentage = (score / 10) * 100
     st.markdown(f"""
-    <div class="zenith-card" style="text-align:center; padding:4rem;">
+    <div class="aether-card" style="text-align:center; padding:4rem;">
         <div class="gauge-wrapper">
             <div class="gauge-bg"></div>
             <div class="gauge-value" style="--p: {percentage}%;"></div>
@@ -601,7 +805,7 @@ def view_results():
     c1, c2 = st.columns(2)
     
     with c1:
-        st.markdown('<div class="zenith-card" style="text-align:center; height:100%"><h3>📊 PROFILE</h3><p>Generate Persona</p></div>', unsafe_allow_html=True)
+        st.markdown('<div class="aether-card" style="text-align:center; height:100%"><h3>📊 PROFILE</h3><p>Generate Persona</p></div>', unsafe_allow_html=True)
         if st.button("GENERATE", use_container_width=True):
             Components.loader("ANALYZING")
             prompt = f"Data: {json.dumps(data)}. Return JSON: 'persona', 'analysis', 'tips'."
@@ -612,7 +816,7 @@ def view_results():
                 st.rerun()
                 
     with c2:
-        st.markdown('<div class="zenith-card" style="text-align:center; height:100%"><h3>⏳ FUTURE</h3><p>Time Travel 2029</p></div>', unsafe_allow_html=True)
+        st.markdown('<div class="aether-card" style="text-align:center; height:100%"><h3>⏳ FUTURE</h3><p>Time Travel 2029</p></div>', unsafe_allow_html=True)
         if st.button("CONNECT", use_container_width=True):
             Components.loader("CONNECTING")
             prompt = f"Message from 2029 self based on: {json.dumps(data)}. Max 50 words."
@@ -625,18 +829,22 @@ def view_results():
     # RESULTS DISPLAY
     if 'analysis' in ai_results:
         r = ai_results['analysis']
+        # Theme dependent border color logic
+        c_acc = "#00f0ff" if SessionManager.get("theme") == "Dark" else "#0ea5e9"
+        
         st.markdown(f"""
-        <div class="zenith-card" style="border-left:5px solid #22d3ee; margin-top:2rem;">
-            <h3 style="color:#22d3ee">{r.get('persona')}</h3>
+        <div class="aether-card" style="border-left:5px solid {c_acc}; margin-top:2rem;">
+            <h3 style="color:{c_acc}">{r.get('persona')}</h3>
             <p>"{r.get('analysis')}"</p>
             <ul>{''.join([f'<li>{t}</li>' for t in r.get('tips', [])])}</ul>
         </div>
         """, unsafe_allow_html=True)
         
     if 'future' in ai_results:
+        c_sec = "#7000ff" if SessionManager.get("theme") == "Dark" else "#6366f1"
         st.markdown(f"""
-        <div class="zenith-card" style="border-left:5px solid #818cf8; margin-top:2rem;">
-            <h3 style="color:#818cf8">TRANSMISSION RECEIVED</h3>
+        <div class="aether-card" style="border-left:5px solid {c_sec}; margin-top:2rem;">
+            <h3 style="color:{c_sec}">TRANSMISSION RECEIVED</h3>
             <p style="font-family:'JetBrains Mono'">{ai_results['future']}</p>
         </div>
         """, unsafe_allow_html=True)
@@ -658,7 +866,7 @@ def main():
     if device is None:
         view_device_selection()
     else:
-        CrystalEngine.inject()
+        DiamondEngine.inject()
         Components.navbar()
         
         page = SessionManager.get("page")
@@ -670,7 +878,7 @@ def main():
         
         st.markdown("""
         <div class="aurora-footer" style="text-align:center; opacity:0.5; margin-top:50px;">
-            PROJECT ZENITH // MINDCHECK AI v14.0 // 2026
+            PROJECT AETHERIUS // MINDCHECK AI v15.0 // 2026
         </div>
         """, unsafe_allow_html=True)
 
