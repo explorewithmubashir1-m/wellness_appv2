@@ -391,10 +391,17 @@ render_navbar()
 # PAGE: HOME
 # ------------------------------------------------------------------------------
 if st.session_state.page == "home":
-    # Hero Section
+    # Hero Section Title Styling
+    # Fix: Ensure title is solid white in Dark Mode to prevent "blocking"/low visibility
+    title_style = f"font-size: 5rem; line-height: 1.1; margin-bottom: 1rem; color: {current['text_primary']};"
+    
+    # Only apply gradient text effect in Light Mode where contrast is sufficient
+    if st.session_state.theme_mode == "Light":
+        title_style += f" background: {current['btn_gradient']}; -webkit-background-clip: text; -webkit-text-fill-color: transparent;"
+
     st.markdown(f"""
     <div class="animate-enter" style="text-align: center; padding: 3rem 0;">
-        <h1 style="font-size: 5rem; line-height: 1.1; margin-bottom: 1rem; background: {current['btn_gradient']}; -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        <h1 style="{title_style}">
             MindCheck AI
         </h1>
         <p style="font-size: 1.3rem; color: {current['text_secondary']}; max-width: 700px; margin: 0 auto 4rem auto; line-height: 1.6;">
@@ -668,6 +675,6 @@ elif st.session_state.page == "results":
 # ------------------------------------------------------------------------------
 st.markdown(f"""
 <div style="text-align: center; margin-top: 5rem; padding-top: 2rem; border-top: 1px solid {current['card_border']}; opacity: 0.6; font-size: 0.85rem;">
-    <p>MindCheck AI v2.0 &nbsp;•&nbsp; Empowered by MindCheck AI &nbsp;•&nbsp; 2026</p>
+    <p>MindCheck AI v2.0 &nbsp;•&nbsp; Empowered by Gemini Models &nbsp;•&nbsp; 2026</p>
 </div>
 """, unsafe_allow_html=True)
