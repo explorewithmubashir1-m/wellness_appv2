@@ -755,6 +755,6 @@ else:
 # ------------------------------------------------------------------------------
 st.markdown(f"""
 <div style="text-align: center; margin-top: 5rem; padding-top: 2rem; border-top: 1px solid {current['card_border']}; opacity: 0.6; font-size: 0.85rem;">
-    <p>MindCheck AI v2.0 &nbsp;•&nbsp; Empowered by Gemini Models &nbsp;•&nbsp; 2026</p>
+    <p>MindCheck AI v2.0 &nbsp;•&nbsp; Empowered by MindCheck and Gemini Models &nbsp;•&nbsp; 2026</p>
 </div>
 """, unsafe_allow_html=True)
